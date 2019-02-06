@@ -8,9 +8,32 @@
 			margin: 0;
 			overflow: hidden;
 		}
+		canvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 2;
+		}
+		.loading {
+			position: fixed;
+			top: 0;
+			left: 0;
+			display: flex;
+			width: 100%;
+			height: 100%;
+			align-items: center;
+			justify-content: center;
+			color: black;
+			font-size: 16px;
+			letter-spacing: 1px;
+			z-index: 1;
+		}
 	</style>
 </head>
 <body>
+
+	<div class="loading">LOADING</div>
+
 	<video id="vid0" muted autoplay loop crossOrigin="anonymous" webkit-playsinline style="position:absolute;height:0">
 		<source src="assets/january/0.mp4" type="video/mp4">
 	</video>
