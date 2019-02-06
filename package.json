@@ -1,0 +1,30 @@
+{
+  "name": "2018-in-review",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dat.gui": "^0.7.5",
+    "gsap": "^2.0.2",
+    "normalize-css": "^2.3.1",
+    "orbit-controls-es6": "^1.0.10"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.4.0",
+    "browser-sync": "^2.18.8",
+    "browser-sync-webpack-plugin": "^1.1.4",
+    "glslify-loader": "^1.0.2",
+    "raw-loader": "^0.5.1",
+    "webpack": "^2.5.1",
+    "webpack-dev-server": "^2.4.5"
+  }
+}
