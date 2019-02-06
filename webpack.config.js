@@ -5,7 +5,7 @@ const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
 module.exports = {
     entry: './src/main.js',
     output: {
-        path: path.resolve(__dirname, 'dist/js'),
+        path: path.resolve(__dirname, 'public/js'),
         publicPath: '/js/',
         filename: 'main.bundle.js'
     },
@@ -62,7 +62,7 @@ module.exports = {
     ],
     devServer: {
         hot: true, // Tell the dev-server we're using HMR
-        contentBase: path.resolve(__dirname, 'dist'),
+        contentBase: path.resolve(__dirname, 'public'),
         publicPath: '/js/'
     },
     watch: true,

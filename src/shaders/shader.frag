@@ -4,7 +4,7 @@ uniform float time;
 uniform vec3 fogColor;
 uniform float fogNear;
 uniform float fogFar;
-uniform sampler2D video;
+uniform sampler2D texture;
 uniform float opacity;
 uniform vec3 gradientColor;
 uniform float progress;
@@ -12,9 +12,9 @@ uniform float progress;
 void main() {
 
 	vec2 uv = vUv;
-	// vec4 color = texture2D( video, vUv );
+	// vec4 color = texture2D( texture, vUv );
 
-	vec4 origColor = texture2D(video, vUv);
+	vec4 origColor = texture2D(texture, vUv);
     float grayscaleValue = dot(origColor.rgb, vec3(0.299, 0.587, 0.114));
 
 	gl_FragColor = mix( mix(vec4( gradientColor, 1.0), vec4(1.0, 1.0, 1.0, 1.0), grayscaleValue), origColor, progress ) * opacity;
