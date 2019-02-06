@@ -170,7 +170,7 @@ export default class Timeline {
         this.timeline = new THREE.Group()
         this.scene.add( this.timeline )
             
-        this.textMat = new THREE.MeshPhongMaterial( { color: 0x1b42d8, emissive: 0x1b42d8 } )
+        this.textMat = new THREE.MeshPhongMaterial( { color: 0x1b42d8, emissive: 0x1b42d8, transparent: true } )
 
         this.sections = {}
         this.items = {}
@@ -243,7 +243,7 @@ export default class Timeline {
 
             let bbox = new THREE.Box3().setFromObject( this.sections[ key ] );
 
-            text.position.set( -5, 0 , bbox.min.z )
+            text.position.set( -5, 0 , bbox.min.z * 0.5 )
             this.sections[key].add( text )
 
             this.sections[key].position.z = nextMonthPos
@@ -282,6 +282,11 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
+            TweenMax.to( this.textMat, 1.5, {
+                opacity: 1,
+                ease: 'Expo.easeInOut'
+            })
+
             for( let x in this.items ) {
 
                 if( this.items[x].active ) continue
@@ -309,12 +314,20 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
+            console.log(item.mesh.position.z);
+            
+
             TweenMax.to( this.timeline.position, 1.5, {
                 z: -item.mesh.position.z + 200,
                 ease: 'Expo.easeInOut'
             })
 
-            for( let x in this.items ) {
+            TweenMax.to( this.textMat, 1.5, {
+                opacity: 0,
+                ease: 'Expo.easeInOut'
+            })
+
+            for( let x in this.items ) { // TODO: see if can select just in camera range
 
                 if( this.items[x].active ) continue
 
@@ -352,16 +365,17 @@ export default class Timeline {
 
         e.preventDefault();
 
-        this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1;
-        this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1;
+        this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
+        this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
 
-        this.raycaster.setFromCamera( this.mouse, this.camera );
+        this.raycaster.setFromCamera( this.mouse, this.camera, this.camera.near, this.camera.far )
 
-        let intersects = this.raycaster.intersectObjects( this.timeline.children ); 
+        let intersects = this.raycaster.intersectObjects( this.timeline.children, true )
 
         if ( intersects.length > 0 ) {
 
-            intersects[0].object.onClick();
+            if( intersects[0].object.onClick )
+            intersects[0].object.onClick()
 
         }
 
@@ -413,7 +427,7 @@ export default class Timeline {
 
         }
 
-        if( this.timeline.position.z > 1300 && !this.colourChanged ) {
+        if( this.timeline.position.z > -this.sections.feb.position.z && !this.colourChanged ) {
 
             this.colourChanged = true
 
