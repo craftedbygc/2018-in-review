@@ -3,6 +3,7 @@ import { TweenMax } from 'gsap'
 
 import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
+import months from './months'
 
 export default class Timeline {
 
@@ -15,7 +16,7 @@ export default class Timeline {
             this.loadAssets()
         } else {
             this.assets = window.assets
-            this.createGrid()
+            this.createTimeline()
         }
         
 
@@ -34,7 +35,9 @@ export default class Timeline {
             scrolling: false
         }
 
-        this.colourChanged = false;
+        this.months = months
+
+        this.colourChanged = false
 
     }
 
@@ -76,19 +79,19 @@ export default class Timeline {
         imageLoader.crossOrigin = ''
 
         let images = {
-            january: [
-                'nala.jpg',
-                'nala2.jpg',
-                'skincare.jpg'
-            ],
-            february: [
-                'iat.jpg',
-                'jekka.jpg'
-            ],
-            march: [
-                'nath.jpg',
-                'sign.jpg'
-            ]
+            // january: [
+            //     'nala.jpg',
+            //     'nala2.jpg',
+            //     'skincare.jpg'
+            // ],
+            // february: [
+            //     'iat.jpg',
+            //     'jekka.jpg'
+            // ],
+            // march: [
+            //     'nath.jpg',
+            //     'sign.jpg'
+            // ]
         }
 
         for( let month in images ) {
@@ -133,7 +136,7 @@ export default class Timeline {
 
             })
 
-            this.createGrid()
+            this.createTimeline()
 
         })
 
@@ -162,87 +165,93 @@ export default class Timeline {
 
     }
 
-    createGrid() {
+    createTimeline() {
 
-        this.grid = new THREE.Group()
-        this.scene.add( this.grid )
+        this.timeline = new THREE.Group()
+        this.scene.add( this.timeline )
             
-        this.textGeom = new THREE.TextGeometry( 'JANUARY', {
-            font: this.assets.fonts['Schnyder L'],
-            size: 200,
-            height: 0,
-            curveSegments: 20
-        } )
-
-        this.textGeom.center()
-
         this.textMat = new THREE.MeshPhongMaterial( { color: 0x1b42d8, emissive: 0x1b42d8 } )
 
-        this.text = new THREE.Mesh( this.textGeom, this.textMat )
-        this.text.position.set( -5, 0 , -550 )
+        this.sections = {}
+        this.items = {}
 
-        this.grid.add( this.text )
+        let monthIndex = 0, itemIndexTotal = 0, nextMonthPos = 0
 
-        this.textGeom2 = new THREE.TextGeometry( 'FEBRUARY', {
-            font: this.assets.fonts['Schnyder L'],
-            size: 200,
-            height: 0,
-            curveSegments: 20
-        } )
+        for( let key in this.months ) {
 
-        this.textGeom2.center()
+            this.sections[ key ] = new THREE.Group()
 
-        this.text2 = new THREE.Mesh( this.textGeom2, this.textMat )
-        this.text2.position.set( 140, 0 , -2850 )
+            let textGeom = new THREE.TextGeometry( this.months[key].name, {
+                font: this.assets.fonts['Schnyder L'],
+                size: 200,
+                height: 0,
+                curveSegments: 20
+            } )
+    
+            textGeom.center()
 
-        this.grid.add( this.text2 )
+            let text = new THREE.Mesh( textGeom, this.textMat )
 
-        this.items = []
+            let itemIndex = 0
 
-        let i = 0;
+            // add items
+            for( let id in this.assets.textures ) {
 
-        for( let id in this.assets.textures ) {
+                this.items[id + monthIndex] = {}
 
-            this.items[id] = {}
+                this.items[id + monthIndex].uniforms = {
+                    time: { type: 'f', value: 1.0 },
+                    fogColor: { type: "c", value: this.scene.fog.color },
+                    fogNear: { type: "f", value: this.scene.fog.near },
+                    fogFar: { type: "f", value: this.scene.fog.far },
+                    texture: { type: 't', value: this.assets.textures[ id ] },
+                    opacity: { type: 'f', value: 1.0 },
+                    progress: { type: 'f', value: 0.0 },
+                    gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
+                }
 
-            this.items[id].uniforms = {
-                time: { type: 'f', value: 1.0 },
-                fogColor: { type: "c", value: this.scene.fog.color },
-                fogNear: { type: "f", value: this.scene.fog.near },
-                fogFar: { type: "f", value: this.scene.fog.far },
-                texture: { type: 't', value: this.assets.textures[ id ] },
-                opacity: { type: 'f', value: 1.0 },
-                progress: { type: 'f', value: 0.0 },
-                gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
+                this.items[id + monthIndex].geometry = new THREE.PlaneGeometry( 1, 1 )
+                this.items[id + monthIndex].material = new THREE.ShaderMaterial({
+                    uniforms: this.items[id + monthIndex].uniforms,
+                    fragmentShader: frag,
+                    vertexShader: vert,
+                    fog: true,
+                    transparent: true
+                })
+
+                this.items[id + monthIndex].mesh = new THREE.Mesh( this.items[id + monthIndex].geometry, this.items[id + monthIndex].material )
+                this.items[id + monthIndex].mesh.scale.set( this.assets.textures[ id ].size.x, this.assets.textures[ id ].size.y, 1 )
+
+                let align = itemIndexTotal % 4, pos = new THREE.Vector2()
+
+                if( align === 0 ) pos.set( -350, 350 ) // bottom left
+                if( align === 1 ) pos.set( 350, 350 ) // bottom right
+                if( align === 2 ) pos.set( 350, -350 ) // top right
+                if( align === 3 ) pos.set( -350, -350 ) // top left
+
+                this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, itemIndex * -300 )
+                this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
+
+                this.items[id + monthIndex].mesh.onClick = this.onItemClick.bind( this, this.items[id + monthIndex] )
+
+                this.sections[key].add( this.items[id + monthIndex].mesh )
+
+                itemIndex++
+                itemIndexTotal++
+
             }
 
-            this.items[id].geometry = new THREE.PlaneGeometry( 1, 1 )
-            this.items[id].material = new THREE.ShaderMaterial({
-                uniforms: this.items[id].uniforms,
-                fragmentShader: frag,
-                vertexShader: vert,
-                fog: true,
-                transparent: true
-            })
+            let bbox = new THREE.Box3().setFromObject( this.sections[ key ] );
 
-            this.items[id].mesh = new THREE.Mesh( this.items[id].geometry, this.items[id].material )
-            this.items[id].mesh.scale.set( this.assets.textures[ id ].size.x, this.assets.textures[ id ].size.y, 1 )
+            text.position.set( -5, 0 , bbox.min.z )
+            this.sections[key].add( text )
 
-            let align = i % 4, pos = new THREE.Vector2()
+            this.sections[key].position.z = nextMonthPos
+            nextMonthPos += bbox.min.z - 450 // TODO: get from camera?
 
-            if( align === 0 ) pos.set( -350, 350 ) // bottom left
-            if( align === 1 ) pos.set( 350, 350 ) // bottom right
-            if( align === 2 ) pos.set( 350, -350 ) // top right
-            if( align === 3 ) pos.set( -350, -350 ) // top left
+            monthIndex++
 
-            this.items[id].mesh.position.set( pos.x, pos.y, i * -300 )
-            this.items[id].origPos = new THREE.Vector2( pos.x, pos.y )
-
-            this.items[id].mesh.onClick = this.onItemClick.bind( this, this.items[id] )
-
-            this.grid.add( this.items[id].mesh )
-
-            i++
+            this.timeline.add( this.sections[key] )
 
         }
 
@@ -263,8 +272,8 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
-            TweenMax.to( this.grid.position, 1.5, {
-                z: this.origGridPos,
+            TweenMax.to( this.timeline.position, 1.5, {
+                z: this.origTimelinePos,
                 ease: 'Expo.easeInOut'
             })
 
@@ -287,7 +296,7 @@ export default class Timeline {
         } else {
 
             item.active = true
-            this.origGridPos = this.grid.position.z
+            this.origTimelinePos = this.timeline.position.z
 
             TweenMax.to( item.mesh.position, 1.5, {
                 x: 0,
@@ -300,7 +309,7 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
-            TweenMax.to( this.grid.position, 1.5, {
+            TweenMax.to( this.timeline.position, 1.5, {
                 z: -item.mesh.position.z + 200,
                 ease: 'Expo.easeInOut'
             })
@@ -348,7 +357,7 @@ export default class Timeline {
 
         this.raycaster.setFromCamera( this.mouse, this.camera );
 
-        let intersects = this.raycaster.intersectObjects( this.grid.children ); 
+        let intersects = this.raycaster.intersectObjects( this.timeline.children ); 
 
         if ( intersects.length > 0 ) {
 
@@ -393,8 +402,8 @@ export default class Timeline {
         // smooth scrolling
         if( this.c.scrolling ) {
 
-            let delta = ( this.c.scrollPos - this.grid.position.z ) / 12
-            this.grid.position.z += delta
+            let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
+            this.timeline.position.z += delta
 
             if( Math.abs( delta ) > 0.1 ) {
                 this.c.scrolling = true
@@ -404,7 +413,7 @@ export default class Timeline {
 
         }
 
-        if( this.grid.position.z > 1300 && !this.colourChanged ) {
+        if( this.timeline.position.z > 1300 && !this.colourChanged ) {
 
             this.colourChanged = true
 
