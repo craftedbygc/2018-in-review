@@ -35,7 +35,10 @@ export default class Timeline {
             scrolling: false
         }
 
+        this.activeMonth = 'jan'
         this.months = months
+        this.monthPositions = {}
+        this.remainingMonths = []
 
         this.colourChanged = false
 
@@ -243,11 +246,12 @@ export default class Timeline {
 
             let bbox = new THREE.Box3().setFromObject( this.sections[ key ] );
 
-            text.position.set( -5, 0 , bbox.min.z * 0.5 )
+            text.position.set( 0, 0 , 0 )
             this.sections[key].add( text )
 
             this.sections[key].position.z = nextMonthPos
-            nextMonthPos += bbox.min.z - 450 // TODO: get from camera?
+            this.monthPositions[key] = nextMonthPos + 1100;
+            nextMonthPos += bbox.min.z - 800 // TODO: get from camera?
 
             monthIndex++
 
@@ -314,9 +318,6 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
-            console.log(item.mesh.position.z);
-            
-
             TweenMax.to( this.timeline.position, 1.5, {
                 z: -item.mesh.position.z + 200,
                 ease: 'Expo.easeInOut'
@@ -347,7 +348,7 @@ export default class Timeline {
         let delta = normalizeWheelDelta(e)
 
         this.c.scrollPos += -delta * 30
-        this.c.scrolling = true;
+        this.c.scrolling = true;        
         
         function normalizeWheelDelta(e){
             if(e.detail){
@@ -401,6 +402,56 @@ export default class Timeline {
 
     }
 
+    changeColours() {
+
+        this.remainingMonths = Object.keys( this.monthPositions ).filter( key => {
+            return this.timeline.position.z > -this.monthPositions[key] // TODO: look into detecting if exists in camera
+        } )
+
+        if( this.remainingMonths[ this.remainingMonths.length - 1 ] && this.activeMonth !== this.remainingMonths[ this.remainingMonths.length - 1 ] ) {
+
+            this.activeMonth = this.remainingMonths[ this.remainingMonths.length - 1 ]
+
+            let bgColor = new THREE.Color( this.months[ this.activeMonth ].bgColor )
+            let textColor = new THREE.Color( this.months[ this.activeMonth ].textColor )
+            let tintColor = new THREE.Color( this.months[ this.activeMonth ].tintColor )
+
+            TweenMax.to( this.scene.fog.color, 1, {
+                r: bgColor.r,
+                g: bgColor.g,
+                b: bgColor.b,
+                ease: 'Power4.easeOut'
+            })
+
+            TweenMax.to( this.scene.background, 1, {
+                r: bgColor.r,
+                g: bgColor.g,
+                b: bgColor.b,
+                ease: 'Power4.easeOut'
+            })
+
+            TweenMax.to( [ this.textMat.color, this.textMat.emissive ], 1, {
+                r: textColor.r,
+                g: textColor.g,
+                b: textColor.b,
+                ease: 'Power4.easeOut'
+            })
+
+            for( let id in this.items ) {
+
+                TweenMax.to( this.items[id].uniforms.gradientColor.value, 1, {
+                    r: tintColor.r,
+                    g: tintColor.g,
+                    b: tintColor.b,
+                    ease: 'Power4.easeOut'
+                })
+
+            }
+
+        }
+
+    }
+
     animate() {
 
         this.animationId = requestAnimationFrame( this.animate.bind(this) )
@@ -419,51 +470,12 @@ export default class Timeline {
             let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
             this.timeline.position.z += delta
 
+            this.changeColours()
+
             if( Math.abs( delta ) > 0.1 ) {
                 this.c.scrolling = true
             } else {
                 this.c.scrolling = false
-            }
-
-        }
-
-        if( this.timeline.position.z > -this.sections.feb.position.z && !this.colourChanged ) {
-
-            this.colourChanged = true
-
-            let targetColor = new THREE.Color( 0x012534 )
-            let targetColor2 = new THREE.Color( 0xFD6F53 )
-
-            TweenMax.to( this.scene.fog.color, 3, {
-                r: targetColor.r,
-                g: targetColor.g,
-                b: targetColor.b,
-                ease: 'Expo.easeInOut'
-            })
-
-            TweenMax.to( this.scene.background, 3, {
-                r: targetColor.r,
-                g: targetColor.g,
-                b: targetColor.b,
-                ease: 'Expo.easeInOut'
-            })
-
-            TweenMax.to( [ this.textMat.color, this.textMat.emissive ], 3, {
-                r: targetColor2.r,
-                g: targetColor2.g,
-                b: targetColor2.b,
-                ease: 'Expo.easeInOut'
-            })
-
-            for( let id in this.items ) {
-
-                TweenMax.to( this.items[id].uniforms.gradientColor.value, 3, {
-                    r: targetColor.r,
-                    g: targetColor.g,
-                    b: targetColor.b,
-                    ease: 'Expo.easeInOut'
-                })
-
             }
 
         }
