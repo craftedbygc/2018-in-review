@@ -133,8 +133,6 @@ export default class Timeline {
         Promise.all( assetLoadPromises ).then( assets => {
 
             // all assets loaded - initialise
-            console.log(this.assets)
-
             this.createTimeline()
 
         })
