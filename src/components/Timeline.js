@@ -32,15 +32,14 @@ export default class Timeline {
                 h: window.innerHeight
             },
             scrollPos: 0,
-            scrolling: false
+            scrolling: false,
+            allowScrolling: true
         }
 
         this.activeMonth = 'jan'
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-
-        this.colourChanged = false
 
     }
 
@@ -82,15 +81,15 @@ export default class Timeline {
         imageLoader.crossOrigin = ''
 
         let images = {
-            // january: [
-            //     'nala.jpg',
-            //     'nala2.jpg',
-            //     'skincare.jpg'
-            // ],
-            // february: [
-            //     'iat.jpg',
-            //     'jekka.jpg'
-            // ],
+            january: [
+                // 'nala.jpg',
+                'nala2.jpg',
+                'skincare.jpg'
+            ],
+            february: [
+                // 'iat.jpg',
+                'jekka.jpg'
+            ],
             // march: [
             //     'nath.jpg',
             //     'sign.jpg'
@@ -278,7 +277,10 @@ export default class Timeline {
 
             TweenMax.to( this.timeline.position, 1.5, {
                 z: this.origTimelinePos,
-                ease: 'Expo.easeInOut'
+                ease: 'Expo.easeInOut',
+                onComplete: () => {
+                    this.c.allowScrolling = true
+                }
             })
 
             TweenMax.to( item.uniforms.progress, 1.5, {
@@ -288,7 +290,10 @@ export default class Timeline {
 
             TweenMax.to( this.textMat, 1.5, {
                 opacity: 1,
-                ease: 'Expo.easeInOut'
+                ease: 'Expo.easeInOut',
+                onStart: () => {
+                    this.textMat.visible = true
+                }
             })
 
             for( let x in this.items ) {
@@ -306,6 +311,7 @@ export default class Timeline {
 
             item.active = true
             this.origTimelinePos = this.timeline.position.z
+            this.c.allowScrolling = false
 
             TweenMax.to( item.mesh.position, 1.5, {
                 x: 0,
@@ -319,13 +325,16 @@ export default class Timeline {
             })
 
             TweenMax.to( this.timeline.position, 1.5, {
-                z: -item.mesh.position.z + 200,
+                z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 100,
                 ease: 'Expo.easeInOut'
             })
 
             TweenMax.to( this.textMat, 1.5, {
                 opacity: 0,
-                ease: 'Expo.easeInOut'
+                ease: 'Expo.easeInOut',
+                onComplete: () => {
+                    this.textMat.visible = false
+                }
             })
 
             for( let x in this.items ) { // TODO: see if can select just in camera range
@@ -347,7 +356,7 @@ export default class Timeline {
 
         let delta = normalizeWheelDelta(e)
 
-        this.c.scrollPos += -delta * 30
+        this.c.scrollPos += -delta * 20
         this.c.scrolling = true;        
         
         function normalizeWheelDelta(e){
@@ -371,7 +380,7 @@ export default class Timeline {
 
         this.raycaster.setFromCamera( this.mouse, this.camera, this.camera.near, this.camera.far )
 
-        let intersects = this.raycaster.intersectObjects( this.timeline.children, true )
+        let intersects = this.raycaster.intersectObjects( this.items )
 
         if ( intersects.length > 0 ) {
 
@@ -465,7 +474,7 @@ export default class Timeline {
         }
 
         // smooth scrolling
-        if( this.c.scrolling ) {
+        if( this.c.allowScrolling && this.c.scrolling ) {
 
             let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
             this.timeline.position.z += delta
