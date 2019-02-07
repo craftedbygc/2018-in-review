@@ -1,5 +1,10 @@
 const months = {
 
+    intro: {
+        textColor: 0x1b42d8,
+        bgColor: 0xAEC7C3,
+        tintColor: 0x1b42d8
+    },
     jan: {
         name: 'JANUARY',
         textColor: 0x1b42d8,

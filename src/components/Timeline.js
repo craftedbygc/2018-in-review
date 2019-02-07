@@ -82,17 +82,23 @@ export default class Timeline {
 
         let images = {
             january: [
-                // 'nala.jpg',
-                'nala2.jpg',
-                // 'skincare.jpg'
+                'berlin-1-2.JPG',
+                'berlin-2-2.JPG',
+                'berlin-3.JPG',
+                'iceland_dribbble.jpg',
+                'kayak.jpg',
+                'roadless.jpg',
+                'shot.jpg',
+                'soft-drinks.jpg',
+                'tiles.jpg'
             ],
             february: [
                 // 'iat.jpg',
-                'jekka.jpg'
+                // 'jekka.jpg'
             ],
             march: [
-                'nath.jpg',
-                'sign.jpg'
+                // 'nath.jpg',
+                // 'sign.jpg'
             ]
         }
 
@@ -118,7 +124,8 @@ export default class Timeline {
         // Load Fonts
         let fontLoader = new THREE.FontLoader()
         let fonts = [
-            'fonts/schnyder.json'
+            'fonts/schnyder.json',
+            'fonts/suisse.json'
         ]
 
         for( let i = 0; i < fonts.length; i++ ) {
@@ -174,7 +181,8 @@ export default class Timeline {
         this.timeline = new THREE.Group()
         this.scene.add( this.timeline )
             
-        this.textMat = new THREE.MeshPhongMaterial( { color: 0x1b42d8, emissive: 0x1b42d8, transparent: true } )
+        this.textMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
+        this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, wireframe: true } )
 
         this.sections = {}
         this.items = {}
@@ -186,75 +194,105 @@ export default class Timeline {
 
             this.sections[ key ] = new THREE.Group()
 
-            let textGeom = new THREE.TextGeometry( this.months[key].name, {
-                font: this.assets.fonts['Schnyder L'],
-                size: 200,
-                height: 0,
-                curveSegments: 20
-            } )
-    
-            textGeom.center()
+            if( key === 'intro' ) {
 
-            let text = new THREE.Mesh( textGeom, this.textMat )
+                let yearInReviewGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
+                    font: this.assets.fonts['SuisseIntl-Bold'],
+                    size: 50,
+                    height: 0,
+                    curveSegments: 20
+                } )
+        
+                yearInReviewGeom.center()
 
-            let itemIndex = 0
+                let yearInReview = new THREE.Mesh( yearInReviewGeom, this.textMat )
+                this.sections[ key ].add( yearInReview )
 
-            // add items
-            for( let id in this.assets.textures ) {
+                let yearTextGeom = new THREE.TextGeometry( '2018', {
+                    font: this.assets.fonts['Schnyder L'],
+                    size: 380,
+                    height: 0,
+                    curveSegments: 20
+                } )
+        
+                yearTextGeom.center()
 
-                this.items[id + monthIndex] = {}
+                let yearText = new THREE.Mesh( yearTextGeom, this.textOutlineMat )
+                yearText.position.set( 0, 0, -200 )
+                this.sections[ key ].add( yearText )
 
-                this.items[id + monthIndex].uniforms = {
-                    time: { type: 'f', value: 1.0 },
-                    fogColor: { type: "c", value: this.scene.fog.color },
-                    fogNear: { type: "f", value: this.scene.fog.near },
-                    fogFar: { type: "f", value: this.scene.fog.far },
-                    texture: { type: 't', value: this.assets.textures[ id ] },
-                    opacity: { type: 'f', value: 1.0 },
-                    progress: { type: 'f', value: 0.0 },
-                    gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
+            } else {
+
+                let textGeom = new THREE.TextGeometry( this.months[key].name, {
+                    font: this.assets.fonts['Schnyder L'],
+                    size: 200,
+                    height: 0,
+                    curveSegments: 20
+                } )
+        
+                textGeom.center()
+
+                let monthName = new THREE.Mesh( textGeom, this.textMat )
+                monthName.position.set( 0, 0, 0 )
+                this.sections[key].add( monthName )
+
+                let itemIndex = 0
+
+                // add items
+                for( let id in this.assets.textures ) {
+
+                    this.items[id + monthIndex] = {}
+
+                    this.items[id + monthIndex].uniforms = {
+                        time: { type: 'f', value: 1.0 },
+                        fogColor: { type: "c", value: this.scene.fog.color },
+                        fogNear: { type: "f", value: this.scene.fog.near },
+                        fogFar: { type: "f", value: this.scene.fog.far },
+                        texture: { type: 't', value: this.assets.textures[ id ] },
+                        opacity: { type: 'f', value: 1.0 },
+                        progress: { type: 'f', value: 0.0 },
+                        gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
+                    }
+
+                    this.items[id + monthIndex].geometry = new THREE.PlaneGeometry( 1, 1 )
+                    this.items[id + monthIndex].material = new THREE.ShaderMaterial({
+                        uniforms: this.items[id + monthIndex].uniforms,
+                        fragmentShader: frag,
+                        vertexShader: vert,
+                        fog: true,
+                        transparent: true
+                    })
+
+                    this.items[id + monthIndex].mesh = new THREE.Mesh( this.items[id + monthIndex].geometry, this.items[id + monthIndex].material )
+                    this.items[id + monthIndex].mesh.scale.set( this.assets.textures[ id ].size.x, this.assets.textures[ id ].size.y, 1 )
+
+                    let align = itemIndexTotal % 4, pos = new THREE.Vector2()
+
+                    if( align === 0 ) pos.set( -350, 350 ) // bottom left
+                    if( align === 1 ) pos.set( 350, 350 ) // bottom right
+                    if( align === 2 ) pos.set( 350, -350 ) // top right
+                    if( align === 3 ) pos.set( -350, -350 ) // top left
+
+                    this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, itemIndex * -300 )
+                    this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
+
+                    this.items[id + monthIndex].mesh.onClick = this.onItemClick.bind( this, this.items[id + monthIndex] )
+
+                    this.sections[key].add( this.items[id + monthIndex].mesh )
+                    this.itemMeshes.push( this.items[id + monthIndex].mesh )
+
+                    itemIndex++
+                    itemIndexTotal++
+
                 }
-
-                this.items[id + monthIndex].geometry = new THREE.PlaneGeometry( 1, 1 )
-                this.items[id + monthIndex].material = new THREE.ShaderMaterial({
-                    uniforms: this.items[id + monthIndex].uniforms,
-                    fragmentShader: frag,
-                    vertexShader: vert,
-                    fog: true,
-                    transparent: true
-                })
-
-                this.items[id + monthIndex].mesh = new THREE.Mesh( this.items[id + monthIndex].geometry, this.items[id + monthIndex].material )
-                this.items[id + monthIndex].mesh.scale.set( this.assets.textures[ id ].size.x, this.assets.textures[ id ].size.y, 1 )
-
-                let align = itemIndexTotal % 4, pos = new THREE.Vector2()
-
-                if( align === 0 ) pos.set( -350, 350 ) // bottom left
-                if( align === 1 ) pos.set( 350, 350 ) // bottom right
-                if( align === 2 ) pos.set( 350, -350 ) // top right
-                if( align === 3 ) pos.set( -350, -350 ) // top left
-
-                this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, itemIndex * -300 )
-                this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
-
-                this.items[id + monthIndex].mesh.onClick = this.onItemClick.bind( this, this.items[id + monthIndex] )
-
-                this.sections[key].add( this.items[id + monthIndex].mesh )
-                this.itemMeshes.push( this.items[id + monthIndex].mesh )
-
-                itemIndex++
-                itemIndexTotal++
 
             }
 
             let bbox = new THREE.Box3().setFromObject( this.sections[ key ] );
 
-            text.position.set( 0, 0 , 0 )
-            this.sections[key].add( text )
-
             this.sections[key].position.z = nextMonthPos
-            this.monthPositions[key] = nextMonthPos + 1100;
-            nextMonthPos += bbox.min.z - 800 // TODO: get from camera?
+            this.monthPositions[key] = nextMonthPos + 1100 ;
+            nextMonthPos += Math.min( bbox.min.z, 0 ) - ( key === 'intro' ? 1300 : 800 ) // TODO: get from camera?
 
             monthIndex++
 
