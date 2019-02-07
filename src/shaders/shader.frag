@@ -31,7 +31,7 @@ void main() {
 	// if ( gradientImage.b < 0.9 ) discard;
 
 	// gl_FragColor = origColor * opacity;
-	gl_FragColor = mix( gradientImage, origColor, progress ) * opacity;
+	gl_FragColor = mix( vec4( gradientImage.rgb, 0. ), mix( gradientImage, origColor, progress ), opacity );
 
 	#ifdef USE_FOG
 		#ifdef USE_LOGDEPTHBUF_EXT
