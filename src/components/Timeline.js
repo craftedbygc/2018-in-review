@@ -116,6 +116,8 @@ export default class Timeline {
                         texture.name = `${month}/${filename}`
                         texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
                         texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
+                        texture.needsUpdate = true;
+                        this.renderer.setTexture2D( texture, 0 );
                         resolve( texture )
 
                     })
