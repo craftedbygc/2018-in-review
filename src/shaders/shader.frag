@@ -17,12 +17,20 @@ void main() {
 	vec4 origColor = texture2D(texture, vUv);
     float grayscaleValue = dot(origColor.rgb, vec3(0.299, 0.587, 0.114));
 
-	if ( origColor.a < 0.2 ) discard;
+	// remove green
+	// if ( origColor.r < 0.4 && origColor.b < 0.4 && origColor.g > 0.4 ) {
+	// 	origColor.a = 0.;
+	// }
+
+	// if ( origColor.r < 0.9 && origColor.b < 0.9 && origColor.g > 0.9 ) {
+	// 	origColor.a = 0.;
+	// }
 
 	vec4 gradientImage = mix(vec4( gradientColor, 1.0), vec4(1.0, 1.0, 1.0, 1.0), grayscaleValue);
 
 	// if ( gradientImage.b < 0.9 ) discard;
 
+	// gl_FragColor = origColor * opacity;
 	gl_FragColor = mix( gradientImage, origColor, progress ) * opacity;
 
 	#ifdef USE_FOG

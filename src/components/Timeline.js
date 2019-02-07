@@ -4,6 +4,7 @@ import { TweenMax } from 'gsap'
 import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
 import months from './months'
+import assets from '../assets'
 
 export default class Timeline {
 
@@ -40,6 +41,9 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
+
+        console.log(assets);
+        
 
     }
 

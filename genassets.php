@@ -19,4 +19,6 @@ $assets = getDirContents('public/assets');
 
 print_r( $assets );
 
-echo json_encode( $assets );
+$json = 'const assets = ' . json_encode( $assets ) . '; export default assets;';
+
+file_put_contents( 'src/assets.js', $json );
