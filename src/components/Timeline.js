@@ -176,6 +176,7 @@ export default class Timeline {
 
         this.sections = {}
         this.items = {}
+        this.itemMeshes = [] // array for raytracing
 
         let monthIndex = 0, itemIndexTotal = 0, nextMonthPos = 0
 
@@ -237,6 +238,7 @@ export default class Timeline {
                 this.items[id + monthIndex].mesh.onClick = this.onItemClick.bind( this, this.items[id + monthIndex] )
 
                 this.sections[key].add( this.items[id + monthIndex].mesh )
+                this.itemMeshes.push( this.items[id + monthIndex].mesh )
 
                 itemIndex++
                 itemIndexTotal++
@@ -364,7 +366,7 @@ export default class Timeline {
                 if(e.wheelDelta)
                     return e.wheelDelta/e.detail/40 * (e.detail>0 ? 1 : -1) // Opera
                 else
-                    return -e.detail/3 // Firefox
+                    return -e.detail/3 // Firefox TODO: fix
             } else
                 return e.wheelDelta/120 // IE,Safari,Chrome
         }
@@ -380,7 +382,7 @@ export default class Timeline {
 
         this.raycaster.setFromCamera( this.mouse, this.camera, this.camera.near, this.camera.far )
 
-        let intersects = this.raycaster.intersectObjects( this.items )
+        let intersects = this.raycaster.intersectObjects( this.itemMeshes )
 
         if ( intersects.length > 0 ) {
 
