@@ -190,7 +190,7 @@ export default class Timeline {
                     font: this.assets.fonts['SuisseIntl-Bold'],
                     size: 50,
                     height: 0,
-                    curveSegments: 20
+                    curveSegments: 4
                 } )
         
                 sansTextGeom.center()
@@ -202,7 +202,7 @@ export default class Timeline {
                     font: this.assets.fonts['Schnyder L'],
                     size: 380,
                     height: 0,
-                    curveSegments: 20
+                    curveSegments: 15
                 } )
         
                 serifTextGeom.center()
@@ -217,7 +217,7 @@ export default class Timeline {
                     font: this.assets.fonts['SuisseIntl-Bold'],
                     size: 50,
                     height: 0,
-                    curveSegments: 20
+                    curveSegments: 4
                 } )
         
                 sansTextGeom.center()
@@ -229,7 +229,7 @@ export default class Timeline {
                     font: this.assets.fonts['Schnyder L'],
                     size: 380,
                     height: 0,
-                    curveSegments: 20
+                    curveSegments: 15
                 } )
         
                 serifTextGeom.center()
@@ -244,7 +244,7 @@ export default class Timeline {
                     font: this.assets.fonts['Schnyder L'],
                     size: 200,
                     height: 0,
-                    curveSegments: 20
+                    curveSegments: 10
                 } )
         
                 textGeom.center()
@@ -290,7 +290,7 @@ export default class Timeline {
                     if( align === 2 ) pos.set( 350, -350 ) // top right
                     if( align === 3 ) pos.set( -350, -350 ) // top left
 
-                    this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, itemIndex * -300 )
+                    this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
                     this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
 
                     this.items[id + monthIndex].mesh.openItem = this.openItem.bind( this, this.items[id + monthIndex] )
@@ -309,7 +309,7 @@ export default class Timeline {
 
             this.sections[key].position.z = nextMonthPos
             this.monthPositions[key] = nextMonthPos + 1100 ;
-            nextMonthPos += Math.min( bbox.min.z, 0 ) - ( key === 'intro' ? 1300 : 800 ) // TODO: get from camera?
+            nextMonthPos += bbox.min.z - ( key === 'intro' ? 1300 : 800 ) // TODO: get from camera?
 
             monthIndex++
 
@@ -340,12 +340,12 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 100,
+            z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 300,
             ease: 'Expo.easeInOut'
         })
 
-        TweenMax.to( this.textMat, 1.5, {
-            opacity: 0, // TODO: fix fade to black
+        TweenMax.to( this.textMat, 1, {
+            opacity: 0, 
             ease: 'Expo.easeInOut',
             onComplete: () => {
                 this.textMat.visible = false
@@ -357,7 +357,7 @@ export default class Timeline {
             if( this.items[x] === item ) continue
 
             TweenMax.to( this.items[x].material.uniforms.opacity, 1.5, {
-                value: 0,
+                value: 0, // TODO: fix fade to black
                 ease: 'Expo.easeInOut'
             })
 

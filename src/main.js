@@ -15,9 +15,8 @@ if (module.hot) {
         cancelAnimationFrame(timeline.animationId)
         removeEventListener('resize', timeline.resize)
         removeEventListener('mousemove', timeline.mouseMove)
-        removeEventListener('touchmove', timeline.mouseMove)
         removeEventListener('mousedown', timeline.mouseDown)
-        removeEventListener('touchdown', timeline.mouseDown)
+        timeline.gesture.destroy()
     })
 }
 
