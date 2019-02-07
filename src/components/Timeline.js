@@ -84,16 +84,16 @@ export default class Timeline {
             january: [
                 // 'nala.jpg',
                 'nala2.jpg',
-                'skincare.jpg'
+                // 'skincare.jpg'
             ],
             february: [
                 // 'iat.jpg',
                 'jekka.jpg'
             ],
-            // march: [
-            //     'nath.jpg',
-            //     'sign.jpg'
-            // ]
+            march: [
+                'nath.jpg',
+                'sign.jpg'
+            ]
         }
 
         for( let month in images ) {
@@ -163,6 +163,8 @@ export default class Timeline {
         this.camera.position.z = cameraPosition
 
         this.raycaster = new THREE.Raycaster()
+        this.raycaster.near = this.camera.near
+        this.raycaster.far = this.camera.far
         this.mouse = new THREE.Vector2()
 
     }
@@ -380,7 +382,7 @@ export default class Timeline {
         this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
         this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
 
-        this.raycaster.setFromCamera( this.mouse, this.camera, this.camera.near, this.camera.far )
+        this.raycaster.setFromCamera( this.mouse, this.camera )
 
         let intersects = this.raycaster.intersectObjects( this.itemMeshes )
 
