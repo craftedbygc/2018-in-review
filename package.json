@@ -14,7 +14,8 @@
     "dat.gui": "^0.7.5",
     "gsap": "^2.0.2",
     "normalize-css": "^2.3.1",
-    "orbit-controls-es6": "^1.0.10"
+    "orbit-controls-es6": "^1.0.10",
+    "tinygesture": "^1.1.4"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

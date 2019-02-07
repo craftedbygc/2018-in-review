@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { TweenMax } from 'gsap'
+import TinyGesture from 'tinygesture';
 
 import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
@@ -34,14 +35,15 @@ export default class Timeline {
             },
             scrollPos: 0,
             scrolling: false,
-            allowScrolling: true
+            allowScrolling: true,
+            allowPerspective: !('ontouchstart' in window)
         }
 
         this.assetList = assets
         this.activeMonth = 'jan'
         this.months = months
         this.monthPositions = {}
-        this.remainingMonths = []        
+        this.remainingMonths = []
         
     }
 
@@ -148,7 +150,7 @@ export default class Timeline {
 
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color( 0xAEC7C3 )
-        this.scene.fog = new THREE.Fog( 0xAEC7C3, 1400, 2000)
+        this.scene.fog = new THREE.Fog( 0xAEC7C3, 1400, 2000 )
 
         let cameraPosition = 900;
 
@@ -291,7 +293,7 @@ export default class Timeline {
                     this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, itemIndex * -300 )
                     this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
 
-                    this.items[id + monthIndex].mesh.onClick = this.onItemClick.bind( this, this.items[id + monthIndex] )
+                    this.items[id + monthIndex].mesh.openItem = this.openItem.bind( this, this.items[id + monthIndex] )
 
                     this.sections[key].add( this.items[id + monthIndex].mesh )
                     this.itemMeshes.push( this.items[id + monthIndex].mesh )
@@ -320,15 +322,56 @@ export default class Timeline {
 
     }
 
-    onItemClick( item ) {
+    openItem( item ) {
 
-        if( item.active ) {
+        this.itemOpen = item
+        this.origTimelinePos = this.timeline.position.z
+        this.c.allowScrolling = false
 
-            item.active = false
+        TweenMax.to( item.mesh.position, 1.5, {
+            x: 0,
+            y: 0,
+            ease: 'Expo.easeInOut'
+        })
 
-            TweenMax.to( item.mesh.position, 1.5, {
-                x: item.origPos.x,
-                y: item.origPos.y,
+        TweenMax.to( item.uniforms.progress, 1.5, {
+            value: 1,
+            ease: 'Expo.easeInOut'
+        })
+
+        TweenMax.to( this.timeline.position, 1.5, {
+            z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 100,
+            ease: 'Expo.easeInOut'
+        })
+
+        TweenMax.to( this.textMat, 1.5, {
+            opacity: 0, // TODO: fix fade to black
+            ease: 'Expo.easeInOut',
+            onComplete: () => {
+                this.textMat.visible = false
+            }
+        })
+
+        for( let x in this.items ) { // TODO: see if can select just in camera range
+
+            if( this.items[x] === item ) continue
+
+            TweenMax.to( this.items[x].material.uniforms.opacity, 1.5, {
+                value: 0,
+                ease: 'Expo.easeInOut'
+            })
+
+        }
+
+    }
+
+    closeItem() {
+
+        if( this.itemOpen ) {
+
+            TweenMax.to( this.itemOpen.mesh.position, 1.5, {
+                x: this.itemOpen.origPos.x,
+                y: this.itemOpen.origPos.y,
                 ease: 'Expo.easeInOut'
             })
 
@@ -337,10 +380,11 @@ export default class Timeline {
                 ease: 'Expo.easeInOut',
                 onComplete: () => {
                     this.c.allowScrolling = true
+                    this.itemOpen = false
                 }
             })
 
-            TweenMax.to( item.uniforms.progress, 1.5, {
+            TweenMax.to( this.itemOpen.uniforms.progress, 1.5, {
                 value: 0,
                 ease: 'Expo.easeInOut'
             })
@@ -359,47 +403,6 @@ export default class Timeline {
 
                 TweenMax.to( this.items[x].material.uniforms.opacity, 1.5, {
                     value: 1,
-                    ease: 'Expo.easeInOut'
-                })
-
-            }
-
-        } else {
-
-            item.active = true
-            this.origTimelinePos = this.timeline.position.z
-            this.c.allowScrolling = false
-
-            TweenMax.to( item.mesh.position, 1.5, {
-                x: 0,
-                y: 0,
-                ease: 'Expo.easeInOut'
-            })
-
-            TweenMax.to( item.uniforms.progress, 1.5, {
-                value: 1,
-                ease: 'Expo.easeInOut'
-            })
-
-            TweenMax.to( this.timeline.position, 1.5, {
-                z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 100,
-                ease: 'Expo.easeInOut'
-            })
-
-            TweenMax.to( this.textMat, 1.5, {
-                opacity: 0,
-                ease: 'Expo.easeInOut',
-                onComplete: () => {
-                    this.textMat.visible = false
-                }
-            })
-
-            for( let x in this.items ) { // TODO: see if can select just in camera range
-
-                if( this.items[x].active ) continue
-
-                TweenMax.to( this.items[x].material.uniforms.opacity, 1.5, {
-                    value: 0,
                     ease: 'Expo.easeInOut'
                 })
 
@@ -432,17 +435,23 @@ export default class Timeline {
 
         e.preventDefault();
 
-        this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
-        this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+        if( this.itemOpen ) {
+            this.closeItem()
+        } else {
 
-        this.raycaster.setFromCamera( this.mouse, this.camera )
+            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
+            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
 
-        let intersects = this.raycaster.intersectObjects( this.itemMeshes )
+            this.raycaster.setFromCamera( this.mouse, this.camera )
 
-        if ( intersects.length > 0 ) {
+            let intersects = this.raycaster.intersectObjects( this.itemMeshes )
 
-            if( intersects[0].object.onClick )
-            intersects[0].object.onClick()
+            if ( intersects.length > 0 ) {
+
+                if( intersects[0].object.openItem )
+                intersects[0].object.openItem()
+
+            }
 
         }
 
@@ -525,7 +534,7 @@ export default class Timeline {
         // let elapsedMilliseconds = Date.now() - this.c.startTime
         // this.items[0].uniforms.time.value = elapsedMilliseconds / 1000
 
-        if( this.updatingPerspective ) {
+        if( this.c.allowPerspective && this.updatingPerspective ) {
             this.updatePerspective()
             this.updatingPerspective = false
         }
@@ -571,10 +580,19 @@ export default class Timeline {
         this.mouseDown = this.mouseDown.bind( this )
         addEventListener( 'resize', this.resize )
         addEventListener( 'mousemove', this.mouseMove )
-        addEventListener( 'touchmove', this.mouseMove )
         addEventListener( 'mousedown', this.mouseDown )
-        // addEventListener( 'touchdown', this.mouseDown )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll )
+
+        this.gesture = new TinyGesture( this.renderer.domElement, {
+
+        })
+
+        this.gesture.on( 'panmove', event => {
+
+            this.c.scrollPos += this.gesture.velocityY * 2
+            this.c.scrolling = true;
+
+        })
 
     }
 
