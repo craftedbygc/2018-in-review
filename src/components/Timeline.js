@@ -37,14 +37,12 @@ export default class Timeline {
             allowScrolling: true
         }
 
+        this.assetList = assets
         this.activeMonth = 'jan'
         this.months = months
         this.monthPositions = {}
-        this.remainingMonths = []
-
-        console.log(assets);
+        this.remainingMonths = []        
         
-
     }
 
     loadAssets() {
@@ -55,72 +53,63 @@ export default class Timeline {
         }
         let assetLoadPromises = [];
 
-        // Load Videos
-        let videoEls = document.querySelectorAll( 'video' )
-
-        for( let i = 0; i < videoEls.length; i++ ) {
-
-            assetLoadPromises.push( new Promise( resolve => {
-
-                videoEls[i].oncanplaythrough = () => {
-
-                    let videoTex = new THREE.VideoTexture( videoEls[i] )
-                    videoTex.minFilter = videoTex.magFilter = THREE.LinearFilter
-                    videoTex.name = videoEls[i].id
-                    videoTex.size = new THREE.Vector2( videoTex.image.videoWidth / 2, videoTex.image.videoHeight / 2 )
-                    videoTex.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-
-                    resolve( videoTex )
-
-                    videoEls[i].oncanplaythrough = null
-
-                }
-
-            }))
-
-        }
-
-        // Load images
+        // Load images + videos
         let imageLoader = new THREE.TextureLoader()
         imageLoader.crossOrigin = ''
 
-        let images = {
-            january: [
-                'berlin-1-2.JPG',
-                'berlin-2-2.JPG',
-                'berlin-3.JPG',
-                'iceland_dribbble.jpg',
-                'kayak.jpg',
-                'roadless.jpg',
-                'shot.jpg',
-                'soft-drinks.jpg',
-                'tiles.jpg'
-            ],
-            february: [
-                // 'iat.jpg',
-                // 'jekka.jpg'
-            ],
-            march: [
-                // 'nath.jpg',
-                // 'sign.jpg'
-            ]
-        }
-
-        for( let month in images ) {
-            images[month].forEach( filename => {
+        for( let month in this.assetList ) {
+            this.assetList[month].forEach( filename => {
 
                 assetLoadPromises.push( new Promise( resolve => {
 
-                    imageLoader.load( `assets/${month}/${filename}`, texture => {
+                    if( ~filename.indexOf( '.mp4' ) ) {
 
-                        texture.name = `${month}/${filename}`
-                        texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
-                        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-                        texture.needsUpdate = true;
-                        this.renderer.setTexture2D( texture, 0 );
-                        resolve( texture )
+                        let video = document.createElement( 'video' );
+                        video.style = 'position:absolute;height:0'
+                        video.muted = true
+                        video.autoplay = true
+                        video.loop = true
+                        video.crossOrigin = 'anonymous'
+                        video.setAttribute('webkit-playsinline', true)
+                        video.src = `assets/${month}/${filename}`
+                        document.body.appendChild( video )
+                        video.load(); // must call after setting/changing source
 
-                    })
+                        video.oncanplaythrough = () => {
+
+                            let texture = new THREE.VideoTexture( video )
+                            texture.minFilter = texture.magFilter = THREE.LinearFilter
+                            texture.name = `${month}/${filename}`
+                            texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
+                            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
+
+                            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
+                            this.assets.textures[ month ][ texture.name ] = texture
+        
+                            resolve( texture )
+        
+                            video.oncanplaythrough = null
+        
+                        }
+
+                    } else {
+
+                        imageLoader.load( `assets/${month}/${filename}`, texture => {
+
+                            texture.name = `${month}/${filename}`
+                            texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
+                            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
+                            texture.needsUpdate = true
+                            this.renderer.setTexture2D( texture, 0 )
+    
+                            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
+                            this.assets.textures[ month ][ texture.name ] = texture
+    
+                            resolve( texture )
+    
+                        })
+
+                    }
 
                 }))
 
@@ -135,21 +124,16 @@ export default class Timeline {
         ]
 
         for( let i = 0; i < fonts.length; i++ ) {
-            assetLoadPromises.push( new Promise( resolve => fontLoader.load( fonts[i], font => resolve( font ) ) ) )
+            assetLoadPromises.push( new Promise( resolve => fontLoader.load( fonts[i], font => {
+                this.assets.fonts[ font.data.familyName ] = font
+                resolve() 
+            } ) ) )
         }
 
         Promise.all( assetLoadPromises ).then( assets => {
 
             // all assets loaded - initialise
-            assets.forEach( asset => {
-
-                if( asset.image ) {
-                    this.assets.textures[ asset.name ] = asset
-                } else {
-                    this.assets.fonts[ asset.data.familyName ] = asset
-                }
-
-            })
+            console.log(this.assets)
 
             this.createTimeline()
 
@@ -160,7 +144,7 @@ export default class Timeline {
     init() {
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-        // this.renderer.setPixelRatio( this.c.dpr )
+        this.renderer.setPixelRatio( this.c.dpr )
         this.renderer.setSize( this.c.size.w, this.c.size.h )
         document.body.appendChild( this.renderer.domElement )
 
@@ -202,30 +186,57 @@ export default class Timeline {
 
             if( key === 'intro' ) {
 
-                let yearInReviewGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
+                let sansTextGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
                     font: this.assets.fonts['SuisseIntl-Bold'],
                     size: 50,
                     height: 0,
                     curveSegments: 20
                 } )
         
-                yearInReviewGeom.center()
+                sansTextGeom.center()
 
-                let yearInReview = new THREE.Mesh( yearInReviewGeom, this.textMat )
-                this.sections[ key ].add( yearInReview )
+                let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
+                this.sections[ key ].add( sansText )
 
-                let yearTextGeom = new THREE.TextGeometry( '2018', {
+                let serifTextGeom = new THREE.TextGeometry( '2018', {
                     font: this.assets.fonts['Schnyder L'],
                     size: 380,
                     height: 0,
                     curveSegments: 20
                 } )
         
-                yearTextGeom.center()
+                serifTextGeom.center()
 
-                let yearText = new THREE.Mesh( yearTextGeom, this.textOutlineMat )
-                yearText.position.set( 0, 0, -200 )
-                this.sections[ key ].add( yearText )
+                let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
+                serifText.position.set( 0, 0, -200 )
+                this.sections[ key ].add( serifText )
+
+            } else if( key === 'end' ) {
+
+                let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
+                    font: this.assets.fonts['SuisseIntl-Bold'],
+                    size: 50,
+                    height: 0,
+                    curveSegments: 20
+                } )
+        
+                sansTextGeom.center()
+
+                let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
+                this.sections[ key ].add( sansText )
+
+                let serifTextGeom = new THREE.TextGeometry( 'END', {
+                    font: this.assets.fonts['Schnyder L'],
+                    size: 380,
+                    height: 0,
+                    curveSegments: 20
+                } )
+        
+                serifTextGeom.center()
+
+                let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
+                serifText.position.set( 0, 0, -200 )
+                this.sections[ key ].add( serifText )
 
             } else {
 
@@ -245,7 +256,7 @@ export default class Timeline {
                 let itemIndex = 0
 
                 // add items
-                for( let id in this.assets.textures ) {
+                for( let id in this.assets.textures[ key ] ) {
 
                     this.items[id + monthIndex] = {}
 
@@ -254,7 +265,7 @@ export default class Timeline {
                         fogColor: { type: "c", value: this.scene.fog.color },
                         fogNear: { type: "f", value: this.scene.fog.near },
                         fogFar: { type: "f", value: this.scene.fog.far },
-                        texture: { type: 't', value: this.assets.textures[ id ] },
+                        texture: { type: 't', value: this.assets.textures[key][ id ] },
                         opacity: { type: 'f', value: 1.0 },
                         progress: { type: 'f', value: 0.0 },
                         gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
@@ -270,7 +281,7 @@ export default class Timeline {
                     })
 
                     this.items[id + monthIndex].mesh = new THREE.Mesh( this.items[id + monthIndex].geometry, this.items[id + monthIndex].material )
-                    this.items[id + monthIndex].mesh.scale.set( this.assets.textures[ id ].size.x, this.assets.textures[ id ].size.y, 1 )
+                    this.items[id + monthIndex].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
 
                     let align = itemIndexTotal % 4, pos = new THREE.Vector2()
 

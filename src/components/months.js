@@ -77,6 +77,11 @@ const months = {
         bgColor: 0xF2F2F2,
         tintColor: 0xF81B06
     },
+    end: {
+        textColor: 0xED859C,
+        bgColor: 0x416863,
+        tintColor: 0xF81B06
+    },
 
 }
 
