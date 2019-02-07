@@ -69,7 +69,7 @@ export default class Timeline {
                         let video = document.createElement( 'video' );
                         video.style = 'position:absolute;height:0'
                         video.muted = true
-                        video.autoplay = true
+                        video.autoplay = false
                         video.loop = true
                         video.crossOrigin = 'anonymous'
                         video.setAttribute('webkit-playsinline', true)
@@ -258,9 +258,9 @@ export default class Timeline {
                 // add items
                 for( let id in this.assets.textures[ key ] ) {
 
-                    this.items[id + monthIndex] = {}
+                    this.items[id] = {}
 
-                    this.items[id + monthIndex].uniforms = {
+                    this.items[id].uniforms = {
                         time: { type: 'f', value: 1.0 },
                         fogColor: { type: "c", value: this.scene.fog.color },
                         fogNear: { type: "f", value: this.scene.fog.near },
@@ -271,17 +271,17 @@ export default class Timeline {
                         gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
                     }
 
-                    this.items[id + monthIndex].geometry = new THREE.PlaneGeometry( 1, 1 )
-                    this.items[id + monthIndex].material = new THREE.ShaderMaterial({
-                        uniforms: this.items[id + monthIndex].uniforms,
+                    this.items[id].geometry = new THREE.PlaneGeometry( 1, 1 )
+                    this.items[id].material = new THREE.ShaderMaterial({
+                        uniforms: this.items[id].uniforms,
                         fragmentShader: frag,
                         vertexShader: vert,
                         fog: true,
                         transparent: true
                     })
 
-                    this.items[id + monthIndex].mesh = new THREE.Mesh( this.items[id + monthIndex].geometry, this.items[id + monthIndex].material )
-                    this.items[id + monthIndex].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
+                    this.items[id].mesh = new THREE.Mesh( this.items[id].geometry, this.items[id].material )
+                    this.items[id].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
 
                     let align = itemIndexTotal % 4, pos = new THREE.Vector2()
 
@@ -290,14 +290,14 @@ export default class Timeline {
                     if( align === 2 ) pos.set( 350, -350 ) // top right
                     if( align === 3 ) pos.set( -350, -350 ) // top left
 
-                    this.items[id + monthIndex].align = align
-                    this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
-                    this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
+                    this.items[id].align = align
+                    this.items[id].mesh.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
+                    this.items[id].origPos = new THREE.Vector2( pos.x, pos.y )
 
-                    this.items[id + monthIndex].mesh.openItem = this.openItem.bind( this, this.items[id + monthIndex] )
+                    this.items[id].mesh.openItem = this.openItem.bind( this, this.items[id] )
 
-                    this.sections[key].add( this.items[id + monthIndex].mesh )
-                    this.itemMeshes.push( this.items[id + monthIndex].mesh )
+                    this.sections[key].add( this.items[id].mesh )
+                    this.itemMeshes.push( this.items[id].mesh )
 
                     itemIndex++
                     itemIndexTotal++
@@ -316,6 +316,12 @@ export default class Timeline {
 
             this.timeline.add( this.sections[key] )
 
+        }
+
+        this.items['feb/0.mp4'].mesh.onBeforeRender = function( r, s, c, g, material ) {
+            if( material.uniforms.texture.value.image.paused ) {
+                material.uniforms.texture.value.image.play()
+            }
         }
 
         this.animate()
