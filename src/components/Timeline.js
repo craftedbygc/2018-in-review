@@ -290,6 +290,7 @@ export default class Timeline {
                     if( align === 2 ) pos.set( 350, -350 ) // top right
                     if( align === 3 ) pos.set( -350, -350 ) // top left
 
+                    this.items[id + monthIndex].align = align
                     this.items[id + monthIndex].mesh.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
                     this.items[id + monthIndex].origPos = new THREE.Vector2( pos.x, pos.y )
 
@@ -352,12 +353,25 @@ export default class Timeline {
             }
         })
 
+        let pos = new THREE.Vector2()
+
         for( let x in this.items ) { // TODO: see if can select just in camera range
+
+            if( this.items[x].align === 0 ) pos.set( -700, 700 ) // bottom left
+            if( this.items[x].align === 1 ) pos.set( 700, 700 ) // bottom right
+            if( this.items[x].align === 2 ) pos.set( 700, -700 ) // top right
+            if( this.items[x].align === 3 ) pos.set( -700, -700 ) // top left
 
             if( this.items[x] === item ) continue
 
-            TweenMax.to( this.items[x].material.uniforms.opacity, 1.5, {
-                value: 0, // TODO: fix fade to black
+            TweenMax.to( this.items[x].material.uniforms.opacity, 1.3, {
+                value: 0,
+                ease: 'Expo.easeInOut'
+            })
+
+            TweenMax.to( this.items[x].mesh.position, 1.5, {
+                x: pos.x,
+                y: pos.y,
                 ease: 'Expo.easeInOut'
             })
 
@@ -403,6 +417,12 @@ export default class Timeline {
 
                 TweenMax.to( this.items[x].material.uniforms.opacity, 1.5, {
                     value: 1,
+                    ease: 'Expo.easeInOut'
+                })
+
+                TweenMax.to( this.items[x].mesh.position, 1.5, {
+                    x: this.items[x].origPos.x,
+                    y: this.items[x].origPos.y,
                     ease: 'Expo.easeInOut'
                 })
 
