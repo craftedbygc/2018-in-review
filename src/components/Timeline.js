@@ -5,6 +5,7 @@ import TinyGesture from 'tinygesture';
 
 import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
+import greenscreen from '../shaders/greenscreen.frag'
 import months from './months'
 import assets from '../assets'
 
@@ -250,8 +251,30 @@ export default class Timeline {
                 serifTextGeom.center()
 
                 let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
-                serifText.position.set( 0, 0, -200 )
+                serifText.position.set( 0, 0, -300 )
                 this.sections[ key ].add( serifText )
+
+                let geometry = new THREE.PlaneGeometry( 1, 1 )
+                let material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        fogColor: { type: "c", value: this.scene.fog.color },
+                        fogNear: { type: "f", value: this.scene.fog.near },
+                        fogFar: { type: "f", value: this.scene.fog.far },
+                        texture: { type: 't', value: this.assets.textures[key][ 'end/glit.mp4' ] }
+                    },
+                    fragmentShader: greenscreen,
+                    vertexShader: vert,
+                    fog: true,
+                    transparent: true
+                })
+
+                let mesh = new THREE.Mesh( geometry, material )
+                mesh.scale.set( 700, 700, 1 )
+                mesh.position.set( 0, 0, -200 )
+
+                this.assets.textures[key][ 'end/glit.mp4' ].image.play()
+
+                this.sections[ key ].add( mesh )
 
             } else {
 

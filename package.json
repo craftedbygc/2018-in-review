@@ -29,6 +29,8 @@
     "raw-loader": "^0.5.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
+    "three": "^0.101.1",
+    "three-addons": "^1.2.0",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.1.14"
