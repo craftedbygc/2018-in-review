@@ -329,8 +329,39 @@ export default class Timeline {
 
         this.videoCount = this.videoItems.length - 1
 
+        this.addIntroBadge()
         this.animate()
         this.initListeners()
+
+    }
+
+    addIntroBadge() {
+
+        this.badge = new THREE.Group()
+
+        let texture = new THREE.TextureLoader().load( 'images/highlights.png' )
+        let material = new THREE.MeshBasicMaterial( { map: texture, transparent: true } )
+        let geom = new THREE.PlaneGeometry( 1, 1 )
+        this.circle = new THREE.Mesh( geom, material )
+        this.circle.scale.set( 200, 200, 1 )
+        this.badge.add( this.circle )
+
+        let serifTextGeom = new THREE.TextGeometry( '2018-19', {
+            font: this.assets.fonts['Schnyder L'],
+            size: 26,
+            height: 0,
+            curveSegments: 10
+        } )
+
+        serifTextGeom.center()
+
+        let serifText = new THREE.Mesh( serifTextGeom, this.textMat )
+        serifText.position.set( 0, 0, 1 )
+        this.badge.add( serifText )
+
+        this.badge.position.set( 0, -this.c.size.h / 2 + 90, 50 )
+
+        this.timeline.add( this.badge )
 
     }
 
@@ -597,6 +628,12 @@ export default class Timeline {
 
             this.handleVideos()
             this.changeColours()
+
+            if( this.timeline.position.z < 700 ) {
+                TweenMax.set( this.circle.rotation, {
+                    z: '+=' + delta * 0.005
+                })
+            }
 
             if( Math.abs( delta ) > 0.1 ) {
                 this.c.scrolling = true
