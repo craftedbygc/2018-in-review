@@ -216,8 +216,15 @@ export default class Timeline {
                 serifTextGeom.center()
 
                 let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
-                serifText.position.set( 0, 0, -200 )
+                serifText.position.set( 0, 0, -500 )
                 this.sections[ key ].add( serifText )
+
+                let material = new THREE.MeshBasicMaterial( { map: this.assets.textures[key]['intro/ok.png'], transparent: true } )
+                let geom = new THREE.PlaneGeometry( 1, 1 )
+                let hand = new THREE.Mesh( geom, material )
+                hand.scale.set( 1000, 1000, 1 )
+                hand.position.set( 0, 0, -250 )
+                this.sections[ key ].add( hand )
 
             } else if( key === 'end' ) {
 
