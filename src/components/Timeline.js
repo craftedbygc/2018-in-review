@@ -149,6 +149,7 @@ export default class Timeline {
         this.renderer.setPixelRatio( this.c.dpr )
         this.renderer.setSize( this.c.size.w, this.c.size.h )
         document.body.appendChild( this.renderer.domElement )
+        this.preventPullToRefresh()
 
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color( 0xAEC7C3 )
@@ -183,7 +184,7 @@ export default class Timeline {
         this.itemMeshes = [] // array for raytracing
         this.videoItems = []
 
-        let monthIndex = 0, itemIndexTotal = 0, nextMonthPos = 0
+        let itemIndexTotal = 0, nextMonthPos = 0
 
         for( let key in this.months ) {
 
@@ -321,8 +322,6 @@ export default class Timeline {
             this.monthPositions[key] = nextMonthPos + 1100 ;
             nextMonthPos += bbox.min.z - ( key === 'intro' ? 1300 : 800 ) // TODO: get from camera?
 
-            monthIndex++
-
             this.timeline.add( this.sections[key] )
 
         }
@@ -352,7 +351,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 300,
+            z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 300, // TODO: fix when next section is active but you click previous section item
             ease: 'Expo.easeInOut'
         })
 
@@ -558,9 +557,7 @@ export default class Timeline {
 
     }
 
-    animate() {
-
-        this.animationId = requestAnimationFrame( this.animate.bind(this) )
+    handleVideos() {
 
         this.camera.updateMatrixWorld();
         this.camera.matrixWorldInverse.getInverse( this.camera.matrixWorld );
@@ -580,6 +577,12 @@ export default class Timeline {
 
         }
 
+    }
+
+    animate() {
+
+        this.animationId = requestAnimationFrame( this.animate.bind(this) )
+
         if( this.c.allowPerspective && this.updatingPerspective ) {
             this.updatePerspective()
             this.updatingPerspective = false
@@ -591,6 +594,7 @@ export default class Timeline {
             let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
             this.timeline.position.z += delta
 
+            this.handleVideos()
             this.changeColours()
 
             if( Math.abs( delta ) > 0.1 ) {
@@ -629,17 +633,33 @@ export default class Timeline {
         addEventListener( 'mousedown', this.mouseDown )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll )
 
-        this.gesture = new TinyGesture( this.renderer.domElement, {
-
-        })
+        this.gesture = new TinyGesture( this.renderer.domElement )
 
         this.gesture.on( 'panmove', event => {
 
-            this.c.scrollPos += -this.gesture.velocityY * 2
+            this.c.scrollPos += -this.gesture.velocityY * 3
             this.c.scrolling = true;
 
         })
 
+    }
+
+    preventPullToRefresh() {
+        var prevent = false;
+    
+        this.renderer.domElement.addEventListener('touchstart', function(e){
+          if (e.touches.length !== 1) { return; }
+    
+          var scrollY = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop;
+          prevent = (scrollY === 0);
+        });
+    
+        this.renderer.domElement.addEventListener('touchmove', function(e){
+          if (prevent) {
+            prevent = false;
+            e.preventDefault();
+          }
+        });
     }
 
 }
