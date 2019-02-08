@@ -1,3 +1,4 @@
+import './scss/style.scss'
 import Timeline from './components/Timeline'
 
 // Initial HMR Setup

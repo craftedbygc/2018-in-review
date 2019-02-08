@@ -124,7 +124,8 @@ export default class Timeline {
         let fontLoader = new THREE.FontLoader()
         let fonts = [
             'fonts/schnyder.json',
-            'fonts/suisse.json'
+            'fonts/schnyder-outline.json',
+            'fonts/suisse.json',
         ]
 
         for( let i = 0; i < fonts.length; i++ ) {
@@ -177,7 +178,7 @@ export default class Timeline {
         this.scene.add( this.timeline )
             
         this.textMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
-        this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, wireframe: true } )
+        this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, wireframe: false } )
 
         this.sections = {}
         this.items = {}
@@ -205,10 +206,10 @@ export default class Timeline {
                 this.sections[ key ].add( sansText )
 
                 let serifTextGeom = new THREE.TextGeometry( '2018', {
-                    font: this.assets.fonts['Schnyder L'],
-                    size: 380,
+                    font: this.assets.fonts['Schnyder_Edit Outline'],
+                    size: 400,
                     height: 0,
-                    curveSegments: 15
+                    curveSegments: 40
                 } )
         
                 serifTextGeom.center()
@@ -232,8 +233,8 @@ export default class Timeline {
                 this.sections[ key ].add( sansText )
 
                 let serifTextGeom = new THREE.TextGeometry( 'END', {
-                    font: this.assets.fonts['Schnyder L'],
-                    size: 380,
+                    font: this.assets.fonts['Schnyder_Edit Outline'],
+                    size: 400,
                     height: 0,
                     curveSegments: 15
                 } )
@@ -637,7 +638,7 @@ export default class Timeline {
 
         this.gesture.on( 'panmove', event => {
 
-            this.c.scrollPos += -this.gesture.velocityY * 3
+            this.c.scrollPos += -this.gesture.velocityY * 5
             this.c.scrolling = true;
 
         })

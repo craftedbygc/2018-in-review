@@ -5,12 +5,12 @@ const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
 module.exports = {
     entry: './src/main.js',
     output: {
-        path: path.resolve(__dirname, 'public/js'),
-        publicPath: '/js/',
+        path: path.resolve(__dirname, 'public'),
+        publicPath: '/public',
         filename: 'main.bundle.js'
     },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
@@ -30,6 +30,20 @@ module.exports = {
                 test: /\.(glsl|frag|vert)$/,
                 loader: 'glslify-loader',
                 exclude: /node_modules/
+            },
+            {
+              test: /\.scss$/, // TODO: add vendor prefixes
+              use: [
+                {
+                  loader: "style-loader" // creates style nodes from JS strings
+                },
+                {
+                  loader: "css-loader" // translates CSS into CommonJS
+                },
+                {
+                  loader: "sass-loader" // compiles Sass to CSS
+                }
+              ]
             }
         ]
     },
