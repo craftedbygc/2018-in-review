@@ -210,7 +210,7 @@ export default class Timeline {
                     font: this.assets.fonts['Schnyder_Edit Outline'],
                     size: 400,
                     height: 0,
-                    curveSegments: 40
+                    curveSegments: 15
                 } )
         
                 serifTextGeom.center()
