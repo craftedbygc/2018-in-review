@@ -82,6 +82,7 @@ export default class Timeline {
                             let texture = new THREE.VideoTexture( video )
                             texture.minFilter = texture.magFilter = THREE.LinearFilter
                             texture.name = `${month}/${filename}`
+                            texture.mediaType = 'video'
                             texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
                             texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
 
@@ -99,6 +100,7 @@ export default class Timeline {
                         imageLoader.load( `assets/${month}/${filename}`, texture => {
 
                             texture.name = `${month}/${filename}`
+                            texture.mediaType = 'image'
                             texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
                             texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
                             texture.needsUpdate = true
@@ -162,6 +164,8 @@ export default class Timeline {
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = this.camera.near
         this.raycaster.far = this.camera.far
+        this.frustum = new THREE.Frustum()
+        this.cameraViewProjectionMatrix = new THREE.Matrix4()
         this.mouse = new THREE.Vector2()
 
     }
@@ -177,6 +181,7 @@ export default class Timeline {
         this.sections = {}
         this.items = {}
         this.itemMeshes = [] // array for raytracing
+        this.videoItems = []
 
         let monthIndex = 0, itemIndexTotal = 0, nextMonthPos = 0
 
@@ -299,6 +304,10 @@ export default class Timeline {
                     this.sections[key].add( this.items[id].mesh )
                     this.itemMeshes.push( this.items[id].mesh )
 
+                    if( this.assets.textures[key][ id ].mediaType === 'video' ) {
+                        this.videoItems.push( this.items[id].mesh )
+                    }
+
                     itemIndex++
                     itemIndexTotal++
 
@@ -318,11 +327,7 @@ export default class Timeline {
 
         }
 
-        this.items['feb/0.mp4'].mesh.onBeforeRender = function( r, s, c, g, material ) {
-            if( material.uniforms.texture.value.image.paused ) {
-                material.uniforms.texture.value.image.play()
-            }
-        }
+        this.videoCount = this.videoItems.length - 1
 
         this.animate()
         this.initListeners()
@@ -557,8 +562,23 @@ export default class Timeline {
 
         this.animationId = requestAnimationFrame( this.animate.bind(this) )
 
-        // let elapsedMilliseconds = Date.now() - this.c.startTime
-        // this.items[0].uniforms.time.value = elapsedMilliseconds / 1000
+        this.camera.updateMatrixWorld();
+        this.camera.matrixWorldInverse.getInverse( this.camera.matrixWorld );
+        this.cameraViewProjectionMatrix.multiplyMatrices( this.camera.projectionMatrix, this.camera.matrixWorldInverse );
+        this.frustum.setFromMatrix( this.cameraViewProjectionMatrix );
+
+        for( let i = 0; i < this.videoCount; i++ ) {
+
+            if( this.frustum.intersectsObject( this.videoItems[ i ] ) && this.videoItems[ i ].material.uniforms.texture.value.image.paused ) {
+                this.videoItems[ i ].material.uniforms.texture.value.image.play()
+                continue
+            }
+            
+            if ( !this.frustum.intersectsObject( this.videoItems[ i ] ) && !this.videoItems[ i ].material.uniforms.texture.value.image.paused ) {
+                this.videoItems[ i ].material.uniforms.texture.value.image.pause()
+            }
+
+        }
 
         if( this.c.allowPerspective && this.updatingPerspective ) {
             this.updatePerspective()
@@ -615,7 +635,7 @@ export default class Timeline {
 
         this.gesture.on( 'panmove', event => {
 
-            this.c.scrollPos += this.gesture.velocityY * 2
+            this.c.scrollPos += -this.gesture.velocityY * 2
             this.c.scrolling = true;
 
         })
