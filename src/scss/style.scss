@@ -81,6 +81,7 @@ main {
         display: inline-block;
         width: 20px;
         height: 20px;
+        pointer-events: all;
 
         &:not(:last-child) {
             margin-right: 10px;

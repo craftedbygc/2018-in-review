@@ -2,6 +2,7 @@ const months = {
 
     intro: {
         textColor: 0x1b42d8,
+        outlineTextColor: 0x1b42d8,
         bgColor: 0xAEC7C3,
         tintColor: 0x1b42d8
     },
@@ -79,6 +80,7 @@ const months = {
     },
     end: {
         textColor: 0xED859C,
+        outlineTextColor: 0xB9B4E8,
         bgColor: 0x416863,
         tintColor: 0xF81B06
     },

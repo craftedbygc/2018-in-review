@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { TweenMax } from 'gsap'
+import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture';
 
 import vert from '../shaders/shader.vert'
@@ -156,9 +157,9 @@ export default class Timeline {
         this.scene.background = new THREE.Color( 0xAEC7C3 )
         this.scene.fog = new THREE.Fog( 0xAEC7C3, 1400, 2000 )
 
-        let cameraPosition = 900;
+        let cameraPosition = 800;
 
-        const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI
+        const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI // TODO: fix mobile scaling
         this.camera = new THREE.PerspectiveCamera( fov, this.c.size.w / this.c.size.h, 1, 2000 )
         this.camera.lookAt( this.scene.position )
         this.camera.position.z = cameraPosition
@@ -321,9 +322,16 @@ export default class Timeline {
 
             this.sections[key].position.z = nextMonthPos
             this.monthPositions[key] = nextMonthPos + 1100 ;
-            nextMonthPos += bbox.min.z - ( key === 'intro' ? 1300 : 800 ) // TODO: get from camera?
+            let posOffset = 800; // TODO: get from camera?
+            if( key === 'intro' ) posOffset = 1300
+            if( key === 'dec' ) posOffset = 1800
+            nextMonthPos += bbox.min.z - posOffset
 
             this.timeline.add( this.sections[key] )
+
+            if( key === 'end' ) {
+                this.stopScrollPos = this.sections[key].position.z
+            }
 
         }
 
@@ -552,6 +560,8 @@ export default class Timeline {
             let bgColor = new THREE.Color( this.months[ this.activeMonth ].bgColor )
             let textColor = new THREE.Color( this.months[ this.activeMonth ].textColor )
             let tintColor = new THREE.Color( this.months[ this.activeMonth ].tintColor )
+            let svgRule = CSSRulePlugin.getRule('main svg')
+            let interfaceColor
 
             TweenMax.to( this.scene.fog.color, 1, {
                 r: bgColor.r,
@@ -584,6 +594,26 @@ export default class Timeline {
                 })
 
             }
+
+            if( this.months[ this.activeMonth ].outlineTextColor ) {
+
+                let outlineTextColor = new THREE.Color( this.months[ this.activeMonth ].outlineTextColor )
+                interfaceColor = outlineTextColor.getHexString()
+
+                TweenMax.to( [ this.textOutlineMat.color, this.textOutlineMat.emissive ], 1, {
+                    r: outlineTextColor.r,
+                    g: outlineTextColor.g,
+                    b: outlineTextColor.b,
+                    ease: 'Power4.easeOut'
+                })
+                
+            } else {
+
+                interfaceColor = textColor.getHexString()
+    
+            }
+
+            TweenLite.to( svgRule, 1, { cssRule: { fill: '#' + interfaceColor }, ease: 'Power4.easeOut' } )
 
         }
 
@@ -622,6 +652,9 @@ export default class Timeline {
 
         // smooth scrolling
         if( this.c.allowScrolling && this.c.scrolling ) {
+
+            if( this.c.scrollPos <= 0 ) this.c.scrollPos = 0
+            if( this.c.scrollPos >= -this.stopScrollPos ) this.c.scrollPos = -this.stopScrollPos
 
             let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
             this.timeline.position.z += delta
