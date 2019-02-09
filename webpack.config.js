@@ -1,13 +1,17 @@
 const webpack = require('webpack')
 const path = require('path')
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const devMode = process.env.NODE_ENV !== 'production'
 
 module.exports = {
     entry: './src/main.js',
     output: {
         path: path.resolve(__dirname, 'public/js'),
         publicPath: '/js/',
-        filename: 'main.bundle.js'
+        filename: 'main.js'
     },
     module: {
         rules: [
@@ -32,19 +36,14 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
-              test: /\.scss$/, // TODO: add vendor prefixes
-              use: [
-                {
-                  loader: "style-loader" // creates style nodes from JS strings
-                },
-                {
-                  loader: "css-loader" // translates CSS into CommonJS
-                },
-                {
-                  loader: "sass-loader" // compiles Sass to CSS
-                }
-              ]
-            }
+                test: /\.(sa|sc|c)ss$/,
+                use: [
+                  devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+                  'css-loader',
+                //   'postcss-loader',
+                  'sass-loader',
+                ],
+            },
         ]
     },
     plugins: [
@@ -72,13 +71,36 @@ module.exports = {
             {
                 reload: false
             }
-        )
+        ),
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[id].css',
+        })
     ],
     devServer: {
         hot: true, // Tell the dev-server we're using HMR
         contentBase: path.resolve(__dirname, 'public'),
         publicPath: '/js/'
     },
-    watch: true,
-    devtool: 'cheap-eval-source-map'
+    devtool: 'cheap-eval-source-map',
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin({
+                cache: true,
+                parallel: true,
+                sourceMap: true // set to true if you want JS source maps
+            }),
+            new OptimizeCSSAssetsPlugin({})
+        ],
+        splitChunks: {
+            cacheGroups: {
+              styles: {
+                name: 'styles',
+                test: /\.css$/,
+                chunks: 'all',
+                enforce: true
+              }
+            }
+          }
+    }
 }
