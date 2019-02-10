@@ -54,6 +54,7 @@ module.exports = {
                 host: 'localhost',
                 port: 3001,
                 proxy: 'http://localhost:8080/',
+                open: false,
                 files: [
                     {
                         match: ['**/*.html'],
