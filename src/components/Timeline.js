@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { TweenMax } from 'gsap'
 import CSSRulePlugin from 'gsap/CSSRulePlugin'
-import TinyGesture from 'tinygesture';
+import TinyGesture from 'tinygesture'
+import DeviceOrientationControls from 'three-device-orientation'
 
 import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
@@ -171,6 +172,14 @@ export default class Timeline {
         this.frustum = new THREE.Frustum()
         this.cameraViewProjectionMatrix = new THREE.Matrix4()
         this.mouse = new THREE.Vector2()
+
+        window.addEventListener( 'devicemotion', event => {
+            if( event.rotationRate.alpha || event.rotationRate.beta || event.rotationRate.gamma ) {
+                if( !this.controls ) {
+                    this.controls = new DeviceOrientationControls( this.camera )
+                }
+            }
+        })
 
     }
 
@@ -706,6 +715,8 @@ export default class Timeline {
 
         }
 
+        if( this.controls ) this.controls.update()
+
         this.renderer.render(this.scene, this.camera)
 
     }
@@ -742,6 +753,46 @@ export default class Timeline {
             this.c.scrolling = true;
 
         })
+
+        // const distance = window.innerWidth * 2
+ 
+        // this.gyro = new GyroPlane({
+        //     width: window.innerWidth,
+        //     height: window.innerHeight,
+        //     distance: distance
+        // })
+        
+        // // Update the orientation values from a gyroscope.
+        // // gyro.updateOrientation({ alpha: 30, beta: -25.6 })
+        
+        // // To get the calculated coordinates, you have to call this function.
+        // // this.coordinates = gyro.getScreenCoordinates()
+
+        // if (window.DeviceOrientationEvent) {
+        //     window.addEventListener("deviceorientation", (event) => {
+
+        //         this.gyro.updateOrientation({ alpha: event.beta, beta: event.gamma })
+        //         this.gyroCoords = this.gyro.getScreenCoordinates()
+        //         console.log( this.gyroCoords, 'deviceorientation' )
+
+        //         TweenMax.to( this.camera.rotation, 1, {
+        //             x: this.gyroCoords.x * 0.0001,
+        //             y: this.gyroCoords.y * 0.0001,
+        //             ease: 'Power4.easeOut',
+        //         })
+
+        //     }, true);
+        // } else if (window.DeviceMotionEvent) {
+        //     window.addEventListener('devicemotion', function () {
+        //         gyro.updateOrientation({ alpha: event.acceleration.x * 2, beta: event.acceleration.y * 2 })
+        //         console.log(gyro.getScreenCoordinates(), 'devicemotion')
+        //     }, true);
+        // } else {
+        //     window.addEventListener("MozOrientation", function () {
+        //         gyro.updateOrientation({ alpha: orientation.x * 50, beta: orientation.y * 50 })
+        //         console.log(gyro.getScreenCoordinates())
+        //     }, true);
+        // }
 
     }
 
