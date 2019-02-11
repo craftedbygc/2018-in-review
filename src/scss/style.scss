@@ -125,6 +125,21 @@ main {
         }
     }
 
+    &[data-cursor="move"] {
+        .move {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+
+            svg {
+                stroke-dashoffset: 0;
+
+                path {
+                    transform: scale(0.6);
+                }
+            }
+        }
+    }
+
     svg {
         fill: none;
         stroke: #1b42d8;
@@ -158,5 +173,24 @@ main {
         width: 40px;
         height: 40px;
         opacity: 0;
+    }
+
+    .move {
+        width: 80px;
+        height: 80px;
+        transition-timing-function: ease-in-out;
+
+        svg {
+            stroke-width: 1.5;
+            stroke-dashoffset: 252.363;
+            stroke-dasharray: 252.363px;
+            transition: stroke-dashoffset 0.8s ease-in-out;
+
+            path {
+                transition: transform 0.8s cubic-bezier(1, 0, 0, 1);
+                transition-delay: 0.4s;
+                transform-origin: center;
+            }
+        }
     }
 }

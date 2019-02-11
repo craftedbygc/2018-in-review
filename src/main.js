@@ -17,6 +17,7 @@ if (module.hot) {
         removeEventListener('resize', timeline.resize)
         removeEventListener('mousemove', timeline.mouseMove)
         removeEventListener('mousedown', timeline.mouseDown)
+        removeEventListener('mouseup', timeline.mouseUp)
         timeline.gesture.destroy()
     })
 }

@@ -43,6 +43,8 @@ export default class Timeline {
             scrollPos: 0,
             scrolling: false,
             allowScrolling: true,
+            autoMoveSpeed: 0,
+            holdingMouseDown: false,
             touchEnabled: ('ontouchstart' in window)
         }
 
@@ -634,6 +636,8 @@ export default class Timeline {
 
         e.preventDefault();
 
+        this.c.holdingMouseDown = true
+
         if( this.itemOpen ) {
 
             this.closeItem()
@@ -648,15 +652,33 @@ export default class Timeline {
                     this.dom.cursor.dataset.cursor = 'cross'
                 }
 
+            } else {
+
+                this.dom.cursor.dataset.cursor = 'move'
+
+                TweenMax.to( this.c, 0.5, {
+                    delay: 0.6,
+                    autoMoveSpeed: 20
+                } )
+
             }
 
         }
 
     }
 
+    mouseUp() {
+
+        if( !this.itemOpen ) this.dom.cursor.dataset.cursor = 'pointer'
+        this.c.holdingMouseDown = false
+        TweenMax.killTweensOf( this.c, { autoMoveSpeed: true } )
+        this.c.autoMoveSpeed = 0
+
+    }
+
     mouseMove( e ) {
 
-        if( !this.itemOpen ) {
+        if( !this.itemOpen && !this.c.holdingMouseDown ) {
 
             this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
             this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
@@ -804,6 +826,11 @@ export default class Timeline {
             this.updatingPerspective = false
         }
 
+        if( this.c.autoMoveSpeed > 0 ) {
+            this.c.scrolling = true
+            this.c.scrollPos += this.c.autoMoveSpeed
+        }
+
         // smooth scrolling
         if( this.c.allowScrolling && this.c.scrolling ) {
 
@@ -855,9 +882,11 @@ export default class Timeline {
         this.mouseMove = this.mouseMove.bind( this )
         this.scroll = this.scroll.bind( this )
         this.mouseDown = this.mouseDown.bind( this )
+        this.mouseUp = this.mouseUp.bind( this )
         addEventListener( 'resize', this.resize )
         addEventListener( 'mousemove', this.mouseMove )
         addEventListener( 'mousedown', this.mouseDown )
+        addEventListener( 'mouseup', this.mouseUp )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll )
 
         this.gesture = new TinyGesture( this.renderer.domElement, { mouseSupport: false } )
