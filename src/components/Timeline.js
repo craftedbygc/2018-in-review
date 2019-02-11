@@ -9,6 +9,7 @@ import frag from '../shaders/shader.frag'
 import greenscreen from '../shaders/greenscreen.frag'
 import months from './months'
 import assets from '../assets'
+import assetOrder from '../assetOrder'
 
 export default class Timeline {
 

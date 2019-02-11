@@ -16,9 +16,23 @@ function getDirContents($dir, &$results = array()){
 }
 
 $assets = getDirContents('public/assets');
+$monthAssets = $assets;
+unset( $monthAssets['intro'] );
+unset( $monthAssets['end'] );
+// ksort( $monthAssets );
 
-print_r( $assets );
+uksort($monthAssets, "compare_months");
+
+function compare_months($a, $b) {
+    $monthA = date_parse($a);
+    $monthB = date_parse($b);
+
+    return $monthA["month"] - $monthB["month"];
+}
 
 $json = 'const assets = ' . json_encode( $assets ) . '; export default assets;';
+$json_pretty = json_encode( $monthAssets, JSON_PRETTY_PRINT );
 
 file_put_contents( 'src/assets.js', $json );
+
+file_put_contents( 'src/assetDataGenerated.json', $json_pretty );
