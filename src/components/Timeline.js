@@ -898,6 +898,18 @@ export default class Timeline {
 
         })
 
+        this.gesture.on( 'panend', event => {
+
+            this.c.autoMoveSpeed = 0
+
+        })
+
+        this.gesture.on( 'longpress', event => {
+
+            this.c.autoMoveSpeed = 10
+
+        })
+
         if( !this.c.touchEnabled ) {
             this.dom.cursor.dataset.cursor = 'pointer'
         }
