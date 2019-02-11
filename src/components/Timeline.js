@@ -506,7 +506,6 @@ export default class Timeline {
 
     openItem( item ) {
 
-        this.itemOpen = item
         this.origTimelinePos = this.timeline.position.z
         this.c.allowScrolling = false
 
@@ -519,7 +518,11 @@ export default class Timeline {
         TweenMax.to( item.mesh.position, 1.5, {
             x: 0,
             y: 0,
-            ease: 'Expo.easeInOut'
+            ease: 'Expo.easeInOut',
+            onComplete: () => {
+                this.itemOpen = item
+                this.dom.cursor.dataset.cursor = 'cross'
+            }
         })
 
         TweenMax.to( item.uniforms.progress, 1.5, {
