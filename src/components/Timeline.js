@@ -19,7 +19,7 @@ export default class Timeline {
         this.init()
 
         if( !window.assets ) {
-            this.loadAssets()
+            this.loadInitialAssets()
         } else {
             this.assets = window.assets
             this.createTimeline()
@@ -44,6 +44,19 @@ export default class Timeline {
         }
 
         this.assetList = assets
+        this.initialAssetList = {}
+        this.postLoadAssetList = {}
+
+        Object.keys( this.assetList ).map( key => {
+            if( key === 'intro' || 
+                key === 'jan' ||
+                key === 'feb' ) {
+                    this.initialAssetList[ key ] = this.assetList[ key ]
+                } else {
+                    this.postLoadAssetList[ key ] = this.assetList[ key ]
+                }
+        } )
+
         this.activeMonth = 'jan'
         this.months = months
         this.monthPositions = {}
@@ -51,7 +64,7 @@ export default class Timeline {
         
     }
 
-    loadAssets() {
+    loadInitialAssets() {
 
         this.assets = {
             textures: {},
@@ -63,65 +76,57 @@ export default class Timeline {
         let imageLoader = new THREE.TextureLoader()
         imageLoader.crossOrigin = ''
 
+        let preload = false
+
         for( let month in this.assetList ) {
+
+            preload = month === 'intro' ? true : false
+
             this.assetList[month].forEach( filename => {
 
-                assetLoadPromises.push( new Promise( resolve => {
+                if( ~filename.indexOf( '.mp4' ) ) {
 
-                    if( ~filename.indexOf( '.mp4' ) ) {
+                    let video = document.createElement( 'video' );
+                    video.style = 'position:absolute;height:0'
+                    video.muted = true
+                    video.autoplay = false
+                    video.loop = true
+                    video.crossOrigin = 'anonymous'
+                    video.setAttribute('webkit-playsinline', true)
+                    video.src = `assets/${month}/${filename}`
+                    document.body.appendChild( video )
+                    video.load(); // must call after setting/changing source
 
-                        let video = document.createElement( 'video' );
-                        video.style = 'position:absolute;height:0'
-                        video.muted = true
-                        video.autoplay = false
-                        video.loop = true
-                        video.crossOrigin = 'anonymous'
-                        video.setAttribute('webkit-playsinline', true)
-                        video.src = `assets/${month}/${filename}`
-                        document.body.appendChild( video )
-                        video.load(); // must call after setting/changing source
+                    if( preload ) {
 
-                        video.oncanplaythrough = () => {
-
-                            let texture = new THREE.VideoTexture( video )
-                            texture.minFilter = texture.magFilter = THREE.LinearFilter
-                            texture.name = `${month}/${filename}`
-                            texture.mediaType = 'video'
-                            texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
-                            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-
-                            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-                            this.assets.textures[ month ][ texture.name ] = texture
-        
-                            resolve( texture )
-        
-                            video.oncanplaythrough = null
-        
-                        }
+                        assetLoadPromises.push( new Promise( resolve => {
+                            video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
+                        }))
 
                     } else {
 
-                        imageLoader.load( `assets/${month}/${filename}`, texture => {
-
-                            texture.name = `${month}/${filename}`
-                            texture.mediaType = 'image'
-                            texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
-                            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-                            texture.needsUpdate = true
-                            this.renderer.setTexture2D( texture, 0 )
-    
-                            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-                            this.assets.textures[ month ][ texture.name ] = texture
-    
-                            resolve( texture )
-    
-                        })
+                        this.createVideoTexture( video, month, filename, false )
 
                     }
 
-                }))
+                } else {
+
+                    if( preload ) {
+
+                        assetLoadPromises.push( new Promise( resolve => {
+                            imageLoader.load( `assets/${month}/${filename}`, texture => this.createImageTexture( texture, month, filename, resolve ) )
+                        }))
+
+                    } else {
+
+                        this.createImageTexture( false, month, filename, false )
+
+                    }
+
+                }
 
             })
+
         }
 
         // Load Fonts
@@ -139,6 +144,9 @@ export default class Timeline {
             } ) ) )
         }
 
+        console.log(assetLoadPromises);
+        
+
         Promise.all( assetLoadPromises ).then( assets => {
 
             // all assets loaded - initialise
@@ -148,9 +156,82 @@ export default class Timeline {
 
     }
 
+    createImageTexture( texture, month, filename, resolve ) {
+        
+        // if preloaded
+        if( resolve ) {
+
+            texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
+            texture.needsUpdate = true
+            this.renderer.setTexture2D( texture, 0 )
+
+            texture.name = `${month}/${filename}`
+            texture.mediaType = 'image'
+            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
+
+            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
+            this.assets.textures[ month ][ texture.name ] = texture
+        
+            resolve( texture )
+
+        } else {
+
+            let texture = new THREE.TextureLoader().load( `assets/${month}/${filename}`, texture => {
+
+                texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
+                texture.needsUpdate = true
+                // this.renderer.setTexture2D( texture, 0 )
+
+            } )
+            texture.size = new THREE.Vector2( 10, 10 )
+
+            texture.name = `${month}/${filename}`
+            texture.mediaType = 'image'
+            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
+
+            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
+            this.assets.textures[ month ][ texture.name ] = texture
+
+        }
+
+    }
+
+    createVideoTexture( video, month, filename, resolve ) {
+
+        let texture = new THREE.VideoTexture( video )
+        texture.minFilter = texture.magFilter = THREE.LinearFilter
+        texture.name = `${month}/${filename}`
+        texture.mediaType = 'video'
+        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
+
+        // if preloaded
+        if( resolve ) {
+
+            texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
+    
+            resolve( texture )
+            video.oncanplaythrough = null
+
+        } else {
+
+            texture.size = new THREE.Vector2( 1, 1 )
+
+            video.oncanplaythrough = () => {
+                texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
+                texture.needsUpdate = true
+                video.oncanplaythrough = null
+            }
+
+        }
+
+        if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
+        this.assets.textures[ month ][ texture.name ] = texture
+
+    }
+
     init() {
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
         this.renderer.setPixelRatio( this.c.dpr )
         this.renderer.setSize( this.c.size.w, this.c.size.h )
         document.body.appendChild( this.renderer.domElement )
@@ -288,7 +369,7 @@ export default class Timeline {
                 mesh.scale.set( 700, 700, 1 )
                 mesh.position.set( 0, 0, -200 )
 
-                this.assets.textures[key][ 'end/glit.mp4' ].image.play()
+                // this.assets.textures[key][ 'end/glit.mp4' ].image.play() // TODO: play when enters camera
 
                 this.sections[ key ].add( mesh )
 
@@ -336,6 +417,14 @@ export default class Timeline {
 
                     this.items[id].mesh = new THREE.Mesh( this.items[id].geometry, this.items[id].material )
                     this.items[id].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
+
+                    // updates size of meshes after texture has been loaded
+                    this.assets.textures[key][ id ].onUpdate = () => {
+                        if( this.items[id].mesh.scale.x !== this.assets.textures[key][ id ].size.x && this.items[id].mesh.scale.y !== this.assets.textures[key][ id ].size.y ) {
+                            this.items[id].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
+                            this.assets.textures[key][ id ].onUpdate = null
+                        }
+                    }
 
                     let align = itemIndexTotal % 4, pos = new THREE.Vector2()
 
