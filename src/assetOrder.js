@@ -1,6 +1,5 @@
 const assetOrder = {
     "jan": [
-        "berlin-3.JPG",
         "adicolor_ss2018-resize.mp4",
         "cursor-opt.mp4",
         "iceland.mp4",
@@ -8,7 +7,8 @@ const assetOrder = {
         "nike.mp4",
         "roadless.jpg",
         "soft-drinks.jpg",
-        "tiles.jpg"
+        "tiles.jpg",
+        "berlin-3.JPG",
     ],
     "feb": [
         "camera-culture.jpg",

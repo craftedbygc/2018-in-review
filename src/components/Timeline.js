@@ -8,7 +8,6 @@ import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
 import greenscreen from '../shaders/greenscreen.frag'
 import months from './months'
-import assets from '../assets'
 import assetOrder from '../assetOrder'
 
 export default class Timeline {
@@ -50,7 +49,14 @@ export default class Timeline {
 
         if( this.c.touchEnabled ) document.documentElement.classList.add('touch-enabled')
 
-        this.assetList = assets
+        this.assetList = assetOrder
+        this.assetList.intro = [
+            'ok.png'
+        ]
+
+        this.assetList.end = [
+            'glit.mp4'
+        ]
 
         this.activeMonth = 'intro'
         this.months = months
