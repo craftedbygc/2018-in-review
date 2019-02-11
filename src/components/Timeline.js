@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { TweenMax } from 'gsap'
 import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture'
-// import DeviceOrientationControls from 'three-device-orientation'
 import DeviceOrientationControls from './three-orientation-controls'
 
 import vert from '../shaders/shader.vert'
