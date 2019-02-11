@@ -28,8 +28,26 @@ function compare_months($a, $b) {
     return $monthA["month"] - $monthB["month"];
 }
 
-$json = 'const assets = ' . json_encode( $assets ) . '; export default assets;';
+// $json = 'const assets = ' . json_encode( $assets ) . '; export default assets;';
 $json_pretty = json_encode( $monthAssets, JSON_PRETTY_PRINT );
 
 // file_put_contents( 'src/assets.js', $json );
 file_put_contents( 'src/assetListGenerated.json', $json_pretty );
+
+foreach( $monthAssets as $key => $month ) {
+
+    unset( $monthAssets[ $key ] );
+
+    foreach( $month as $file => $value ) {
+
+        $monthAssets[ $key ][ $value ] = [
+            'caption' => '',
+            'link' => ''
+        ];
+
+    }
+
+}
+
+$json_pretty = json_encode( $monthAssets, JSON_PRETTY_PRINT );
+file_put_contents( 'src/assetDataGenerated.json', $json_pretty );
