@@ -431,6 +431,7 @@ export default class Timeline {
                     this.items[id].align = align
                     this.items[id].mesh.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
                     this.items[id].origPos = new THREE.Vector2( pos.x, pos.y )
+                    this.items[id].month = key
 
                     this.items[id].mesh.openItem = this.openItem.bind( this, this.items[id] )
 
@@ -510,6 +511,12 @@ export default class Timeline {
         this.origTimelinePos = this.timeline.position.z
         this.c.allowScrolling = false
 
+        let posOffset = this.sections[ this.activeMonth ].position.z;
+
+        if( item.month !== this.activeMonth ) {
+            posOffset = this.sections[ this.remainingMonths[ this.remainingMonths.length - 2 ] ].position.z
+        }
+
         TweenMax.to( item.mesh.position, 1.5, {
             x: 0,
             y: 0,
@@ -522,7 +529,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(this.sections[ this.activeMonth ].position.z - -item.mesh.position.z) + 300, // TODO: fix when next section is active but you click previous section item
+            z: -(posOffset - -item.mesh.position.z) + 300,
             ease: 'Expo.easeInOut'
         })
 
@@ -536,7 +543,7 @@ export default class Timeline {
 
         let pos = new THREE.Vector2()
 
-        for( let x in this.items ) { // TODO: see if can select just in camera range
+        for( let x in this.items ) { // TODO: see if can select just in camera range + a bit more for the timeline move
 
             if( this.items[x].align === 0 ) pos.set( -700, 700 ) // bottom left
             if( this.items[x].align === 1 ) pos.set( 700, 700 ) // bottom right
