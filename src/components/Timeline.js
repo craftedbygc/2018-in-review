@@ -281,7 +281,7 @@ export default class Timeline {
         this.scene.add( this.timeline )
             
         this.textMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
-        this.captionTextMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
+        this.captionTextMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, opacity: 0, visible: false } )
         this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
 
         this.sections = {}
@@ -583,6 +583,15 @@ export default class Timeline {
             }
         })
 
+        TweenMax.to( this.captionTextMat, 1.5, {
+            delay: 0.5,
+            opacity: 1, 
+            ease: 'Expo.easeInOut',
+            onStart: () => {
+                this.captionTextMat.visible = true
+            }
+        })
+
         let pos = new THREE.Vector2()
 
         for( let x in this.items ) { // TODO: see if can select just in camera range + a bit more for the timeline move
@@ -642,6 +651,14 @@ export default class Timeline {
                 ease: 'Expo.easeInOut',
                 onStart: () => {
                     this.textMat.visible = true
+                }
+            })
+
+            TweenMax.to( this.captionTextMat, 1, {
+                opacity: 0, 
+                ease: 'Expo.easeInOut',
+                onComplete: () => {
+                    this.captionTextMat.visible = false
                 }
             })
 
