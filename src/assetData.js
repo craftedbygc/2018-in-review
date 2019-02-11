@@ -1,8 +1,8 @@
 const assetData = {
     "jan": {
         "adicolor_ss2018-resize.mp4": {
-            "caption": "",
-            "link": ""
+            "caption": "Testing captions",
+            "link": "http://google.com"
         },
         "berlin-3.JPG": {
             "caption": "",

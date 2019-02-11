@@ -9,6 +9,7 @@ import frag from '../shaders/shader.frag'
 import greenscreen from '../shaders/greenscreen.frag'
 import months from './months'
 import assetOrder from '../assetOrder'
+import assetData from '../assetData'
 
 export default class Timeline {
 
@@ -57,6 +58,8 @@ export default class Timeline {
         this.assetList.end = [
             'glit.mp4'
         ]
+
+        this.assetData = assetData
 
         this.activeMonth = 'intro'
         this.months = months
@@ -170,7 +173,7 @@ export default class Timeline {
             texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
 
             if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-            this.assets.textures[ month ][ texture.name ] = texture
+            this.assets.textures[ month ][ filename ] = texture
         
             resolve( texture )
 
@@ -190,7 +193,7 @@ export default class Timeline {
             texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
 
             if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-            this.assets.textures[ month ][ texture.name ] = texture
+            this.assets.textures[ month ][ filename ] = texture
 
         }
 
@@ -225,7 +228,7 @@ export default class Timeline {
         }
 
         if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-        this.assets.textures[ month ][ texture.name ] = texture
+        this.assets.textures[ month ][ filename ] = texture
 
     }
 
@@ -278,7 +281,8 @@ export default class Timeline {
         this.scene.add( this.timeline )
             
         this.textMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
-        this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, wireframe: false } )
+        this.captionTextMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
+        this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
 
         this.sections = {}
         this.items = {}
@@ -300,18 +304,19 @@ export default class Timeline {
                     size: 200,
                     height: 0,
                     curveSegments: 10
-                } )
-        
-                textGeom.center()
+                } ).center()
 
                 let monthName = new THREE.Mesh( textGeom, this.textMat )
                 monthName.position.set( 0, 0, 0 )
                 this.sections[key].add( monthName )
 
                 let itemIndex = 0
+                let id
 
                 // add items
-                for( let id in this.assets.textures[ key ] ) {
+                for( let filename in this.assets.textures[ key ] ) {
+
+                    id = `${key}/${filename}`
 
                     this.items[id] = {}
 
@@ -320,7 +325,7 @@ export default class Timeline {
                         fogColor: { type: "c", value: this.scene.fog.color },
                         fogNear: { type: "f", value: this.scene.fog.near },
                         fogFar: { type: "f", value: this.scene.fog.far },
-                        texture: { type: 't', value: this.assets.textures[key][ id ] },
+                        texture: { type: 't', value: this.assets.textures[key][ filename ] },
                         opacity: { type: 'f', value: 1.0 },
                         progress: { type: 'f', value: 0.0 },
                         gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
@@ -336,13 +341,13 @@ export default class Timeline {
                     })
 
                     this.items[id].mesh = new THREE.Mesh( this.items[id].geometry, this.items[id].material )
-                    this.items[id].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
+                    this.items[id].mesh.scale.set( this.assets.textures[key][ filename ].size.x, this.assets.textures[key][ filename ].size.y, 1 )
 
                     // updates size of meshes after texture has been loaded
-                    this.assets.textures[key][ id ].onUpdate = () => {
-                        if( this.items[id].mesh.scale.x !== this.assets.textures[key][ id ].size.x && this.items[id].mesh.scale.y !== this.assets.textures[key][ id ].size.y ) {
-                            this.items[id].mesh.scale.set( this.assets.textures[key][ id ].size.x, this.assets.textures[key][ id ].size.y, 1 )
-                            this.assets.textures[key][ id ].onUpdate = null
+                    this.assets.textures[key][ filename ].onUpdate = () => {
+                        if( this.items[id].mesh.scale.x !== this.assets.textures[key][ filename ].size.x && this.items[id].mesh.scale.y !== this.assets.textures[key][ filename ].size.y ) {
+                            this.items[id].mesh.scale.set( this.assets.textures[key][ filename ].size.x, this.assets.textures[key][ filename ].size.y, 1 )
+                            this.assets.textures[key][ filename ].onUpdate = null
                         }
                     }
 
@@ -354,16 +359,21 @@ export default class Timeline {
                     if( align === 3 ) pos.set( -350, -350 ) // top left
 
                     this.items[id].align = align
-                    this.items[id].mesh.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
+                    this.items[id].group = new THREE.Group()
+                    this.items[id].group.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
                     this.items[id].origPos = new THREE.Vector2( pos.x, pos.y )
                     this.items[id].month = key
 
+                    this.items[id].group.add( this.items[id].mesh )
+
+                    this.addCaption( this.items[id], this.assetData[ key ][ filename ] )
+
                     this.items[id].mesh.openItem = this.openItem.bind( this, this.items[id] )
 
-                    this.sections[key].add( this.items[id].mesh )
+                    this.sections[key].add( this.items[id].group )
                     this.itemMeshes.push( this.items[id].mesh )
 
-                    if( this.assets.textures[key][ id ].mediaType === 'video' ) {
+                    if( this.assets.textures[key][ filename ].mediaType === 'video' ) {
                         this.videoItems.push( this.items[id].mesh )
                     }
 
@@ -399,6 +409,28 @@ export default class Timeline {
 
     }
 
+    addCaption( item, data ) {
+
+        if( data.caption === '' && data.link === '' ) return
+
+        if( data.caption !== '' ) {
+
+            let captionGeom = new THREE.TextGeometry( data.caption, {
+                font: this.assets.fonts['Schnyder_Edit Outline'],
+                size: 18,
+                height: 0,
+                curveSegments: 6
+            } ).center()
+
+            let caption = new THREE.Mesh( captionGeom, this.captionTextMat )
+            caption.position.set( 0, -item.mesh.scale.y / 2 - 50, 0 )
+
+            item.group.add( caption )
+
+        }
+
+    }
+
     createIntroSection() {
 
         let sansTextGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
@@ -406,9 +438,7 @@ export default class Timeline {
             size: 50,
             height: 0,
             curveSegments: 4
-        } )
-
-        sansTextGeom.center()
+        } ).center()
 
         let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
         this.sections[ 'intro' ].add( sansText )
@@ -418,15 +448,13 @@ export default class Timeline {
             size: 490,
             height: 0,
             curveSegments: 15
-        } )
-
-        serifTextGeom.center()
+        } ).center()
 
         let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
         serifText.position.set( 0, 0, -500 )
         this.sections[ 'intro' ].add( serifText )
 
-        let material = new THREE.MeshBasicMaterial( { map: this.assets.textures['intro']['intro/ok.png'], transparent: true } )
+        let material = new THREE.MeshBasicMaterial( { map: this.assets.textures['intro']['ok.png'], transparent: true } )
         let geom = new THREE.PlaneGeometry( 1, 1 )
         let hand = new THREE.Mesh( geom, material )
         hand.scale.set( 1000, 1000, 1 )
@@ -444,9 +472,7 @@ export default class Timeline {
             size: 50,
             height: 0,
             curveSegments: 4
-        } )
-
-        sansTextGeom.center()
+        } ).center()
 
         let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
         this.sections[ 'end' ].add( sansText )
@@ -456,9 +482,7 @@ export default class Timeline {
             size: 400,
             height: 0,
             curveSegments: 15
-        } )
-
-        serifTextGeom.center()
+        } ).center()
 
         let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
         serifText.position.set( 0, 0, -300 )
@@ -470,7 +494,7 @@ export default class Timeline {
                 fogColor: { type: "c", value: this.scene.fog.color },
                 fogNear: { type: "f", value: this.scene.fog.near },
                 fogFar: { type: "f", value: this.scene.fog.far },
-                texture: { type: 't', value: this.assets.textures['end'][ 'end/glit.mp4' ] }
+                texture: { type: 't', value: this.assets.textures['end'][ 'glit.mp4' ] }
             },
             fragmentShader: greenscreen,
             vertexShader: vert,
@@ -531,7 +555,7 @@ export default class Timeline {
             posOffset = this.sections[ this.remainingMonths[ this.remainingMonths.length - 2 ] ].position.z
         }
 
-        TweenMax.to( item.mesh.position, 1.5, {
+        TweenMax.to( item.group.position, 1.5, {
             x: 0,
             y: 0,
             ease: 'Expo.easeInOut',
@@ -547,7 +571,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(posOffset - -item.mesh.position.z) + 300,
+            z: -(posOffset - -item.group.position.z) + 300,
             ease: 'Expo.easeInOut'
         })
 
@@ -575,7 +599,7 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
-            TweenMax.to( this.items[x].mesh.position, 1.5, {
+            TweenMax.to( this.items[x].group.position, 1.5, {
                 x: pos.x,
                 y: pos.y,
                 ease: 'Expo.easeInOut'
@@ -592,7 +616,7 @@ export default class Timeline {
             this.itemAnimating = true
             this.dom.cursor.dataset.cursor = 'pointer'
 
-            TweenMax.to( this.itemOpen.mesh.position, 1.5, {
+            TweenMax.to( this.itemOpen.group.position, 1.5, {
                 x: this.itemOpen.origPos.x,
                 y: this.itemOpen.origPos.y,
                 ease: 'Expo.easeInOut'
@@ -630,7 +654,7 @@ export default class Timeline {
                     ease: 'Expo.easeInOut'
                 })
 
-                TweenMax.to( this.items[x].mesh.position, 1.5, {
+                TweenMax.to( this.items[x].group.position, 1.5, {
                     x: this.items[x].origPos.x,
                     y: this.items[x].origPos.y,
                     ease: 'Expo.easeInOut'
@@ -780,7 +804,7 @@ export default class Timeline {
                 ease: 'Power4.easeOut'
             })
 
-            TweenMax.to( [ this.textMat.color, this.textMat.emissive ], 1, {
+            TweenMax.to( [ this.textMat.color, this.captionTextMat.color ], 1, {
                 r: textColor.r,
                 g: textColor.g,
                 b: textColor.b,
@@ -803,7 +827,7 @@ export default class Timeline {
                 let outlineTextColor = new THREE.Color( this.months[ this.activeMonth ].outlineTextColor )
                 interfaceColor = outlineTextColor.getHexString()
 
-                TweenMax.to( [ this.textOutlineMat.color, this.textOutlineMat.emissive ], 1, {
+                TweenMax.to( [ this.textOutlineMat.color ], 1, {
                     r: outlineTextColor.r,
                     g: outlineTextColor.g,
                     b: outlineTextColor.b,
