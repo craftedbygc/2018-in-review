@@ -711,7 +711,7 @@ export default class Timeline {
 
     updatePerspective() {
 
-        TweenMax.to( this.camera.rotation, 3, {
+        TweenMax.to( this.camera.rotation, 4, {
             x: -this.mousePerspective.y * 0.5,
             y: -this.mousePerspective.x * 0.5,
             ease: 'Power4.easeOut',
@@ -893,7 +893,7 @@ export default class Timeline {
 
         this.gesture.on( 'panmove', event => {
 
-            this.c.scrollPos += -this.gesture.velocityY * 5
+            this.c.scrollPos += -this.gesture.velocityY * 6
             this.c.scrolling = true;
 
         })
