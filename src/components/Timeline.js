@@ -678,7 +678,7 @@ export default class Timeline {
                 this.dom.cursor.dataset.cursor = 'move'
 
                 TweenMax.to( this.c, 0.5, {
-                    delay: 0.6,
+                    delay: 0.7,
                     autoMoveSpeed: 20
                 } )
 
