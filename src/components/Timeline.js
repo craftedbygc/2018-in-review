@@ -64,7 +64,7 @@ export default class Timeline {
             textures: {},
             fonts: {}
         }
-        let assetLoadPromises = [];
+        let assetLoadPromises = []
 
         // Load images + videos
         let imageLoader = new THREE.TextureLoader()
@@ -300,7 +300,7 @@ export default class Timeline {
 
                 let serifTextGeom = new THREE.TextGeometry( '2018', {
                     font: this.assets.fonts['Schnyder_Edit Outline'],
-                    size: 400,
+                    size: 490,
                     height: 0,
                     curveSegments: 15
                 } )
@@ -506,6 +506,8 @@ export default class Timeline {
 
     openItem( item ) {
 
+        this.itemAnimating = true
+        this.itemOpen = item
         this.origTimelinePos = this.timeline.position.z
         this.c.allowScrolling = false
 
@@ -520,7 +522,7 @@ export default class Timeline {
             y: 0,
             ease: 'Expo.easeInOut',
             onComplete: () => {
-                this.itemOpen = item
+                this.itemAnimating = false
                 this.dom.cursor.dataset.cursor = 'cross'
             }
         })
@@ -571,7 +573,10 @@ export default class Timeline {
 
     closeItem() {
 
-        if( this.itemOpen ) {
+        if( !this.itemAnimating && this.itemOpen ) {
+
+            this.itemAnimating = true
+            this.dom.cursor.dataset.cursor = 'pointer'
 
             TweenMax.to( this.itemOpen.mesh.position, 1.5, {
                 x: this.itemOpen.origPos.x,
@@ -585,6 +590,7 @@ export default class Timeline {
                 onComplete: () => {
                     this.c.allowScrolling = true
                     this.itemOpen = false
+                    this.itemAnimating = false
                 }
             })
 
@@ -650,7 +656,6 @@ export default class Timeline {
         if( this.itemOpen ) {
 
             this.closeItem()
-            this.dom.cursor.dataset.cursor = 'pointer'
 
         } else {
 
