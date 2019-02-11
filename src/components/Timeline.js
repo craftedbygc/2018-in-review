@@ -19,13 +19,12 @@ export default class Timeline {
         this.init()
 
         if( !window.assets ) {
-            this.loadInitialAssets()
+            this.loadAssets()
         } else {
             this.assets = window.assets
             this.createTimeline()
         }
-        
-
+    
     }
 
     setConfig() {
@@ -44,18 +43,6 @@ export default class Timeline {
         }
 
         this.assetList = assets
-        this.initialAssetList = {}
-        this.postLoadAssetList = {}
-
-        Object.keys( this.assetList ).map( key => {
-            if( key === 'intro' || 
-                key === 'jan' ||
-                key === 'feb' ) {
-                    this.initialAssetList[ key ] = this.assetList[ key ]
-                } else {
-                    this.postLoadAssetList[ key ] = this.assetList[ key ]
-                }
-        } )
 
         this.activeMonth = 'jan'
         this.months = months
@@ -64,7 +51,7 @@ export default class Timeline {
         
     }
 
-    loadInitialAssets() {
+    loadAssets() {
 
         this.assets = {
             textures: {},
@@ -144,10 +131,9 @@ export default class Timeline {
             } ) ) )
         }
 
-        console.log(assetLoadPromises);
-        
-
         Promise.all( assetLoadPromises ).then( assets => {
+
+            console.log('ASSETS LOADED');
 
             // all assets loaded - initialise
             this.createTimeline()
@@ -180,7 +166,7 @@ export default class Timeline {
 
                 texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
                 texture.needsUpdate = true
-                // this.renderer.setTexture2D( texture, 0 )
+                this.renderer.setTexture2D( texture, 0 )
 
             } )
             texture.size = new THREE.Vector2( 10, 10 )
@@ -472,6 +458,7 @@ export default class Timeline {
 
         this.videoCount = this.videoItems.length - 1
 
+        console.log('RENDER')
         this.addIntroBadge()
         this.animate()
         this.initListeners()
