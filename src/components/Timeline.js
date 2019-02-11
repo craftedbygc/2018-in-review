@@ -282,7 +282,7 @@ export default class Timeline {
 
         this.sections = {}
         this.items = {}
-        this.itemMeshes = [] // array for raytracing
+        this.itemMeshes = [] // array for raycasting mouse
         this.videoItems = []
 
         let itemIndexTotal = 0, nextMonthPos = 0
@@ -291,90 +291,9 @@ export default class Timeline {
 
             this.sections[ key ] = new THREE.Group()
 
-            if( key === 'intro' ) {
-
-                let sansTextGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
-                    font: this.assets.fonts['SuisseIntl-Bold'],
-                    size: 50,
-                    height: 0,
-                    curveSegments: 4
-                } )
-        
-                sansTextGeom.center()
-
-                let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
-                this.sections[ key ].add( sansText )
-
-                let serifTextGeom = new THREE.TextGeometry( '2018', {
-                    font: this.assets.fonts['Schnyder_Edit Outline'],
-                    size: 490,
-                    height: 0,
-                    curveSegments: 15
-                } )
-        
-                serifTextGeom.center()
-
-                let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
-                serifText.position.set( 0, 0, -500 )
-                this.sections[ key ].add( serifText )
-
-                let material = new THREE.MeshBasicMaterial( { map: this.assets.textures[key]['intro/ok.png'], transparent: true } )
-                let geom = new THREE.PlaneGeometry( 1, 1 )
-                let hand = new THREE.Mesh( geom, material )
-                hand.scale.set( 1000, 1000, 1 )
-                hand.position.set( 0, 0, -250 )
-                this.sections[ key ].add( hand )
-
-            } else if( key === 'end' ) {
-
-                let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
-                    font: this.assets.fonts['SuisseIntl-Bold'],
-                    size: 50,
-                    height: 0,
-                    curveSegments: 4
-                } )
-        
-                sansTextGeom.center()
-
-                let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
-                this.sections[ key ].add( sansText )
-
-                let serifTextGeom = new THREE.TextGeometry( 'END', {
-                    font: this.assets.fonts['Schnyder_Edit Outline'],
-                    size: 400,
-                    height: 0,
-                    curveSegments: 15
-                } )
-        
-                serifTextGeom.center()
-
-                let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
-                serifText.position.set( 0, 0, -300 )
-                this.sections[ key ].add( serifText )
-
-                let geometry = new THREE.PlaneGeometry( 1, 1 )
-                let material = new THREE.ShaderMaterial({
-                    uniforms: {
-                        fogColor: { type: "c", value: this.scene.fog.color },
-                        fogNear: { type: "f", value: this.scene.fog.near },
-                        fogFar: { type: "f", value: this.scene.fog.far },
-                        texture: { type: 't', value: this.assets.textures[key][ 'end/glit.mp4' ] }
-                    },
-                    fragmentShader: greenscreen,
-                    vertexShader: vert,
-                    fog: true,
-                    transparent: true
-                })
-
-                let mesh = new THREE.Mesh( geometry, material )
-                mesh.scale.set( 700, 700, 1 )
-                mesh.position.set( 0, 0, -200 )
-
-                // this.assets.textures[key][ 'end/glit.mp4' ].image.play() // TODO: play when enters camera
-
-                this.sections[ key ].add( mesh )
-
-            } else {
+            if( key === 'intro' ) this.createIntroSection()
+            else if( key === 'end' ) this.createEndSection()
+            else {
 
                 let textGeom = new THREE.TextGeometry( this.months[key].name, {
                     font: this.assets.fonts['Schnyder L'],
@@ -475,9 +394,97 @@ export default class Timeline {
         this.videoCount = this.videoItems.length - 1
 
         console.log('RENDER')
-        this.addIntroBadge()
         this.animate()
         this.initListeners()
+
+    }
+
+    createIntroSection() {
+
+        let sansTextGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
+            font: this.assets.fonts['SuisseIntl-Bold'],
+            size: 50,
+            height: 0,
+            curveSegments: 4
+        } )
+
+        sansTextGeom.center()
+
+        let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
+        this.sections[ 'intro' ].add( sansText )
+
+        let serifTextGeom = new THREE.TextGeometry( '2018', {
+            font: this.assets.fonts['Schnyder_Edit Outline'],
+            size: 490,
+            height: 0,
+            curveSegments: 15
+        } )
+
+        serifTextGeom.center()
+
+        let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
+        serifText.position.set( 0, 0, -500 )
+        this.sections[ 'intro' ].add( serifText )
+
+        let material = new THREE.MeshBasicMaterial( { map: this.assets.textures['intro']['intro/ok.png'], transparent: true } )
+        let geom = new THREE.PlaneGeometry( 1, 1 )
+        let hand = new THREE.Mesh( geom, material )
+        hand.scale.set( 1000, 1000, 1 )
+        hand.position.set( 0, 0, -250 )
+        this.sections[ 'intro' ].add( hand )
+
+        this.addIntroBadge()
+
+    }
+
+    createEndSection() {
+
+        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
+            font: this.assets.fonts['SuisseIntl-Bold'],
+            size: 50,
+            height: 0,
+            curveSegments: 4
+        } )
+
+        sansTextGeom.center()
+
+        let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
+        this.sections[ 'end' ].add( sansText )
+
+        let serifTextGeom = new THREE.TextGeometry( 'END', {
+            font: this.assets.fonts['Schnyder_Edit Outline'],
+            size: 400,
+            height: 0,
+            curveSegments: 15
+        } )
+
+        serifTextGeom.center()
+
+        let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
+        serifText.position.set( 0, 0, -300 )
+        this.sections[ 'end' ].add( serifText )
+
+        let geometry = new THREE.PlaneGeometry( 1, 1 )
+        let material = new THREE.ShaderMaterial({
+            uniforms: {
+                fogColor: { type: "c", value: this.scene.fog.color },
+                fogNear: { type: "f", value: this.scene.fog.near },
+                fogFar: { type: "f", value: this.scene.fog.far },
+                texture: { type: 't', value: this.assets.textures['end'][ 'end/glit.mp4' ] }
+            },
+            fragmentShader: greenscreen,
+            vertexShader: vert,
+            fog: true,
+            transparent: true
+        })
+
+        let mesh = new THREE.Mesh( geometry, material )
+        mesh.scale.set( 700, 700, 1 )
+        mesh.position.set( 0, 0, -200 )
+
+        // this.assets.textures['end'][ 'end/glit.mp4' ].image.play() // TODO: play when enters camera
+
+        this.sections[ 'end' ].add( mesh )
 
     }
 
@@ -496,7 +503,7 @@ export default class Timeline {
             font: this.assets.fonts['Schnyder L'],
             size: 26,
             height: 0,
-            curveSegments: 10
+            curveSegments: 6
         } )
 
         serifTextGeom.center()
@@ -507,7 +514,7 @@ export default class Timeline {
 
         this.badge.position.set( 0, -this.c.size.h / 2 + 90, 50 )
 
-        this.timeline.add( this.badge )
+        this.sections['intro'].add( this.badge )
 
     }
 
@@ -642,7 +649,7 @@ export default class Timeline {
         this.c.scrollPos += -delta * 20
         this.c.scrolling = true;        
         
-        function normalizeWheelDelta(e){
+        function normalizeWheelDelta( e ) {
             if(e.detail){
                 if(e.wheelDelta)
                     return e.wheelDelta/e.detail/40 * (e.detail>0 ? 1 : -1) // Opera
