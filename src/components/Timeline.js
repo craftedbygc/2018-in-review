@@ -29,6 +29,10 @@ export default class Timeline {
 
     setConfig() {
 
+        this.dom = {
+            cursor: document.querySelector('.cursor')
+        }
+
         this.c = {
             dpr: window.devicePixelRatio >= 2 ? 2 : 1,
             startTime: Date.now(),
@@ -39,8 +43,10 @@ export default class Timeline {
             scrollPos: 0,
             scrolling: false,
             allowScrolling: true,
-            allowPerspective: !('ontouchstart' in window)
+            touchEnabled: ('ontouchstart' in window)
         }
+
+        if( this.c.touchEnabled ) document.documentElement.classList.add('touch-enabled')
 
         this.assetList = assets
 
@@ -246,6 +252,7 @@ export default class Timeline {
         this.frustum = new THREE.Frustum()
         this.cameraViewProjectionMatrix = new THREE.Matrix4()
         this.mouse = new THREE.Vector2()
+        this.mousePerspective = new THREE.Vector2()
 
         window.addEventListener( 'devicemotion', event => {
             if( event.rotationRate.alpha || event.rotationRate.beta || event.rotationRate.gamma ) {
@@ -628,20 +635,18 @@ export default class Timeline {
         e.preventDefault();
 
         if( this.itemOpen ) {
+
             this.closeItem()
+            this.dom.cursor.dataset.cursor = 'pointer'
+
         } else {
 
-            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
-            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+            if ( this.intersects.length > 0 ) {
 
-            this.raycaster.setFromCamera( this.mouse, this.camera )
-
-            let intersects = this.raycaster.intersectObjects( this.itemMeshes )
-
-            if ( intersects.length > 0 ) {
-
-                if( intersects[0].object.openItem )
-                intersects[0].object.openItem()
+                if( this.intersects[0].object.openItem ) {
+                    this.intersects[0].object.openItem()
+                    this.dom.cursor.dataset.cursor = 'cross'
+                }
 
             }
 
@@ -651,17 +656,42 @@ export default class Timeline {
 
     mouseMove( e ) {
 
-        this.mouse.x = e.clientX / window.innerWidth - 0.5
-        this.mouse.y = e.clientY / window.innerHeight - 0.5
+        if( !this.itemOpen ) {
+
+            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
+            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+
+            this.raycaster.setFromCamera( this.mouse, this.camera )
+
+            this.intersects = this.raycaster.intersectObjects( this.itemMeshes )
+
+            if ( this.intersects.length > 0 ) {
+                this.dom.cursor.dataset.cursor = 'eye'
+            } else if ( this.dom.cursor.dataset.cursor !== 'pointer' ) {
+                this.dom.cursor.dataset.cursor = 'pointer'
+            }
+
+        }
+
+        this.mousePerspective.x = e.clientX / window.innerWidth - 0.5
+        this.mousePerspective.y = e.clientY / window.innerHeight - 0.5
         this.updatingPerspective = true
+
+        if( !this.c.touchEnabled ) {
+            TweenMax.to( '.cursor', 1.5, {
+                x: e.clientX,
+                y: e.clientY,
+                ease: 'Power4.easeOut'
+            })
+        }
 
     }
 
     updatePerspective() {
 
         TweenMax.to( this.camera.rotation, 3, {
-            x: -this.mouse.y * 0.5,
-            y: -this.mouse.x * 0.5,
+            x: -this.mousePerspective.y * 0.5,
+            y: -this.mousePerspective.x * 0.5,
             ease: 'Power4.easeOut',
         })
 
@@ -683,6 +713,7 @@ export default class Timeline {
             let textColor = new THREE.Color( this.months[ this.activeMonth ].textColor )
             let tintColor = new THREE.Color( this.months[ this.activeMonth ].tintColor )
             let svgRule = CSSRulePlugin.getRule('main svg')
+            let svgCursorRule = CSSRulePlugin.getRule('.cursor svg')
             let interfaceColor
 
             TweenMax.to( this.scene.fog.color, 1, {
@@ -736,6 +767,7 @@ export default class Timeline {
             }
 
             TweenLite.to( svgRule, 1, { cssRule: { fill: '#' + interfaceColor }, ease: 'Power4.easeOut' } )
+            TweenLite.to( svgCursorRule, 1, { cssRule: { stroke: '#' + interfaceColor }, ease: 'Power4.easeOut' } )
 
         }
 
@@ -767,7 +799,7 @@ export default class Timeline {
 
         this.animationId = requestAnimationFrame( this.animate.bind(this) )
 
-        if( this.c.allowPerspective && this.updatingPerspective ) {
+        if( !this.c.touchEnabled && this.updatingPerspective ) {
             this.updatePerspective()
             this.updatingPerspective = false
         }
@@ -836,6 +868,10 @@ export default class Timeline {
             this.c.scrolling = true;
 
         })
+
+        if( !this.c.touchEnabled ) {
+            this.dom.cursor.dataset.cursor = 'pointer'
+        }
 
     }
 
