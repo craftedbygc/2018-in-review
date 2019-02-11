@@ -1,7 +1,7 @@
 const assetData = {
     "jan": {
         "adicolor_ss2018-resize.mp4": {
-            "caption": "Testing captions",
+            "caption": "Who likes captions",
             "link": "http://google.com"
         },
         "berlin-3.JPG": {
@@ -9,11 +9,11 @@ const assetData = {
             "link": ""
         },
         "cursor-opt.mp4": {
-            "caption": "",
+            "caption": "We like captions",
             "link": ""
         },
         "iceland.mp4": {
-            "caption": "",
+            "caption": "Animated Captions",
             "link": ""
         },
         "iceland_dribbble.jpg": {
@@ -43,11 +43,11 @@ const assetData = {
             "link": ""
         },
         "ezgif.com-gif-to-mp4 (10).mp4": {
-            "caption": "",
+            "caption": "This is a really long caption as a test",
             "link": ""
         },
         "ezgif.com-gif-to-mp4 (12).mp4": {
-            "caption": "",
+            "caption": "Hello another caption here innit",
             "link": ""
         },
         "fila_dribbble.jpg": {
