@@ -52,7 +52,7 @@ export default class Timeline {
 
         this.assetList = assets
 
-        this.activeMonth = 'jan'
+        this.activeMonth = 'intro'
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
