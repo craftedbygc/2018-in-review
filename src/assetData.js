@@ -5,7 +5,7 @@ const assetData = {
             "link": "http://google.com"
         },
         "berlin-3.JPG": {
-            "caption": "",
+            "caption": "This is Berlin",
             "link": ""
         },
         "cursor-opt.mp4": {
@@ -39,7 +39,7 @@ const assetData = {
     },
     "feb": {
         "camera-culture.jpg": {
-            "caption": "",
+            "caption": "Camera Culture",
             "link": ""
         },
         "ezgif.com-gif-to-mp4 (10).mp4": {

@@ -422,10 +422,10 @@ export default class Timeline {
                 curveSegments: 6
             } ).center()
 
-            let caption = new THREE.Mesh( captionGeom, this.captionTextMat )
-            caption.position.set( 0, -item.mesh.scale.y / 2 - 50, 0 )
+            item.caption = new THREE.Mesh( captionGeom, this.captionTextMat )
+            item.caption.position.set( 0, -item.mesh.scale.y / 2 - 50, 0 )
 
-            item.group.add( caption )
+            item.group.add( item.caption )
 
         }
 
@@ -583,15 +583,27 @@ export default class Timeline {
             }
         })
 
-        TweenMax.to( this.captionTextMat, 1.5, {
-            delay: 0.5,
-            opacity: 1, 
+        TweenMax.to( this.captionTextMat, 2, {
+            opacity: 1,
             ease: 'Expo.easeInOut',
+            delay: 0.2,
             onStart: () => {
                 this.captionTextMat.visible = true
             }
         })
 
+        if( item.caption ) {
+
+            TweenMax.fromTo( item.caption.position, 2, {
+                z: -100
+            }, {
+                z: 0,
+                delay: 0.2,
+                ease: 'Expo.easeInOut',
+            })
+
+        }
+        
         let pos = new THREE.Vector2()
 
         for( let x in this.items ) { // TODO: see if can select just in camera range + a bit more for the timeline move
