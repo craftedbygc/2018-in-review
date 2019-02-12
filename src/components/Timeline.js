@@ -523,7 +523,7 @@ export default class Timeline {
             this.itemAnimating = true
             this.dom.cursor.dataset.cursor = 'pointer'
 
-            TweenMax.to( this.itemOpen.group.position, 1.5, {
+            TweenMax.to( this.itemOpen.position, 1.5, {
                 x: this.itemOpen.origPos.x,
                 y: this.itemOpen.origPos.y,
                 ease: 'Expo.easeInOut'
