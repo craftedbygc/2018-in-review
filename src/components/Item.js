@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import frag from '../shaders/shader.frag'
-import vert from '../shaders/shader.vert'
+import frag from '../shaders/item.frag'
+import vert from '../shaders/default.vert'
 
 export default class Item extends THREE.Group {
 

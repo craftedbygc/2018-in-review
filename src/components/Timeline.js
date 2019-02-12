@@ -2,15 +2,15 @@ import * as THREE from 'three'
 import { TweenMax } from 'gsap'
 import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture'
-import DeviceOrientationControls from './three-orientation-controls'
-import AssetLoader from './AssetLoader'
+import DeviceOrientationControls from '../utils/three-orientation-controls'
+import AssetLoader from '../utils/AssetLoader'
 import Item from './Item'
 
-import vert from '../shaders/shader.vert'
+import vert from '../shaders/default.vert'
 import greenscreen from '../shaders/greenscreen.frag'
-import months from './months'
-import assetOrder from '../assetOrder'
-import assetData from '../assetData'
+import months from '../config/months'
+import assetOrder from '../config/assetOrder'
+import assetData from '../config/assetData'
 
 export default class Timeline {
 
@@ -672,8 +672,6 @@ export default class Timeline {
         } else {
 
             if ( this.intersects.length > 0 ) {
-
-                console.log(this.intersects[0].object)
                 
                 this.openItem( this.intersects[0].object.parent )
                 this.dom.cursor.dataset.cursor = 'cross'
@@ -963,24 +961,15 @@ export default class Timeline {
 
         this.gesture = new TinyGesture( this.renderer.domElement, { mouseSupport: false } )
 
-        this.gesture.on( 'panmove', event => {
+        this.gesture.on( 'panmove', e => {
 
             this.c.scrollPos += -this.gesture.velocityY * 6
             this.c.scrolling = true;
 
         })
 
-        this.gesture.on( 'panend', event => {
-
-            this.c.autoMoveSpeed = 0
-
-        })
-
-        this.gesture.on( 'longpress', event => {
-
-            this.c.autoMoveSpeed = 10
-
-        })
+        this.gesture.on( 'panend', e => this.c.autoMoveSpeed = 0 )
+        this.gesture.on( 'longpress', e => this.c.autoMoveSpeed = 10 )
 
         if( !this.c.touchEnabled ) {
             this.dom.cursor.dataset.cursor = 'pointer'
