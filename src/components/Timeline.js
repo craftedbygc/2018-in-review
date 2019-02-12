@@ -3,6 +3,8 @@ import { TweenMax } from 'gsap'
 import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture'
 import DeviceOrientationControls from './three-orientation-controls'
+const createGeometry = require('three-bmfont-text')
+const loadFont = require('load-bmfont')
 
 import vert from '../shaders/shader.vert'
 import frag from '../shaders/shader.frag'
@@ -408,6 +410,7 @@ export default class Timeline {
 
         this.videoCount = this.videoItems.length - 1
 
+        this.createContactSection()
         console.log('RENDER')
         this.animate()
         this.initListeners()
@@ -421,7 +424,7 @@ export default class Timeline {
         if( data.caption !== '' ) {
 
             let captionGeom = new THREE.TextGeometry( data.caption, {
-                font: this.assets.fonts['Schnyder_Edit Outline'],
+                font: this.assets.fonts['Schnyder L'],
                 size: 18,
                 height: 0,
                 curveSegments: 6
@@ -553,6 +556,81 @@ export default class Timeline {
         // this.assets.textures['end'][ 'end/glit.mp4' ].image.play() // TODO: play when enters camera
 
         this.sections[ 'end' ].add( mesh )
+
+    }
+
+    createContactSection() {
+
+        // this.contactSection = new THREE.Group()
+        // this.contactSection.position.set( 0, 0, -100 )
+
+        // let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
+        //     font: this.assets.fonts['SuisseIntl-Bold'],
+        //     size: 50,
+        //     height: 0,
+        //     curveSegments: 4
+        // } ).center()
+
+        // let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
+        // this.sections[ 'end' ].add( sansText )
+
+        // let serifTextGeom = new THREE.TextGeometry( "We're looking for new talents and exciting projects\nWe're looking for new talents and exciting projects", {
+        //     font: this.assets.fonts['Schnyder L'],
+        //     size: 40,
+        //     height: 0,
+        //     curveSegments: 6
+        // } ).center()
+
+        // let serifText = new THREE.Mesh( serifTextGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
+        // serifText.position.set( 0, 0, 0 )
+        // this.contactSection.add( serifText )
+
+        // loadFont('fonts/schnyder.fnt', (err, font) => {
+        //     // create a geometry of packed bitmap glyphs, 
+        //     // word wrapped to 300px and right-aligned
+        //     var geometry = createGeometry({
+        //     //   width: 1500,
+        //       align: 'center',
+        //       font: font,
+        //     //   flipY: false
+        //     })
+           
+        //     // change text and other options as desired
+        //     // the options sepcified in constructor will
+        //     // be used as defaults
+        //     geometry.update("We're looking for new talents and exciting projects\nWe're looking for new talents and exciting projects")
+        //     // geometry.center()
+
+        //     // the resulting layout has metrics and bounds
+        //     console.log(geometry.layout.height)
+        //     console.log(geometry.layout.descender)
+              
+        //     // the texture atlas containing our glyphs
+        //     var textureLoader = new THREE.TextureLoader();
+        //     textureLoader.load('fonts/schnyder.png', (texture) => {
+        //       // we can use a simple ThreeJS material
+        //       var material = new THREE.MeshBasicMaterial({
+        //         map: texture,
+        //         transparent: true,
+        //         color: 0xFFFFFF,
+        //         // side: THREE.BackSide,
+        //       })
+           
+        //       // now do something with our mesh!
+        //       var mesh = new THREE.Mesh(geometry, material)
+        //       mesh.rotation.x = Math.PI
+        //       var layout = geometry.layout
+        //     mesh.position.x = -layout.width / 2
+        //     mesh.position.y = -layout.height / 2
+        //     //   mesh.rotation.y = Math.PI
+        //     //   mesh.scale.set( 100, 100, 1 )
+        //       this.contactSection.add( mesh )
+        //       this.scene.add( this.contactSection )
+
+        //     })
+        //   })
+
+        //   this.scene.add( this.contactSection )
 
     }
 

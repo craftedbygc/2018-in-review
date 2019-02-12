@@ -76,7 +76,10 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: '[id].css',
-        })
+        }),
+        new webpack.ProvidePlugin({
+            THREE: 'three'
+          })
     ],
     devServer: {
         hot: true, // Tell the dev-server we're using HMR
