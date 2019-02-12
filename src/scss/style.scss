@@ -69,6 +69,26 @@ main {
     pointer-events: all;
 }
 
+.say-hello {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 96px;
+    height: 12px;
+    pointer-events: all;
+
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        bottom: -10px;
+        padding-top: 10px;
+        width: 100%;
+        height: 2px;
+        border-bottom: 2px solid rgba(#1b42d8, 0.3);
+    }
+}
+
 .left, .right {
     position: absolute;
     top: 50%;

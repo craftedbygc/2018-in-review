@@ -20,7 +20,9 @@ export default class Timeline {
 
         if( !window.assets ) {
             this.loadAssets()
+            console.log('reload assets')
         } else {
+            console.log('cached assets')
             this.assets = window.assets
             this.createTimeline()
         }
@@ -80,11 +82,11 @@ export default class Timeline {
         let imageLoader = new THREE.TextureLoader()
         imageLoader.crossOrigin = ''
 
-        let preload = false
+        let preload = true
 
         for( let month in this.assetList ) {
 
-            preload = month === 'intro' ? true : false
+            // preload = month === 'intro' ? true : false
 
             this.assetList[month].forEach( filename => {
 
@@ -767,6 +769,12 @@ export default class Timeline {
     
     }
 
+    openContact() {
+
+        
+
+    }
+
     scroll( e ) {
 
         let delta = normalizeWheelDelta(e)
@@ -911,8 +919,9 @@ export default class Timeline {
             let bgColor = new THREE.Color( this.months[ this.activeMonth ].bgColor )
             let textColor = new THREE.Color( this.months[ this.activeMonth ].textColor )
             let tintColor = new THREE.Color( this.months[ this.activeMonth ].tintColor )
-            let svgRule = CSSRulePlugin.getRule('main svg')
-            let svgCursorRule = CSSRulePlugin.getRule('.cursor svg')
+            let svgRule = CSSRulePlugin.getRule( 'main svg' )
+            let svgCursorRule = CSSRulePlugin.getRule( '.cursor svg' )
+            let sayHelloUnderlineRule = CSSRulePlugin.getRule( '.say-hello:after' )
             let interfaceColor
 
             TweenMax.to( this.scene.fog.color, 1, {
@@ -950,7 +959,7 @@ export default class Timeline {
             if( this.months[ this.activeMonth ].outlineTextColor ) {
 
                 let outlineTextColor = new THREE.Color( this.months[ this.activeMonth ].outlineTextColor )
-                interfaceColor = outlineTextColor.getHexString()
+                interfaceColor = outlineTextColor
 
                 TweenMax.to( [ this.textOutlineMat.color ], 1, {
                     r: outlineTextColor.r,
@@ -961,12 +970,13 @@ export default class Timeline {
                 
             } else {
 
-                interfaceColor = textColor.getHexString()
+                interfaceColor = textColor
     
             }
 
-            TweenLite.to( svgRule, 1, { cssRule: { fill: '#' + interfaceColor }, ease: 'Power4.easeOut' } )
-            TweenLite.to( svgCursorRule, 1, { cssRule: { stroke: '#' + interfaceColor }, ease: 'Power4.easeOut' } )
+            TweenLite.to( svgRule, 1, { cssRule: { fill: '#' + interfaceColor.getHexString() }, ease: 'Power4.easeOut' } )
+            TweenLite.to( svgCursorRule, 1, { cssRule: { stroke: '#' + interfaceColor.getHexString() }, ease: 'Power4.easeOut' } )
+            TweenLite.to( sayHelloUnderlineRule, 1, { cssRule: { borderBottomColor: `rgba(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255}, 0.3)` }, ease: 'Power4.easeOut' } )
 
         }
 
@@ -1060,12 +1070,15 @@ export default class Timeline {
         this.scroll = this.scroll.bind( this )
         this.mouseDown = this.mouseDown.bind( this )
         this.mouseUp = this.mouseUp.bind( this )
-        addEventListener( 'resize', this.resize )
-        addEventListener( 'mousemove', this.mouseMove )
-        addEventListener( 'mousedown', this.mouseDown )
-        addEventListener( 'mouseup', this.mouseUp )
+        this.openContact = this.openContact.bind( this )
+
+        addEventListener( 'resize', this.resize, false )
+        addEventListener( 'mousemove', this.mouseMove, false )
+        addEventListener( 'mousedown', this.mouseDown, false )
+        addEventListener( 'mouseup', this.mouseUp, false )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
-        // this.renderer.domElement.addEventListener( 'DOMMouseScroll', this.scroll, false )
+
+        document.querySelector( '.say-hello' ).addEventListener( 'click', this.openContact, false )
 
         this.gesture = new TinyGesture( this.renderer.domElement, { mouseSupport: false } )
 
