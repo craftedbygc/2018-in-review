@@ -1,3 +1,5 @@
+import progressPromise from '../utils/progressPromise'
+
 export default class AssetLoader {
 
     constructor() {
@@ -8,6 +10,7 @@ export default class AssetLoader {
         }
         this.assetList = {}
         this.renderer = null
+        this.progressEl = document.querySelector( '.progress' )
 
     }
 
@@ -91,12 +94,17 @@ export default class AssetLoader {
         }
 
         return new Promise( resolve => {
-            Promise.all( assetLoadPromises ).then( () => {
-
+            progressPromise( assetLoadPromises, this.update.bind(this) ).then( results => {
+                console.log('done!');
                 resolve( this.assets )
-
-            })
+            });
         })
+
+    }
+
+    update( completed, total ) {
+
+        this.progressEl.innerHTML = Math.round( completed / total * 100 );
 
     }
 

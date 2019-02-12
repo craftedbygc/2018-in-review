@@ -61,7 +61,7 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-        
+       
     }
 
     loadAssets() {
@@ -98,12 +98,6 @@ export default class Timeline {
         this.camera = new THREE.PerspectiveCamera( fov, this.c.size.w / this.c.size.h, 1, 2000 )
         // this.camera.lookAt( this.scene.position )
         this.camera.position.z = cameraPosition
-
-        // this.cameraHolder = new THREE.Object3D()
-        // this.cameraHolder.lookAt( this.scene.position )
-        // this.cameraHolder.add( this.camera )
-        // this.cameraHolder.position.z = cameraPosition
-        // this.scene.add( this.cameraHolder )
 
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = this.camera.near
@@ -201,9 +195,12 @@ export default class Timeline {
         })
         this.scene.add( this.contactSection )
 
+
         console.log('RENDER')
         this.animate()
         this.initListeners()
+
+        // this.scene.scale.set( 0.5, 0.5, 0.5 )
 
     }
 
