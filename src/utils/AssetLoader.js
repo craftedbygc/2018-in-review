@@ -11,6 +11,7 @@ export default class AssetLoader {
         this.assetList = {}
         this.renderer = null
         this.progressEl = document.querySelector( '.progress' )
+        this.progressBar = document.querySelector( '.progress-bar .bar' )
 
     }
 
@@ -94,7 +95,7 @@ export default class AssetLoader {
         }
 
         return new Promise( resolve => {
-            progressPromise( assetLoadPromises, this.update.bind(this) ).then( results => {
+            progressPromise( assetLoadPromises, this.update.bind(this) ).then( () => {
                 console.log('done!');
                 resolve( this.assets )
             });
@@ -104,7 +105,9 @@ export default class AssetLoader {
 
     update( completed, total ) {
 
-        this.progressEl.innerHTML = Math.round( completed / total * 100 );
+        let progress = Math.round( completed / total * 100 )
+        this.progressEl.innerHTML = progress + '%'
+        this.progressBar.style.width = progress + '%'
 
     }
 
