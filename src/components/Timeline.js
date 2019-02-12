@@ -562,7 +562,7 @@ export default class Timeline {
     createContactSection() {
 
         this.contactSection = new THREE.Group()
-        this.contactSection.position.set( 0, 1500, 0 )
+        this.contactSection.position.set( 0, 2000, 0 )
         this.contactSection.visible = false
 
         let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
@@ -615,6 +615,17 @@ export default class Timeline {
         )
         emailUnderline.position.set( 0, -172, 0 )
         this.contactSection.add( emailUnderline )
+
+        // for raycasting so it doesn't just pick up on letters
+        this.contactSection.linkBox = new THREE.Mesh(
+            new THREE.PlaneBufferGeometry( 490, 60 ),
+            new THREE.MeshBasicMaterial( { alphaTest: 0, visible: false } )
+        )
+        this.contactSection.linkBox.position.set( 0, -140, 1 )
+        this.contactSection.linkBox.onClick = () => {
+            window.open( 'mailto:hello@craftedbygc.com', '_blank' )
+        }
+        this.contactSection.add( this.contactSection.linkBox )
 
         this.scene.add( this.contactSection )
 
@@ -837,7 +848,9 @@ export default class Timeline {
 
         e.preventDefault()
 
-        // this.contactSection.originalBgColor = this.
+        if( this.contactSection.isOpen ) return this.closeContact()
+
+        this.changeColours( 'end' )
 
         this.dom.cursor.dataset.cursor = 'cross'
 
@@ -859,6 +872,8 @@ export default class Timeline {
 
         this.timeline.visible = true
         this.contactSection.isOpen = false
+
+        this.changeColours()
 
         TweenMax.to( this.camera.position, 2, {
             y: 0,
@@ -897,12 +912,14 @@ export default class Timeline {
 
         if( this.contactSection.isOpen ) {
 
-            this.closeContact()
-            // don't close if clicking email
+            if( this.linkIntersect.length > 0 ) {
+                if( this.linkIntersect[0].object.onClick )
+                this.linkIntersect[0].object.onClick()
+            } else {
+                this.closeContact()
+            }
 
-        }
-
-        if( this.itemOpen ) {
+        } else if( this.itemOpen ) {
 
             if( this.linkIntersect.length > 0 ) {
                 if( this.linkIntersect[0].object.onClick )
@@ -948,7 +965,7 @@ export default class Timeline {
     mouseMove( e ) {
 
         // raycast for items when in timeline mode
-        if( !this.itemOpen && !this.c.holdingMouseDown ) {
+        if( !this.contactSection.isOpen && !this.itemOpen && !this.c.holdingMouseDown ) {
 
             this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
             this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
@@ -988,15 +1005,15 @@ export default class Timeline {
             this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
             this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
 
-            // this.raycaster.setFromCamera( this.mouse, this.camera )
+            this.raycaster.setFromCamera( this.mouse, this.camera )
 
-            // this.linkIntersect = this.raycaster.intersectObject( this.contactSection.linkBox )
+            this.linkIntersect = this.raycaster.intersectObject( this.contactSection.linkBox )
             
-            // if ( this.linkIntersect.length > 0 ) {
-            //     this.dom.cursor.dataset.cursor = 'eye'
-            // } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
-            //     this.dom.cursor.dataset.cursor = 'cross'
-            // }
+            if ( this.linkIntersect.length > 0 ) {
+                this.dom.cursor.dataset.cursor = 'eye'
+            } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
+                this.dom.cursor.dataset.cursor = 'cross'
+            }
 
         }
 
@@ -1026,15 +1043,19 @@ export default class Timeline {
 
     }
 
-    changeColours() {
+    changeColours( override = false ) {
 
         this.remainingMonths = Object.keys( this.monthPositions ).filter( key => {
             return this.timeline.position.z > -this.monthPositions[key] // TODO: look into detecting if exists in camera
         } )
 
-        if( this.remainingMonths[ this.remainingMonths.length - 1 ] && this.activeMonth !== this.remainingMonths[ this.remainingMonths.length - 1 ] ) {
+        if( override || ( this.remainingMonths[ this.remainingMonths.length - 1 ] && this.activeMonth !== this.remainingMonths[ this.remainingMonths.length - 1 ] ) ) {
 
-            this.activeMonth = this.remainingMonths[ this.remainingMonths.length - 1 ]
+            if( override ) {
+                this.activeMonth = override
+            } else {
+                this.activeMonth = this.remainingMonths[ this.remainingMonths.length - 1 ]
+            }
 
             let bgColor = new THREE.Color( this.months[ this.activeMonth ].bgColor )
             let textColor = new THREE.Color( this.months[ this.activeMonth ].textColor )

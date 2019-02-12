@@ -82,7 +82,7 @@ const months = {
         textColor: 0xED859C,
         outlineTextColor: 0xB9B4E8,
         bgColor: 0x416863,
-        tintColor: 0xF81B06
+        tintColor: 0xB9B4E8
     },
 
 }
