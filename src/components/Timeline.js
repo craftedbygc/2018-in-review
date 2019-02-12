@@ -775,12 +775,11 @@ export default class Timeline {
         this.c.scrolling = true;        
         
         function normalizeWheelDelta( e ) {
-            if(e.detail){
-                if(e.wheelDelta)
-                    return e.wheelDelta/e.detail/40 * (e.detail>0 ? 1 : -1) // Opera
-                else
-                    return -e.detail/3 // Firefox TODO: fix
-            } else
+            if(e.detail && e.wheelDelta)
+                return e.wheelDelta/e.detail/40 * (e.detail>0 ? 1 : -1) // Opera
+            else if( e.deltaY )
+                return -e.deltaY / 60 // Firefox
+            else
                 return e.wheelDelta/120 // IE,Safari,Chrome
         }
 
@@ -1065,7 +1064,8 @@ export default class Timeline {
         addEventListener( 'mousemove', this.mouseMove )
         addEventListener( 'mousedown', this.mouseDown )
         addEventListener( 'mouseup', this.mouseUp )
-        this.renderer.domElement.addEventListener( 'wheel', this.scroll )
+        this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
+        // this.renderer.domElement.addEventListener( 'DOMMouseScroll', this.scroll, false )
 
         this.gesture = new TinyGesture( this.renderer.domElement, { mouseSupport: false } )
 
