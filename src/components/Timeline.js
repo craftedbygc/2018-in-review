@@ -427,6 +427,7 @@ export default class Timeline {
 
             item.caption = new THREE.Mesh( captionGeom, this.captionTextMat )
             item.caption.position.set( 0, -item.mesh.scale.y / 2 - 50, 0 )
+            item.caption.visible = false
 
             item.group.add( item.caption )
 
@@ -461,6 +462,7 @@ export default class Timeline {
             }
 
             item.linkGroup.position.set( 0, item.caption ? item.caption.position.y - 40  : -item.mesh.scale.y / 2 - 50, 0 )
+            item.linkGroup.visible = false
 
             item.linkGroup.add( item.link )
             item.linkGroup.add( item.linkUnderline )
@@ -649,6 +651,9 @@ export default class Timeline {
                 z: 0,
                 delay: 0.2,
                 ease: 'Expo.easeInOut',
+                onStart: () => {
+                    item.caption.visible = true
+                }
             })
 
         }
@@ -661,6 +666,9 @@ export default class Timeline {
                 z: 0,
                 delay: 0.3,
                 ease: 'Expo.easeInOut',
+                onStart: () => {
+                    item.linkGroup.visible = true
+                }
             })
 
         }
@@ -681,7 +689,7 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
-            TweenMax.to( this.items[x].group.position, 1.5, {
+            TweenMax.to( this.items[x].group.position, 1.3, {
                 x: pos.x,
                 y: pos.y,
                 ease: 'Expo.easeInOut'
@@ -733,6 +741,8 @@ export default class Timeline {
                 onComplete: () => {
                     this.captionTextMat.visible = false
                     this.linkUnderlineMat.visible = false
+                    if( this.itemOpen.caption ) this.itemOpen.caption.visible = false
+                    if( this.itemOpen.linkGroup ) this.itemOpen.linkGroup.visible = false
                 }
             })
 
@@ -748,7 +758,7 @@ export default class Timeline {
                 TweenMax.to( this.items[x].group.position, 1.5, {
                     x: this.items[x].origPos.x,
                     y: this.items[x].origPos.y,
-                    ease: 'Expo.easeInOut'
+                    ease: 'Expo.easeInOut',
                 })
 
             }
