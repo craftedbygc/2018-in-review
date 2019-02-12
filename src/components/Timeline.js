@@ -3,11 +3,10 @@ import { TweenMax } from 'gsap'
 import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture'
 import DeviceOrientationControls from './three-orientation-controls'
-const createGeometry = require('three-bmfont-text')
-const loadFont = require('load-bmfont')
+import AssetLoader from './AssetLoader'
+import Item from './Item'
 
 import vert from '../shaders/shader.vert'
-import frag from '../shaders/shader.frag'
 import greenscreen from '../shaders/greenscreen.frag'
 import months from './months'
 import assetOrder from '../assetOrder'
@@ -74,165 +73,17 @@ export default class Timeline {
 
     loadAssets() {
 
-        this.assets = {
-            textures: {},
-            fonts: {}
-        }
-        let assetLoadPromises = []
+        let assetLoader = new AssetLoader()
+        
+        assetLoader.load( this.assetList, this.renderer ).then( assets => {
 
-        // Load images + videos
-        let imageLoader = new THREE.TextureLoader()
-        imageLoader.crossOrigin = ''
-
-        let preload = true
-
-        for( let month in this.assetList ) {
-
-            // preload = month === 'intro' ? true : false
-
-            this.assetList[month].forEach( filename => {
-
-                if( ~filename.indexOf( '.mp4' ) ) {
-
-                    let video = document.createElement( 'video' );
-                    video.style = 'position:absolute;height:0'
-                    video.muted = true
-                    video.autoplay = false
-                    video.loop = true
-                    video.crossOrigin = 'anonymous'
-                    video.setAttribute('webkit-playsinline', true)
-                    video.src = `assets/${month}/${filename}`
-                    document.body.appendChild( video )
-                    video.load(); // must call after setting/changing source
-
-                    if( preload ) {
-
-                        assetLoadPromises.push( new Promise( resolve => {
-                            video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
-                        }))
-
-                    } else {
-
-                        this.createVideoTexture( video, month, filename, false )
-
-                    }
-
-                } else {
-
-                    if( preload ) {
-
-                        assetLoadPromises.push( new Promise( resolve => {
-                            imageLoader.load( `assets/${month}/${filename}`, texture => this.createImageTexture( texture, month, filename, resolve ) )
-                        }))
-
-                    } else {
-
-                        this.createImageTexture( false, month, filename, false )
-
-                    }
-
-                }
-
-            })
-
-        }
-
-        // Load Fonts
-        let fontLoader = new THREE.FontLoader()
-        let fonts = [
-            'fonts/schnyder.json',
-            'fonts/schnyder-outline.json',
-            'fonts/suisse.json',
-        ]
-
-        for( let i = 0; i < fonts.length; i++ ) {
-            assetLoadPromises.push( new Promise( resolve => fontLoader.load( fonts[i], font => {
-                this.assets.fonts[ font.data.familyName ] = font
-                resolve() 
-            } ) ) )
-        }
-
-        Promise.all( assetLoadPromises ).then( assets => {
-
+            this.assets = assets
             console.log('ASSETS LOADED');
 
             // all assets loaded - initialise
             this.createTimeline()
 
         })
-
-    }
-
-    createImageTexture( texture, month, filename, resolve ) {
-        
-        // if preloaded
-        if( resolve ) {
-
-            texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
-            texture.needsUpdate = true
-            this.renderer.setTexture2D( texture, 0 )
-
-            texture.name = `${month}/${filename}`
-            texture.mediaType = 'image'
-            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-
-            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-            this.assets.textures[ month ][ filename ] = texture
-        
-            resolve( texture )
-
-        } else {
-
-            let texture = new THREE.TextureLoader().load( `assets/${month}/${filename}`, texture => {
-
-                texture.size = new THREE.Vector2( texture.image.width / 2, texture.image.height / 2 )
-                texture.needsUpdate = true
-                this.renderer.setTexture2D( texture, 0 )
-
-            } )
-            texture.size = new THREE.Vector2( 10, 10 )
-
-            texture.name = `${month}/${filename}`
-            texture.mediaType = 'image'
-            texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-
-            if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-            this.assets.textures[ month ][ filename ] = texture
-
-        }
-
-    }
-
-    createVideoTexture( video, month, filename, resolve ) {
-
-        let texture = new THREE.VideoTexture( video )
-        texture.minFilter = texture.magFilter = THREE.LinearFilter
-        texture.name = `${month}/${filename}`
-        texture.mediaType = 'video'
-        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy()
-
-        // if preloaded
-        if( resolve ) {
-
-            texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
-    
-            resolve( texture )
-            video.oncanplaythrough = null
-
-        } else {
-
-            texture.size = new THREE.Vector2( 1, 1 )
-
-            video.oncanplaythrough = () => {
-                texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
-                texture.needsUpdate = true
-                video.oncanplaythrough = null
-            }
-
-        }
-
-        if( !this.assets.textures[ month ] ) this.assets.textures[ month ] = {}
-        this.assets.textures[ month ][ filename ] = texture
 
     }
 
@@ -298,15 +149,15 @@ export default class Timeline {
 
         let itemIndexTotal = 0, nextMonthPos = 0
 
-        for( let key in this.months ) {
+        for( let month in this.months ) {
 
-            this.sections[ key ] = new THREE.Group()
+            this.sections[ month ] = new THREE.Group()
 
-            if( key === 'intro' ) this.createIntroSection()
-            else if( key === 'end' ) this.createEndSection()
+            if( month === 'intro' ) this.createIntroSection()
+            else if( month === 'end' ) this.createEndSection()
             else {
 
-                let textGeom = new THREE.TextGeometry( this.months[key].name, {
+                let textGeom = new THREE.TextGeometry( this.months[month].name, {
                     font: this.assets.fonts['Schnyder L'],
                     size: 200,
                     height: 0,
@@ -315,74 +166,24 @@ export default class Timeline {
 
                 let monthName = new THREE.Mesh( textGeom, this.textMat )
                 monthName.position.set( 0, 0, 0 )
-                this.sections[key].add( monthName )
+                this.sections[month].add( monthName )
 
                 let itemIndex = 0
                 let id
 
                 // add items
-                for( let filename in this.assets.textures[ key ] ) {
+                for( let filename in this.assets.textures[ month ] ) {
 
-                    id = `${key}/${filename}`
+                    id = `${month}/${filename}`
 
-                    this.items[id] = {}
-
-                    this.items[id].uniforms = {
-                        time: { type: 'f', value: 1.0 },
-                        fogColor: { type: "c", value: this.scene.fog.color },
-                        fogNear: { type: "f", value: this.scene.fog.near },
-                        fogFar: { type: "f", value: this.scene.fog.far },
-                        texture: { type: 't', value: this.assets.textures[key][ filename ] },
-                        opacity: { type: 'f', value: 1.0 },
-                        progress: { type: 'f', value: 0.0 },
-                        gradientColor: { type: 'vec3', value: new THREE.Color(0x1b42d8) }
-                    }
-
-                    this.items[id].geometry = new THREE.PlaneGeometry( 1, 1 )
-                    this.items[id].material = new THREE.ShaderMaterial({
-                        uniforms: this.items[id].uniforms,
-                        fragmentShader: frag,
-                        vertexShader: vert,
-                        fog: true,
-                        transparent: true
-                    })
-
-                    this.items[id].mesh = new THREE.Mesh( this.items[id].geometry, this.items[id].material )
-                    this.items[id].mesh.scale.set( this.assets.textures[key][ filename ].size.x, this.assets.textures[key][ filename ].size.y, 1 )
-
-                    // updates size of meshes after texture has been loaded
-                    this.assets.textures[key][ filename ].onUpdate = () => {
-                        if( this.items[id].mesh.scale.x !== this.assets.textures[key][ filename ].size.x && this.items[id].mesh.scale.y !== this.assets.textures[key][ filename ].size.y ) {
-                            this.items[id].mesh.scale.set( this.assets.textures[key][ filename ].size.x, this.assets.textures[key][ filename ].size.y, 1 )
-                            this.assets.textures[key][ filename ].onUpdate = null
-                        }
-                    }
-
-                    let align = itemIndexTotal % 4, pos = new THREE.Vector2()
-
-                    if( align === 0 ) pos.set( -350, 350 ) // bottom left
-                    if( align === 1 ) pos.set( 350, 350 ) // bottom right
-                    if( align === 2 ) pos.set( 350, -350 ) // top right
-                    if( align === 3 ) pos.set( -350, -350 ) // top left
-
-                    this.items[id].align = align
-                    this.items[id].group = new THREE.Group()
-                    this.items[id].group.position.set( pos.x, pos.y, ( itemIndex * -300 ) - 200 )
-                    this.items[id].origPos = new THREE.Vector2( pos.x, pos.y )
-                    this.items[id].month = key
-
-                    this.items[id].group.add( this.items[id].mesh )
-
-                    this.addCaption( this.items[id], this.assetData[ key ][ filename ] )
-
-                    this.items[id].mesh.openItem = this.openItem.bind( this, this.items[id] )
-
-                    this.sections[key].add( this.items[id].group )
-                    this.itemMeshes.push( this.items[id].mesh )
-
-                    if( this.assets.textures[key][ filename ].mediaType === 'video' ) {
-                        this.videoItems.push( this.items[id].mesh )
-                    }
+                    this.items[id] = new Item(
+                        this,
+                        this.assets.textures[ month ][ filename ],
+                        this.assetData[ month ][ filename ],
+                        month,
+                        itemIndex,
+                        itemIndexTotal
+                    )
 
                     itemIndex++
                     itemIndexTotal++
@@ -391,19 +192,19 @@ export default class Timeline {
 
             }
 
-            let bbox = new THREE.Box3().setFromObject( this.sections[ key ] );
+            let bbox = new THREE.Box3().setFromObject( this.sections[ month ] );
 
-            this.sections[key].position.z = nextMonthPos
-            this.monthPositions[key] = nextMonthPos + 1100 ;
+            this.sections[month].position.z = nextMonthPos
+            this.monthPositions[month] = nextMonthPos + 1100 ;
             let posOffset = 800; // TODO: get from camera?
-            if( key === 'intro' ) posOffset = 1300
-            if( key === 'dec' ) posOffset = 1800
+            if( month === 'intro' ) posOffset = 1300
+            if( month === 'dec' ) posOffset = 1800
             nextMonthPos += bbox.min.z - posOffset
 
-            this.timeline.add( this.sections[key] )
+            this.timeline.add( this.sections[month] )
 
-            if( key === 'end' ) {
-                this.stopScrollPos = this.sections[key].position.z
+            if( month === 'end' ) {
+                this.stopScrollPos = this.sections[month].position.z
             }
 
         }
@@ -414,67 +215,6 @@ export default class Timeline {
         console.log('RENDER')
         this.animate()
         this.initListeners()
-
-    }
-
-    addCaption( item, data ) {
-
-        if( data.caption === '' && data.link === '' ) return
-
-        if( data.caption !== '' ) {
-
-            let captionGeom = new THREE.TextGeometry( data.caption, {
-                font: this.assets.fonts['Schnyder L'],
-                size: 18,
-                height: 0,
-                curveSegments: 6
-            } ).center()
-
-            item.caption = new THREE.Mesh( captionGeom, this.captionTextMat )
-            item.caption.position.set( 0, -item.mesh.scale.y / 2 - 50, 0 )
-            item.caption.visible = false
-
-            item.group.add( item.caption )
-
-        }
-
-        if( data.link !== '' ) {
-
-            item.linkGroup = new THREE.Group()
-
-            let linkGeom = new THREE.TextGeometry( 'SEE MORE', {
-                font: this.assets.fonts['SuisseIntl-Bold'],
-                size: 6,
-                height: 0,
-                curveSegments: 6
-            } ).center()
-
-            item.link = new THREE.Mesh( linkGeom, this.captionTextMat )
-
-            item.linkUnderline = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 45, 1 ),
-                this.linkUnderlineMat
-            )
-            item.linkUnderline.position.set( 0, -10, 0 )
-
-            // for raycasting so it doesn't just pick up on letters
-            item.linkBox = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 70, 20 ), 
-                new THREE.MeshBasicMaterial( { alphaTest: 0, visible: false } )
-            )
-            item.linkBox.onClick = () => {
-                window.open( data.link, '_blank' )
-            }
-
-            item.linkGroup.position.set( 0, item.caption ? item.caption.position.y - 40  : -item.mesh.scale.y / 2 - 50, 0 )
-            item.linkGroup.visible = false
-
-            item.linkGroup.add( item.link )
-            item.linkGroup.add( item.linkUnderline )
-            item.linkGroup.add( item.linkBox )
-            item.group.add( item.linkGroup )
-
-        }
 
     }
 
@@ -674,7 +414,7 @@ export default class Timeline {
             posOffset = this.sections[ this.remainingMonths[ this.remainingMonths.length - 2 ] ].position.z
         }
 
-        TweenMax.to( item.group.position, 1.5, {
+        TweenMax.to( item.position, 1.5, {
             x: 0,
             y: 0,
             ease: 'Expo.easeInOut',
@@ -690,7 +430,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(posOffset - -item.group.position.z) + 300,
+            z: -(posOffset - -item.position.z) + 300,
             ease: 'Expo.easeInOut'
         })
 
@@ -766,7 +506,7 @@ export default class Timeline {
                 ease: 'Expo.easeInOut'
             })
 
-            TweenMax.to( this.items[x].group.position, 1.3, {
+            TweenMax.to( this.items[x].position, 1.3, {
                 x: pos.x,
                 y: pos.y,
                 ease: 'Expo.easeInOut'
@@ -832,7 +572,7 @@ export default class Timeline {
                     ease: 'Expo.easeInOut'
                 })
 
-                TweenMax.to( this.items[x].group.position, 1.5, {
+                TweenMax.to( this.items[x].position, 1.5, {
                     x: this.items[x].origPos.x,
                     y: this.items[x].origPos.y,
                     ease: 'Expo.easeInOut',
@@ -933,10 +673,10 @@ export default class Timeline {
 
             if ( this.intersects.length > 0 ) {
 
-                if( this.intersects[0].object.openItem ) {
-                    this.intersects[0].object.openItem()
-                    this.dom.cursor.dataset.cursor = 'cross'
-                }
+                console.log(this.intersects[0].object)
+                
+                this.openItem( this.intersects[0].object.parent )
+                this.dom.cursor.dataset.cursor = 'cross'
 
             } else {
 
