@@ -4,16 +4,10 @@ import vert from '../shaders/default.vert'
 
 export default class Item extends THREE.Group {
 
-    constructor( timeline, texture, data, month, itemIndex, itemIndexTotal ) {
+    constructor( opts = { timeline, texture, data, month, itemIndex, itemIndexTotal } ) {
     
         super()
-
-        this.timeline = timeline
-        this.texture = texture
-        this.data = data
-        this.month = month
-        this.itemIndex = itemIndex
-        this.itemIndexTotal = itemIndexTotal
+        Object.assign( this, opts )
 
         this.create()
 
@@ -67,7 +61,6 @@ export default class Item extends THREE.Group {
 
         this.addCaption()
 
-        this.timeline.sections[ this.month ].add( this )
         this.timeline.itemMeshes.push( this.mesh )
 
         if( this.texture.mediaType === 'video' ) {

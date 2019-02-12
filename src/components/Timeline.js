@@ -5,9 +5,8 @@ import TinyGesture from 'tinygesture'
 import DeviceOrientationControls from '../utils/three-orientation-controls'
 import AssetLoader from '../utils/AssetLoader'
 import Item from './Item'
+import Section from './Section'
 
-import vert from '../shaders/default.vert'
-import greenscreen from '../shaders/greenscreen.frag'
 import months from '../config/months'
 import assetOrder from '../config/assetOrder'
 import assetData from '../config/assetData'
@@ -54,14 +53,8 @@ export default class Timeline {
         if( this.c.touchEnabled ) document.documentElement.classList.add('touch-enabled')
 
         this.assetList = assetOrder
-        this.assetList.intro = [
-            'ok.png'
-        ]
-
-        this.assetList.end = [
-            'glit.mp4'
-        ]
-
+        this.assetList.intro = ['ok.png']
+        this.assetList.end = ['glit.mp4']
         this.assetData = assetData
 
         this.activeMonth = 'intro'
@@ -151,39 +144,30 @@ export default class Timeline {
 
         for( let month in this.months ) {
 
-            this.sections[ month ] = new THREE.Group()
+            this.sections[ month ] = new Section({
+                timeline: timeline,
+                section: month
+            })
 
-            if( month === 'intro' ) this.createIntroSection()
-            else if( month === 'end' ) this.createEndSection()
-            else {
+            if( month !== 'intro' && month !== 'end' ) {
 
-                let textGeom = new THREE.TextGeometry( this.months[month].name, {
-                    font: this.assets.fonts['Schnyder L'],
-                    size: 200,
-                    height: 0,
-                    curveSegments: 10
-                } ).center()
-
-                let monthName = new THREE.Mesh( textGeom, this.textMat )
-                monthName.position.set( 0, 0, 0 )
-                this.sections[month].add( monthName )
-
-                let itemIndex = 0
-                let id
+                let itemIndex = 0, id
 
                 // add items
                 for( let filename in this.assets.textures[ month ] ) {
 
                     id = `${month}/${filename}`
 
-                    this.items[id] = new Item(
-                        this,
-                        this.assets.textures[ month ][ filename ],
-                        this.assetData[ month ][ filename ],
-                        month,
-                        itemIndex,
-                        itemIndexTotal
-                    )
+                    this.items[id] = new Item({
+                        timeline: this,
+                        texture: this.assets.textures[ month ][ filename ],
+                        data: this.assetData[ month ][ filename ],
+                        month: month,
+                        itemIndex: itemIndex,
+                        itemIndexTotal: itemIndexTotal
+                    })
+
+                    this.sections[ month ].add( this.items[id] )
 
                     itemIndex++
                     itemIndexTotal++
@@ -211,193 +195,15 @@ export default class Timeline {
 
         this.videoCount = this.videoItems.length - 1
 
-        this.createContactSection()
+        this.contactSection = new Section({
+            timeline: timeline,
+            section: 'contact'
+        })
+        this.scene.add( this.contactSection )
+
         console.log('RENDER')
         this.animate()
         this.initListeners()
-
-    }
-
-    createIntroSection() {
-
-        let sansTextGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
-            font: this.assets.fonts['SuisseIntl-Bold'],
-            size: 50,
-            height: 0,
-            curveSegments: 4
-        } ).center()
-
-        let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
-        this.sections[ 'intro' ].add( sansText )
-
-        let serifTextGeom = new THREE.TextGeometry( '2018', {
-            font: this.assets.fonts['Schnyder_Edit Outline'],
-            size: 490,
-            height: 0,
-            curveSegments: 15
-        } ).center()
-
-        let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
-        serifText.position.set( 0, 0, -500 )
-        this.sections[ 'intro' ].add( serifText )
-
-        let material = new THREE.MeshBasicMaterial( { map: this.assets.textures['intro']['ok.png'], transparent: true } )
-        let geom = new THREE.PlaneGeometry( 1, 1 )
-        let hand = new THREE.Mesh( geom, material )
-        hand.scale.set( 1000, 1000, 1 )
-        hand.position.set( 0, 0, -250 )
-        this.sections[ 'intro' ].add( hand )
-
-        this.addIntroBadge()
-
-    }
-
-    createEndSection() {
-
-        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
-            font: this.assets.fonts['SuisseIntl-Bold'],
-            size: 50,
-            height: 0,
-            curveSegments: 4
-        } ).center()
-
-        let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
-        this.sections[ 'end' ].add( sansText )
-
-        let serifTextGeom = new THREE.TextGeometry( 'END', {
-            font: this.assets.fonts['Schnyder_Edit Outline'],
-            size: 400,
-            height: 0,
-            curveSegments: 15
-        } ).center()
-
-        let serifText = new THREE.Mesh( serifTextGeom, this.textOutlineMat )
-        serifText.position.set( 0, 0, -300 )
-        this.sections[ 'end' ].add( serifText )
-
-        let geometry = new THREE.PlaneGeometry( 1, 1 )
-        let material = new THREE.ShaderMaterial({
-            uniforms: {
-                fogColor: { type: "c", value: this.scene.fog.color },
-                fogNear: { type: "f", value: this.scene.fog.near },
-                fogFar: { type: "f", value: this.scene.fog.far },
-                texture: { type: 't', value: this.assets.textures['end'][ 'glit.mp4' ] }
-            },
-            fragmentShader: greenscreen,
-            vertexShader: vert,
-            fog: true,
-            transparent: true
-        })
-
-        let mesh = new THREE.Mesh( geometry, material )
-        mesh.scale.set( 700, 700, 1 )
-        mesh.position.set( 0, 0, -200 )
-
-        // this.assets.textures['end'][ 'end/glit.mp4' ].image.play() // TODO: play when enters camera
-
-        this.sections[ 'end' ].add( mesh )
-
-    }
-
-    createContactSection() {
-
-        this.contactSection = new THREE.Group()
-        this.contactSection.position.set( 0, 2000, 0 )
-        this.contactSection.visible = false
-
-        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
-            font: this.assets.fonts['SuisseIntl-Bold'],
-            size: 10,
-            height: 0,
-            curveSegments: 4
-        } ).center()
-
-        let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
-        sansText.position.set( 0, 60, 0 )
-        this.contactSection.add( sansText )
-
-        let lineOneGeom = new THREE.TextGeometry( "We're looking for new talents and exciting projects", {
-            font: this.assets.fonts['Schnyder L'],
-            size: 30,
-            height: 0,
-            curveSegments: 6
-        } ).center()
-
-        let lineOne = new THREE.Mesh( lineOneGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
-        lineOne.position.set( 0, 0, 0 )
-        this.contactSection.add( lineOne )
-
-        let lineTwoGeom = new THREE.TextGeometry( "to make 2019 a memorable one.", {
-            font: this.assets.fonts['Schnyder L'],
-            size: 30,
-            height: 0,
-            curveSegments: 6
-        } ).center()
-
-        let lineTwo = new THREE.Mesh( lineTwoGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
-        lineTwo.position.set( 0, -45, 0 )
-        this.contactSection.add( lineTwo )
-
-        let emailGeom = new THREE.TextGeometry( "hello@craftedbygc.com", {
-            font: this.assets.fonts['Schnyder L'],
-            size: 36,
-            height: 0,
-            curveSegments: 6
-        } ).center()
-
-        let email = new THREE.Mesh( emailGeom, this.textMat )
-        email.position.set( 0, -140, 0 )
-        this.contactSection.add( email )
-
-        let emailUnderline = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry( 467, 1 ),
-            this.linkUnderlineMat
-        )
-        emailUnderline.position.set( 0, -172, 0 )
-        this.contactSection.add( emailUnderline )
-
-        // for raycasting so it doesn't just pick up on letters
-        this.contactSection.linkBox = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry( 490, 60 ),
-            new THREE.MeshBasicMaterial( { alphaTest: 0, visible: false } )
-        )
-        this.contactSection.linkBox.position.set( 0, -140, 1 )
-        this.contactSection.linkBox.onClick = () => {
-            window.open( 'mailto:hello@craftedbygc.com', '_blank' )
-        }
-        this.contactSection.add( this.contactSection.linkBox )
-
-        this.scene.add( this.contactSection )
-
-    }
-
-    addIntroBadge() {
-
-        this.badge = new THREE.Group()
-
-        let texture = new THREE.TextureLoader().load( 'images/highlights.png' )
-        let material = new THREE.MeshBasicMaterial( { map: texture, transparent: true } )
-        let geom = new THREE.PlaneGeometry( 1, 1 )
-        this.circle = new THREE.Mesh( geom, material )
-        this.circle.scale.set( 200, 200, 1 )
-        this.badge.add( this.circle )
-
-        let serifTextGeom = new THREE.TextGeometry( '2018-19', {
-            font: this.assets.fonts['Schnyder L'],
-            size: 26,
-            height: 0,
-            curveSegments: 6
-        } )
-
-        serifTextGeom.center()
-
-        let serifText = new THREE.Mesh( serifTextGeom, this.textMat )
-        serifText.position.set( 0, 0, 1 )
-        this.badge.add( serifText )
-
-        this.badge.position.set( 0, -this.c.size.h / 2 + 90, 50 )
-
-        this.sections['intro'].add( this.badge )
 
     }
 
@@ -910,7 +716,7 @@ export default class Timeline {
             this.changeColours()
 
             if( this.timeline.position.z < 700 ) {
-                TweenMax.set( this.circle.rotation, {
+                TweenMax.set( this.sections['intro'].circle.rotation, {
                     z: '+=' + delta * 0.005
                 })
             }
