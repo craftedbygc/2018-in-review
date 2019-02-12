@@ -561,76 +561,62 @@ export default class Timeline {
 
     createContactSection() {
 
-        // this.contactSection = new THREE.Group()
-        // this.contactSection.position.set( 0, 0, -100 )
+        this.contactSection = new THREE.Group()
+        this.contactSection.position.set( 0, 1500, 0 )
+        this.contactSection.visible = false
 
-        // let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
-        //     font: this.assets.fonts['SuisseIntl-Bold'],
-        //     size: 50,
-        //     height: 0,
-        //     curveSegments: 4
-        // } ).center()
+        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
+            font: this.assets.fonts['SuisseIntl-Bold'],
+            size: 10,
+            height: 0,
+            curveSegments: 4
+        } ).center()
 
-        // let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
-        // this.sections[ 'end' ].add( sansText )
+        let sansText = new THREE.Mesh( sansTextGeom, new THREE.MeshBasicMaterial({ color: 0xAFADDC }) )
+        sansText.position.set( 0, 60, 0 )
+        this.contactSection.add( sansText )
 
-        // let serifTextGeom = new THREE.TextGeometry( "We're looking for new talents and exciting projects\nWe're looking for new talents and exciting projects", {
-        //     font: this.assets.fonts['Schnyder L'],
-        //     size: 40,
-        //     height: 0,
-        //     curveSegments: 6
-        // } ).center()
+        let lineOneGeom = new THREE.TextGeometry( "We're looking for new talents and exciting projects", {
+            font: this.assets.fonts['Schnyder L'],
+            size: 30,
+            height: 0,
+            curveSegments: 6
+        } ).center()
 
-        // let serifText = new THREE.Mesh( serifTextGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
-        // serifText.position.set( 0, 0, 0 )
-        // this.contactSection.add( serifText )
+        let lineOne = new THREE.Mesh( lineOneGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
+        lineOne.position.set( 0, 0, 0 )
+        this.contactSection.add( lineOne )
 
-        // loadFont('fonts/schnyder.fnt', (err, font) => {
-        //     // create a geometry of packed bitmap glyphs, 
-        //     // word wrapped to 300px and right-aligned
-        //     var geometry = createGeometry({
-        //     //   width: 1500,
-        //       align: 'center',
-        //       font: font,
-        //     //   flipY: false
-        //     })
-           
-        //     // change text and other options as desired
-        //     // the options sepcified in constructor will
-        //     // be used as defaults
-        //     geometry.update("We're looking for new talents and exciting projects\nWe're looking for new talents and exciting projects")
-        //     // geometry.center()
+        let lineTwoGeom = new THREE.TextGeometry( "to make 2019 a memorable one.", {
+            font: this.assets.fonts['Schnyder L'],
+            size: 30,
+            height: 0,
+            curveSegments: 6
+        } ).center()
 
-        //     // the resulting layout has metrics and bounds
-        //     console.log(geometry.layout.height)
-        //     console.log(geometry.layout.descender)
-              
-        //     // the texture atlas containing our glyphs
-        //     var textureLoader = new THREE.TextureLoader();
-        //     textureLoader.load('fonts/schnyder.png', (texture) => {
-        //       // we can use a simple ThreeJS material
-        //       var material = new THREE.MeshBasicMaterial({
-        //         map: texture,
-        //         transparent: true,
-        //         color: 0xFFFFFF,
-        //         // side: THREE.BackSide,
-        //       })
-           
-        //       // now do something with our mesh!
-        //       var mesh = new THREE.Mesh(geometry, material)
-        //       mesh.rotation.x = Math.PI
-        //       var layout = geometry.layout
-        //     mesh.position.x = -layout.width / 2
-        //     mesh.position.y = -layout.height / 2
-        //     //   mesh.rotation.y = Math.PI
-        //     //   mesh.scale.set( 100, 100, 1 )
-        //       this.contactSection.add( mesh )
-        //       this.scene.add( this.contactSection )
+        let lineTwo = new THREE.Mesh( lineTwoGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
+        lineTwo.position.set( 0, -45, 0 )
+        this.contactSection.add( lineTwo )
 
-        //     })
-        //   })
+        let emailGeom = new THREE.TextGeometry( "hello@craftedbygc.com", {
+            font: this.assets.fonts['Schnyder L'],
+            size: 36,
+            height: 0,
+            curveSegments: 6
+        } ).center()
 
-        //   this.scene.add( this.contactSection )
+        let email = new THREE.Mesh( emailGeom, new THREE.MeshBasicMaterial({ color: 0xAFADDC }) )
+        email.position.set( 0, -140, 0 )
+        this.contactSection.add( email )
+
+        let emailUnderline = new THREE.Mesh(
+            new THREE.PlaneBufferGeometry( 467, 1 ),
+            new THREE.MeshBasicMaterial({ color: 0xAFADDC, opacity: 0.4, transparent: true })
+        )
+        emailUnderline.position.set( 0, -172, 0 )
+        this.contactSection.add( emailUnderline )
+
+        this.scene.add( this.contactSection )
 
     }
 
@@ -847,9 +833,41 @@ export default class Timeline {
     
     }
 
-    openContact() {
+    openContact( e ) {
 
-        
+        e.preventDefault()
+
+        // this.contactSection.originalBgColor = this.
+
+        this.dom.cursor.dataset.cursor = 'cross'
+
+        this.contactSection.visible = true
+        this.contactSection.isOpen = true
+        this.c.allowScrolling = false
+
+        TweenMax.to( this.camera.position, 2, {
+            y: this.contactSection.position.y,
+            ease: 'Expo.easeInOut',
+            onComplete: () => {
+                this.timeline.visible = false
+            }
+        })
+
+    }
+
+    closeContact() {
+
+        this.timeline.visible = true
+        this.contactSection.isOpen = false
+
+        TweenMax.to( this.camera.position, 2, {
+            y: 0,
+            ease: 'Expo.easeInOut',
+            onComplete: () => {
+                this.contactSection.visible = false
+                this.c.allowScrolling = true
+            }
+        })
 
     }
 
@@ -876,6 +894,13 @@ export default class Timeline {
         e.preventDefault();
 
         this.c.holdingMouseDown = true
+
+        if( this.contactSection.isOpen ) {
+
+            this.closeContact()
+            // don't close if clicking email
+
+        }
 
         if( this.itemOpen ) {
 
@@ -941,7 +966,7 @@ export default class Timeline {
         }
 
         // raycast for item link
-        if( this.itemOpen && this.itemOpen.linkBox ) {
+        if( !this.contactSection.isOpen && this.itemOpen && this.itemOpen.linkBox ) {
 
             this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
             this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
@@ -955,6 +980,23 @@ export default class Timeline {
             } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
                 this.dom.cursor.dataset.cursor = 'cross'
             }
+
+        }
+
+        if( this.contactSection.isOpen ) {
+
+            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
+            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+
+            // this.raycaster.setFromCamera( this.mouse, this.camera )
+
+            // this.linkIntersect = this.raycaster.intersectObject( this.contactSection.linkBox )
+            
+            // if ( this.linkIntersect.length > 0 ) {
+            //     this.dom.cursor.dataset.cursor = 'eye'
+            // } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
+            //     this.dom.cursor.dataset.cursor = 'cross'
+            // }
 
         }
 
