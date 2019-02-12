@@ -572,7 +572,7 @@ export default class Timeline {
             curveSegments: 4
         } ).center()
 
-        let sansText = new THREE.Mesh( sansTextGeom, new THREE.MeshBasicMaterial({ color: 0xAFADDC }) )
+        let sansText = new THREE.Mesh( sansTextGeom, this.textMat )
         sansText.position.set( 0, 60, 0 )
         this.contactSection.add( sansText )
 
@@ -605,13 +605,13 @@ export default class Timeline {
             curveSegments: 6
         } ).center()
 
-        let email = new THREE.Mesh( emailGeom, new THREE.MeshBasicMaterial({ color: 0xAFADDC }) )
+        let email = new THREE.Mesh( emailGeom, this.textMat )
         email.position.set( 0, -140, 0 )
         this.contactSection.add( email )
 
         let emailUnderline = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 467, 1 ),
-            new THREE.MeshBasicMaterial({ color: 0xAFADDC, opacity: 0.4, transparent: true })
+            this.linkUnderlineMat
         )
         emailUnderline.position.set( 0, -172, 0 )
         this.contactSection.add( emailUnderline )
@@ -850,13 +850,13 @@ export default class Timeline {
 
         if( this.contactSection.isOpen ) return this.closeContact()
 
-        this.changeColours( 'end' )
-
         this.dom.cursor.dataset.cursor = 'cross'
 
         this.contactSection.visible = true
         this.contactSection.isOpen = true
         this.c.allowScrolling = false
+        this.linkUnderlineMat.visible = true
+        this.linkUnderlineMat.opacity = 0.3
 
         TweenMax.to( this.camera.position, 2, {
             y: this.contactSection.position.y,
@@ -873,14 +873,14 @@ export default class Timeline {
         this.timeline.visible = true
         this.contactSection.isOpen = false
 
-        this.changeColours()
-
         TweenMax.to( this.camera.position, 2, {
             y: 0,
             ease: 'Expo.easeInOut',
             onComplete: () => {
                 this.contactSection.visible = false
                 this.c.allowScrolling = true
+                this.linkUnderlineMat.visible = false
+                this.linkUnderlineMat.opacity = 0
             }
         })
 
@@ -1079,7 +1079,7 @@ export default class Timeline {
                 ease: 'Power4.easeOut'
             })
 
-            TweenMax.to( [ this.textMat.color, this.captionTextMat.color ], 1, {
+            TweenMax.to( [ this.textMat.color, this.captionTextMat.color, this.linkUnderlineMat.color ], 1, {
                 r: textColor.r,
                 g: textColor.g,
                 b: textColor.b,
@@ -1213,10 +1213,10 @@ export default class Timeline {
         this.mouseUp = this.mouseUp.bind( this )
         this.openContact = this.openContact.bind( this )
 
-        addEventListener( 'resize', this.resize, false )
-        addEventListener( 'mousemove', this.mouseMove, false )
-        addEventListener( 'mousedown', this.mouseDown, false )
-        addEventListener( 'mouseup', this.mouseUp, false )
+        this.renderer.domElement.addEventListener( 'resize', this.resize, false )
+        window.addEventListener( 'mousemove', this.mouseMove, false )
+        this.renderer.domElement.addEventListener( 'mousedown', this.mouseDown, false )
+        this.renderer.domElement.addEventListener( 'mouseup', this.mouseUp, false )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
 
         document.querySelector( '.say-hello' ).addEventListener( 'click', this.openContact, false )
