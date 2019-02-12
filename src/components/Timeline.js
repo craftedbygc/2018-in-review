@@ -260,6 +260,8 @@ export default class Timeline {
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = this.camera.near
         this.raycaster.far = this.camera.far
+        this.intersects = []
+        this.linkIntersect = []
         this.frustum = new THREE.Frustum()
         this.cameraViewProjectionMatrix = new THREE.Matrix4()
         this.mouse = new THREE.Vector2()
@@ -282,6 +284,7 @@ export default class Timeline {
             
         this.textMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
         this.captionTextMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, opacity: 0, visible: false } )
+        this.linkUnderlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, opacity: 0, visible: false } )
         this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
 
         this.sections = {}
@@ -426,6 +429,43 @@ export default class Timeline {
             item.caption.position.set( 0, -item.mesh.scale.y / 2 - 50, 0 )
 
             item.group.add( item.caption )
+
+        }
+
+        if( data.link !== '' ) {
+
+            item.linkGroup = new THREE.Group()
+
+            let linkGeom = new THREE.TextGeometry( 'SEE MORE', {
+                font: this.assets.fonts['SuisseIntl-Bold'],
+                size: 6,
+                height: 0,
+                curveSegments: 6
+            } ).center()
+
+            item.link = new THREE.Mesh( linkGeom, this.captionTextMat )
+
+            item.linkUnderline = new THREE.Mesh(
+                new THREE.PlaneBufferGeometry( 45, 1 ),
+                this.linkUnderlineMat
+            )
+            item.linkUnderline.position.set( 0, -10, 0 )
+
+            // for raycasting so it doesn't just pick up on letters
+            item.linkBox = new THREE.Mesh(
+                new THREE.PlaneBufferGeometry( 70, 20 ), 
+                new THREE.MeshBasicMaterial( { alphaTest: 0, visible: false } )
+            )
+            item.linkBox.onClick = () => {
+                window.open( data.link, '_blank' )
+            }
+
+            item.linkGroup.position.set( 0, item.caption ? item.caption.position.y - 40  : -item.mesh.scale.y / 2 - 50, 0 )
+
+            item.linkGroup.add( item.link )
+            item.linkGroup.add( item.linkUnderline )
+            item.linkGroup.add( item.linkBox )
+            item.group.add( item.linkGroup )
 
         }
 
@@ -586,9 +626,18 @@ export default class Timeline {
         TweenMax.to( this.captionTextMat, 2, {
             opacity: 1,
             ease: 'Expo.easeInOut',
-            delay: 0.2,
+            delay: 0.3,
             onStart: () => {
                 this.captionTextMat.visible = true
+            }
+        })
+
+        TweenMax.to( this.linkUnderlineMat, 2, {
+            opacity: 0.4,
+            ease: 'Expo.easeInOut',
+            delay: 0.3,
+            onStart: () => {
+                this.linkUnderlineMat.visible = true
             }
         })
 
@@ -603,10 +652,22 @@ export default class Timeline {
             })
 
         }
+
+        if( item.linkGroup ) {
+
+            TweenMax.fromTo( item.linkGroup.position, 2, {
+                z: -100
+            }, {
+                z: 0,
+                delay: 0.3,
+                ease: 'Expo.easeInOut',
+            })
+
+        }
         
         let pos = new THREE.Vector2()
 
-        for( let x in this.items ) { // TODO: see if can select just in camera range + a bit more for the timeline move
+        for( let x in this.items ) { // TODO: see if can select just in camera range + a bit more for the timeline position
 
             if( this.items[x].align === 0 ) pos.set( -700, 700 ) // bottom left
             if( this.items[x].align === 1 ) pos.set( 700, 700 ) // bottom right
@@ -666,11 +727,12 @@ export default class Timeline {
                 }
             })
 
-            TweenMax.to( this.captionTextMat, 1, {
+            TweenMax.to( [ this.captionTextMat, this.linkUnderlineMat ], 1, {
                 opacity: 0, 
                 ease: 'Expo.easeInOut',
                 onComplete: () => {
                     this.captionTextMat.visible = false
+                    this.linkUnderlineMat.visible = false
                 }
             })
 
@@ -722,7 +784,13 @@ export default class Timeline {
 
         if( this.itemOpen ) {
 
-            this.closeItem()
+            if( this.linkIntersect.length > 0 ) {
+                if( this.linkIntersect[0].object.onClick )
+                this.linkIntersect[0].object.onClick()
+            } else {
+                this.closeItem()
+            }
+
 
         } else {
 
@@ -759,6 +827,7 @@ export default class Timeline {
 
     mouseMove( e ) {
 
+        // raycast for items when in timeline mode
         if( !this.itemOpen && !this.c.holdingMouseDown ) {
 
             this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
@@ -772,6 +841,24 @@ export default class Timeline {
                 this.dom.cursor.dataset.cursor = 'eye'
             } else if ( this.dom.cursor.dataset.cursor !== 'pointer' ) {
                 this.dom.cursor.dataset.cursor = 'pointer'
+            }
+
+        }
+
+        // raycast for item link
+        if( this.itemOpen && this.itemOpen.linkBox ) {
+
+            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
+            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+
+            this.raycaster.setFromCamera( this.mouse, this.camera )
+
+            this.linkIntersect = this.raycaster.intersectObject( this.itemOpen.linkBox )
+            
+            if ( this.linkIntersect.length > 0 ) {
+                this.dom.cursor.dataset.cursor = 'eye'
+            } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
+                this.dom.cursor.dataset.cursor = 'cross'
             }
 
         }
