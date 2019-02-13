@@ -53,7 +53,7 @@ export default class Timeline {
 
         this.assetList = assetOrder
         this.assetList.intro = ['ok.png']
-        this.assetList.end = ['glit.mp4']
+        this.assetList.end = ['wave.mp4']
         this.assetData = assetData
 
         this.activeMonth = 'intro'
@@ -444,7 +444,7 @@ export default class Timeline {
         this.linkUnderlineMat.opacity = 0.3
 
         TweenMax.to( this.camera.position, 2, {
-            y: this.contactSection.position.y,
+            y: this.contactSection.position.y * this.scene.scale.y,
             ease: 'Expo.easeInOut',
             onComplete: () => {
                 this.timeline.visible = false
@@ -475,7 +475,7 @@ export default class Timeline {
 
         let delta = normalizeWheelDelta(e)
 
-        this.c.scrollPos += -delta * 20
+        this.c.scrollPos += -delta * 60
         this.c.scrolling = true;        
         
         function normalizeWheelDelta( e ) {

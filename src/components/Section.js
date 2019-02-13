@@ -57,7 +57,7 @@ export default class Section extends THREE.Group {
         let material = new THREE.MeshBasicMaterial( { map: this.timeline.assets.textures['intro']['ok.png'], transparent: true } )
         let geom = new THREE.PlaneGeometry( 1, 1 )
         let hand = new THREE.Mesh( geom, material )
-        hand.scale.set( 1000, 1000, 1 )
+        hand.scale.set( 800, 800, 1 )
         hand.position.set( 0, 0, -250 )
         this.add( hand )
 
@@ -124,7 +124,7 @@ export default class Section extends THREE.Group {
                 fogColor: { type: "c", value: this.timeline.scene.fog.color },
                 fogNear: { type: "f", value: this.timeline.scene.fog.near },
                 fogFar: { type: "f", value: this.timeline.scene.fog.far },
-                texture: { type: 't', value: this.timeline.assets.textures['end'][ 'glit.mp4' ] }
+                texture: { type: 't', value: this.timeline.assets.textures['end'][ 'wave.mp4' ] }
             },
             fragmentShader: greenscreen,
             vertexShader: vert,
@@ -136,7 +136,7 @@ export default class Section extends THREE.Group {
         mesh.scale.set( 700, 700, 1 )
         mesh.position.set( 0, 0, -200 )
 
-        // this.assets.textures['end'][ 'end/glit.mp4' ].image.play() // TODO: play when enters camera
+        this.timeline.assets.textures['end'][ 'wave.mp4' ].image.play() // TODO: play when enters camera
 
         this.add( mesh )
 
@@ -144,7 +144,7 @@ export default class Section extends THREE.Group {
 
     createContactSection() {
 
-        this.position.set( 0, 2000, 0 )
+        this.position.set( 0, 2000 / this.timeline.scene.scale.y , 0 )
         this.visible = false
 
         let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
