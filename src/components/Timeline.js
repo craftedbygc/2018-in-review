@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { TweenMax } from 'gsap'
 import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture'
-import DeviceOrientationControls from '../utils/three-orientation-controls'
 import AssetLoader from '../utils/AssetLoader'
 import Item from './Item'
 import Section from './Section'
@@ -61,7 +60,7 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-        this.enableLoader = false
+        this.enableLoader = true
         this.gyroEnabled = false
 
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
@@ -627,6 +626,20 @@ export default class Timeline {
 
     }
 
+    updateOrientation( e ) {
+
+        if( !this.initialOrientation ) {
+            this.initialOrientation = { gamma: e.gamma, beta: e.beta }
+        }
+
+        TweenMax.to( this.camera.rotation, 2, {
+            x: e.beta ? (e.beta - this.initialOrientation.beta) * (Math.PI / 300) : 0,
+            y: e.gamma ? (e.gamma - this.initialOrientation.gamma) * (Math.PI / 300) : 0,
+            ease: 'Power4.easeOut',
+        })
+
+    }
+
     changeColours( override = false ) {
 
         this.remainingMonths = Object.keys( this.monthPositions ).filter( key => {
@@ -815,16 +828,8 @@ export default class Timeline {
         this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
 
         if( this.gyroEnabled ) {
-            window.addEventListener( 'deviceorientation', (e) => {
-
-                if( !this.initialOrientation ) {
-                    this.initialOrientation = { gamma: e.gamma * (Math.PI / 300), beta: e.beta * (Math.PI / 300) }
-                }
-
-                this.camera.rotation.y = e.gamma ? (e.gamma - this.initialOrientation.gamma) * (Math.PI / 300) : 0
-                this.camera.rotation.x = e.beta ? (e.beta - this.initialOrientation.beta) * (Math.PI / 300) : 0
-        
-            })
+            this.updateOrientation = this.updateOrientation.bind( this )
+            window.addEventListener( 'deviceorientation', this.updateOrientation )
         }
 
         document.querySelector( '.say-hello' ).addEventListener( 'click', this.openContact, false )
