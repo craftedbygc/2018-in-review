@@ -203,18 +203,31 @@ main {
     position: absolute;
     top: 15px;
     left: 15px;
-    width: 260px;
-    height: 30px;
+    width: 190px;
+    height: 22px;
     pointer-events: all;
+
+    @media screen and (min-width: 750px) {
+        width: 260px;
+        height: 30px;
+    }
 }
 
 .say-hello {
     position: absolute;
-    top: 15px;
+    top: 18px;
     right: 15px;
-    width: 96px;
+    width: 86px;
     height: 12px;
     pointer-events: all;
+    opacity: 0;
+    visibility: hidden;
+
+    @media screen and (min-width: 750px) {
+        width: 96px;
+        top: 18px;
+        right: 20px;
+    }
 
     &:after {
         content: '';
@@ -232,15 +245,27 @@ main {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 12px;
+    width: 10px;
+
+    @media screen and (min-width: 750px) {
+        width: 12px;
+    }
 }
 
 .left {
-    left: 15px;
+    left: 10px;
+
+    @media screen and (min-width: 750px) {
+        left: 15px;
+    }
 }
 
 .right {
-    right: 15px;
+    right: 10px;
+
+    @media screen and (min-width: 750px) {
+        right: 15px;
+    }
 }
 
 .social {

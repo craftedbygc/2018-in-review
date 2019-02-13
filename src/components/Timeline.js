@@ -223,6 +223,11 @@ export default class Timeline {
             }
         })
 
+        TweenMax.to( '.say-hello', 2, {
+            autoAlpha: 1,
+            ease: 'Expo.easeInOut'
+        })
+
     }
 
     openItem( item ) {
