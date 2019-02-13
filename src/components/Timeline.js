@@ -68,15 +68,17 @@ export default class Timeline {
 
         let assetLoader = new AssetLoader()
         
-        assetLoader.load( this.assetList, this.renderer ).then( assets => {
+        setTimeout( () => {
+            assetLoader.load( this.assetList, this.renderer ).then( assets => {
 
-            this.assets = assets
-            console.log('ASSETS LOADED');
+                this.assets = assets
+                console.log('ASSETS LOADED');
 
-            // all assets loaded - initialise
-            this.createTimeline()
+                // all assets loaded - initialise
+                this.createTimeline()
 
-        })
+            })
+        }, 3000 )
 
     }
 
@@ -98,7 +100,7 @@ export default class Timeline {
         const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI // TODO: fix mobile scaling
         this.camera = new THREE.PerspectiveCamera( fov, this.c.size.w / this.c.size.h, 1, 2000 )
         // this.camera.lookAt( this.scene.position )
-        this.camera.position.z = cameraPosition
+        this.camera.position.set( 0, 2000, cameraPosition )
 
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = this.camera.near
@@ -195,12 +197,31 @@ export default class Timeline {
             timeline: timeline,
             section: 'contact'
         })
+        this.contactSection.visible = false
         this.scene.add( this.contactSection )
 
 
         console.log('RENDER')
         this.animate()
         this.initListeners()
+        document.body.classList.add('ready')
+
+    }
+
+    moveToStart() {
+
+        TweenMax.to( this.camera.position, 2, {
+            y: 0,
+            ease: 'Expo.easeInOut'
+        })
+
+        TweenMax.to( '.loading', 2, {
+            y: '-100%',
+            ease: 'Expo.easeInOut',
+            onComplete() {
+                document.querySelector('.loading').style.display = 'none'
+            }
+        })
 
     }
 
@@ -763,6 +784,7 @@ export default class Timeline {
         this.mouseDown = this.mouseDown.bind( this )
         this.mouseUp = this.mouseUp.bind( this )
         this.openContact = this.openContact.bind( this )
+        this.moveToStart = this.moveToStart.bind( this )
 
         this.renderer.domElement.addEventListener( 'resize', this.resize, false )
         window.addEventListener( 'mousemove', this.mouseMove, false )
@@ -771,6 +793,7 @@ export default class Timeline {
         this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
 
         document.querySelector( '.say-hello' ).addEventListener( 'click', this.openContact, false )
+        document.querySelector( '.enter' ).addEventListener( 'click', this.moveToStart, false )
 
         this.gesture = new TinyGesture( this.renderer.domElement, { mouseSupport: false } )
 

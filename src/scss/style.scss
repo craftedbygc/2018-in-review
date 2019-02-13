@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'Schnyder L Web';
-    src: url('/fonts/SchnyderL-Bold-Web.woff2') format('woff2'),
-         url('/fonts/SchnyderL-Bold-Web.woff') format('woff');
+    src: url('../../public/fonts/SchnyderL-Bold-Web.woff2') format('woff2'),
+         url('../../public/fonts/SchnyderL-Bold-Web.woff') format('woff');
     font-weight:  700;
     font-style:   normal;
     font-stretch: normal;
@@ -48,8 +48,7 @@ canvas {
     font-family: 'Schnyder L Web';
     color: #1b42d8;
     font-size: 40px;
-    padding: 0 10px;
-    z-index: 1;
+    z-index: 5;
     text-align: center;
 
     svg {
@@ -67,14 +66,19 @@ canvas {
     }
 
     h1 {
-        max-width: 900px;
+        max-width: 840px;
         margin: 0 auto 90px;
-        font-size: 36px;
+        font-size: 26px;
         line-height: 1.2;
+        padding: 0 80px;
         opacity: 0;
         animation: fadeInUpSmall 3s cubic-bezier(0.77, 0, 0.175, 1);
         animation-delay: 1s;
         animation-fill-mode: forwards;
+
+        @media screen and (min-width: 750px) {
+            font-size: 36px;
+        }
     }
 
     .progress {
@@ -407,12 +411,9 @@ main {
     20% {
         opacity: 0;
     }
-
-    80% {
-        opacity: 1;
-    }
   
     100% {
+        opacity: 1;
         transform: translate3d(0, 0, 0);
     }
 }

@@ -40,6 +40,7 @@
     "three-bmfont-text": "^2.3.0",
     "three-device-orientation": "^1.0.3",
     "uglifyjs-webpack-plugin": "^2.1.1",
+    "url-loader": "^1.1.2",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.1.14"
