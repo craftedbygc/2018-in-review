@@ -96,7 +96,6 @@ export default class AssetLoader {
 
         return new Promise( resolve => {
             progressPromise( assetLoadPromises, this.update.bind(this) ).then( () => {
-                console.log('done!');
                 resolve( this.assets )
             });
         })

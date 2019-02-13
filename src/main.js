@@ -11,13 +11,13 @@ if (module.hot) {
         timeline.renderer.domElement.removeEventListener('resize', timeline.resize)
         timeline.renderer.domElement.removeEventListener('mousedown', timeline.mouseDown)
         timeline.renderer.domElement.removeEventListener('mouseup', timeline.mouseUp)
+        removeEventListener('mousemove', timeline.mouseMove)
         document.querySelector('canvas').remove()
         timeline.renderer.forceContextLoss()
         timeline.renderer.context = null
         timeline.renderer.domElement = null
         timeline.renderer = null
         cancelAnimationFrame(timeline.animationId)
-        removeEventListener('mousemove', timeline.mouseMove)
 
         timeline.gesture.destroy()
     })

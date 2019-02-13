@@ -91,6 +91,7 @@ export default class Timeline {
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color( 0xAEC7C3 )
         this.scene.fog = new THREE.Fog( 0xAEC7C3, 1400, 2000 )
+        if( this.c.size.w < 600 ) this.scene.scale.set( 0.5, 0.5, 1 )
 
         let cameraPosition = 800;
 
@@ -128,6 +129,7 @@ export default class Timeline {
         this.captionTextMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, opacity: 0, visible: false } )
         this.linkUnderlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true, opacity: 0, visible: false } )
         this.textOutlineMat = new THREE.MeshBasicMaterial( { color: 0x1b42d8, transparent: true } )
+        this.contactTextMat = new THREE.MeshBasicMaterial( { color: 0xFFFFFF } )
 
         this.sections = {}
         this.items = {}
@@ -199,8 +201,6 @@ export default class Timeline {
         console.log('RENDER')
         this.animate()
         this.initListeners()
-
-        // this.scene.scale.set( 0.5, 0.5, 0.5 )
 
     }
 
@@ -653,6 +653,16 @@ export default class Timeline {
             } else {
 
                 interfaceColor = textColor
+    
+            }
+
+            if( this.months[ this.activeMonth ].contactColor ) {
+
+                this.contactTextMat.color.set( this.months[ this.activeMonth ].contactColor )
+                
+            } else {
+
+                this.contactTextMat.color.set( 0xFFFFFF )
     
             }
 

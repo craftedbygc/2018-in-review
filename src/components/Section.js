@@ -165,7 +165,7 @@ export default class Section extends THREE.Group {
             curveSegments: 6
         } ).center()
 
-        let lineOne = new THREE.Mesh( lineOneGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
+        let lineOne = new THREE.Mesh( lineOneGeom, this.timeline.contactTextMat )
         lineOne.position.set( 0, 0, 0 )
         this.add( lineOne )
 
@@ -176,7 +176,7 @@ export default class Section extends THREE.Group {
             curveSegments: 6
         } ).center()
 
-        let lineTwo = new THREE.Mesh( lineTwoGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }) )
+        let lineTwo = new THREE.Mesh( lineTwoGeom, this.timeline.contactTextMat )
         lineTwo.position.set( 0, -45, 0 )
         this.add( lineTwo )
 
@@ -193,7 +193,7 @@ export default class Section extends THREE.Group {
 
         let emailUnderline = new THREE.Mesh(
             new THREE.PlaneBufferGeometry( 467, 1 ),
-            this.linkUnderlineMat
+            this.timeline.linkUnderlineMat
         )
         emailUnderline.position.set( 0, -172, 0 )
         this.add( emailUnderline )

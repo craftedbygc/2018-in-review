@@ -76,7 +76,8 @@ const months = {
         name: 'DECEMBER',
         textColor: 0xF81B06,
         bgColor: 0xF2F2F2,
-        tintColor: 0xF81B06
+        tintColor: 0xF81B06,
+        contactColor: 0x333333
     },
     end: {
         textColor: 0xED859C,
