@@ -61,6 +61,10 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
+        this.enableLoader = false
+        this.gyroEnabled = false
+
+        if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
        
     }
 
@@ -68,7 +72,20 @@ export default class Timeline {
 
         let assetLoader = new AssetLoader()
         
-        setTimeout( () => {
+        if( this.enableLoader ) {
+            setTimeout( () => {
+                assetLoader.load( this.assetList, this.renderer ).then( assets => {
+
+                    this.assets = assets
+                    console.log('ASSETS LOADED');
+
+                    // all assets loaded - initialise
+                    this.createTimeline()
+
+                })
+            }, 3000 )
+        } else {
+
             assetLoader.load( this.assetList, this.renderer ).then( assets => {
 
                 this.assets = assets
@@ -78,7 +95,8 @@ export default class Timeline {
                 this.createTimeline()
 
             })
-        }, 3000 )
+
+        }
 
     }
 
@@ -100,7 +118,7 @@ export default class Timeline {
         const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI // TODO: fix mobile scaling
         this.camera = new THREE.PerspectiveCamera( fov, this.c.size.w / this.c.size.h, 1, 2000 )
         // this.camera.lookAt( this.scene.position )
-        this.camera.position.set( 0, 2000, cameraPosition )
+        this.camera.position.set( 0, this.enableLoader ? 2000 : 0, cameraPosition )
 
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = this.camera.near
@@ -114,9 +132,10 @@ export default class Timeline {
 
         window.addEventListener( 'devicemotion', event => {
             if( event.rotationRate.alpha || event.rotationRate.beta || event.rotationRate.gamma ) {
-                if( !this.controls ) {
-                    this.controls = new DeviceOrientationControls( this.camera )
-                }
+                // if( !this.controls ) {
+                //     this.controls = new DeviceOrientationControls( this.camera )
+                // }
+                this.gyroEnabled = true
             }
         })
 
@@ -185,9 +204,7 @@ export default class Timeline {
 
             this.timeline.add( this.sections[month] )
 
-            if( month === 'end' ) {
-                this.stopScrollPos = this.sections[month].position.z
-            }
+            if( month === 'end' ) this.stopScrollPos = this.sections[month].position.z
 
         }
 
@@ -797,8 +814,21 @@ export default class Timeline {
         this.renderer.domElement.addEventListener( 'mouseup', this.mouseUp, false )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
 
+        if( this.gyroEnabled ) {
+            window.addEventListener( 'deviceorientation', (e) => {
+
+                if( !this.initialOrientation ) {
+                    this.initialOrientation = { gamma: e.gamma * (Math.PI / 300), beta: e.beta * (Math.PI / 300) }
+                }
+
+                this.camera.rotation.y = e.gamma ? (e.gamma - this.initialOrientation.gamma) * (Math.PI / 300) : 0
+                this.camera.rotation.x = e.beta ? (e.beta - this.initialOrientation.beta) * (Math.PI / 300) : 0
+        
+            })
+        }
+
         document.querySelector( '.say-hello' ).addEventListener( 'click', this.openContact, false )
-        document.querySelector( '.enter' ).addEventListener( 'click', this.moveToStart, false )
+        if( this.enableLoader ) document.querySelector( '.enter' ).addEventListener( 'click', this.moveToStart, false )
 
         this.gesture = new TinyGesture( this.renderer.domElement, { mouseSupport: false } )
 

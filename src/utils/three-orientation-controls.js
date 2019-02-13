@@ -27,8 +27,8 @@ var DeviceOrientationControls = function( object ) {
     scope.deviceOrientation = event;
 
     if( !scope.betaOffsetAngle ) {
-        console.log( THREE.Math.degToRad( scope.deviceOrientation.beta ) )
-        scope.betaOffsetAngle = THREE.Math.degToRad( scope.deviceOrientation.beta )
+        // scope.betaOffsetAngle = THREE.Math.degToRad( scope.deviceOrientation.beta ) + THREE.Math.degToRad( 90 )
+        // console.log( THREE.Math.degToRad( scope.deviceOrientation.beta ), scope.betaOffsetAngle )
     }
 
   };
