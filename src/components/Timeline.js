@@ -179,7 +179,7 @@ export default class Timeline {
             this.sections[month].position.z = nextMonthPos
             this.monthPositions[month] = nextMonthPos + 1100 ;
             let posOffset = 800; // TODO: get from camera?
-            if( month === 'intro' ) posOffset = 1300
+            if( month === 'intro' ) posOffset = 1700
             if( month === 'dec' ) posOffset = 1800
             nextMonthPos += bbox.min.z - posOffset
 
