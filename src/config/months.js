@@ -8,9 +8,9 @@ const months = {
     },
     jan: {
         name: 'JANUARY',
-        textColor: 0x1b42d8,
-        bgColor: 0xAEC7C3,
-        tintColor: 0x1b42d8
+        textColor: 0xf7cf7e,
+        bgColor: 0x428884,
+        tintColor: 0x428884
     },
     feb: {
         name: 'FEBRUARY',
@@ -22,37 +22,39 @@ const months = {
         name: 'MARCH',
         textColor: 0x1b42d8,
         bgColor: 0xF2D0C9,
-        tintColor: 0x1b42d8
+        tintColor: 0x1b42d8,
+        contactColor: 0x192759
     },
     apr: {
         name: 'APRIL',
         textColor: 0xF7A910,
         bgColor: 0x5198A8,
-        tintColor: 0xF7A910
+        tintColor: 0x3c7484
     },
     may: {
         name: 'MAY',
         textColor: 0xFB9364,
         bgColor: 0x2C57A2,
-        tintColor: 0xFB9364
+        tintColor: 0x36579d
     },
     jun: {
         name: 'JUNE',
         textColor: 0xF6D2F2,
         bgColor: 0x286254,
-        tintColor: 0xF6D2F2
+        tintColor: 0x386155
     },
     jul: {
         name: 'JULY',
         textColor: 0xCA7E70,
         bgColor: 0x424C65,
-        tintColor: 0xCA7E70
+        tintColor: 0x444c63
     },
     aug: {
         name: 'AUGUST',
         textColor: 0x166C21,
         bgColor: 0xFFCDA1,
-        tintColor: 0x166C21
+        tintColor: 0x336a2c,
+        contactColor: 0x745d49
     },
     sep: {
         name: 'SEPTEMBER',
@@ -64,20 +66,20 @@ const months = {
         name: 'OCTOBER',
         textColor: 0x37382E,
         bgColor: 0xFA9E00,
-        tintColor: 0x37382E
+        tintColor: 0x373830
     },
     nov: {
         name: 'NOVEMBER',
         textColor: 0x003036,
         bgColor: 0x288794,
-        tintColor: 0x003036
+        tintColor: 0x468692
     },
     dec: {
         name: 'DECEMBER',
         textColor: 0xF81B06,
         bgColor: 0xF2F2F2,
-        tintColor: 0xF81B06,
-        contactColor: 0x333333
+        tintColor: 0xa2a2a2,
+        contactColor: 0x1f1f1f
     },
     end: {
         textColor: 0xED859C,
