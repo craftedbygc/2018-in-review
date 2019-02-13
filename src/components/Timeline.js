@@ -91,7 +91,7 @@ export default class Timeline {
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color( 0xAEC7C3 )
         this.scene.fog = new THREE.Fog( 0xAEC7C3, 1400, 2000 )
-        if( this.c.size.w < 600 ) this.scene.scale.set( 0.5, 0.5, 1 )
+        if( this.c.size.w < 600 ) this.scene.scale.set( 0.4, 0.4, 1 )
 
         let cameraPosition = 800;
 

@@ -10,8 +10,8 @@ export default class AssetLoader {
         }
         this.assetList = {}
         this.renderer = null
-        this.progressEl = document.querySelector( '.progress' )
-        this.progressBar = document.querySelector( '.progress-bar .bar' )
+        this.progressEl = document.querySelector( '.progress-percent' )
+        this.progressBar = document.querySelector( '.progress-circle .line' )
 
     }
 
@@ -106,7 +106,7 @@ export default class AssetLoader {
 
         let progress = Math.round( completed / total * 100 )
         this.progressEl.innerHTML = progress + '%'
-        this.progressBar.style.width = progress + '%'
+        this.progressBar.style.strokeDashoffset = 252.363 - ( 252.363 * ( completed / total ) )
 
     }
 
