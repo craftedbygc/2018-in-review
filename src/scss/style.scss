@@ -61,6 +61,9 @@ canvas {
         height: 12px;
         margin-bottom: 30px;
         margin-top: 70px;
+        opacity: 0;
+        animation: fadeInUp 3s cubic-bezier(0.77, 0, 0.175, 1);
+        animation-fill-mode: forwards;
     }
 
     h1 {
@@ -68,6 +71,10 @@ canvas {
         margin: 0 auto 90px;
         font-size: 36px;
         line-height: 1.2;
+        opacity: 0;
+        animation: fadeInUpSmall 3s cubic-bezier(0.77, 0, 0.175, 1);
+        animation-delay: 1s;
+        animation-fill-mode: forwards;
     }
 
     .progress {
@@ -77,10 +84,49 @@ canvas {
         display: flex;
         align-items: center;
         justify-content: center;
+        opacity: 0;
+        animation: scaleUp 2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation-delay: 2.5s;
+        animation-fill-mode: forwards;
     }
 
     .progress-percent {
         font-size: 30px;
+
+        .ready & {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0);
+        }
+    }
+
+    .enter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        font-size: 30px;
+        text-decoration: none;
+        color: #1b42d8;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0);
+
+        .ready & {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+    }
+
+    .progress-percent, .enter, .loading-text svg {
+        transition-property: opacity visibility transform;
+        transition-duration: 0.6s;
+        transition-timing-function: cubic-bezier(0.680, -0.550, 0.265, 1.850);
     }
 
     .progress-circle {
@@ -97,10 +143,8 @@ canvas {
                 stroke: #1b42d8;
                 stroke-miterlimit: 10;
                 stroke-width: 0.5;
-                // stroke-dashoffset: 125;
                 stroke-dashoffset: 252.363;
                 stroke-dasharray: 252.363px;
-                transition: stroke-dashoffset 0.05s;
             }
 
             .track {
@@ -122,6 +166,12 @@ canvas {
         -ms-animation: rotating 20s linear infinite;
         -o-animation: rotating 20s linear infinite;
         animation: rotating 20s linear infinite;
+
+        .ready & svg {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.5);
+        }
     }
 }
 
@@ -327,4 +377,57 @@ main {
       -o-transform: rotate(360deg);
       transform: rotate(360deg);
     }
-  }
+}
+
+@keyframes scaleUp {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    60% {
+        transform: scale(1.1);
+    }
+
+    80% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        transform: translate3d(0, 150%, 0);
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 1;
+    }
+  
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeInUpSmall {
+    0% {
+        transform: translate3d(0, 50%, 0);
+    }
+
+    20% {
+        opacity: 0;
+    }
+  
+    100% {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+}
