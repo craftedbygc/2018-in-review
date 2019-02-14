@@ -53,6 +53,7 @@ export default class AssetLoader {
 
                     if( preload ) {
 
+                        // TODO: make function that returns this promise again if it fails
                         assetLoadPromises.push( new Promise( (resolve, reject) => {
 
                             // if( !this.isMobile) video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
@@ -63,12 +64,12 @@ export default class AssetLoader {
 
                             video.onerror = () => { reject( { error: video.error, file: `${month}/${filename}` }) }
 
-                            if( this.videosToLoad < 15 ) {
+                            if( this.videosToLoad < 4 ) {
                                 this.videosToLoad++
                                 video.load()
                             } else {
                                 video.loadCheck = setInterval( () => {
-                                    if( this.videosToLoad < 15 ) {
+                                    if( this.videosToLoad < 4 ) {
                                         this.videosToLoad++
                                         video.load()
                                         clearInterval( video.loadCheck )

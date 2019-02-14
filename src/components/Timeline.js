@@ -260,6 +260,7 @@ export default class Timeline {
         // if( this.c.isMobile ) {
             let texture = item.mesh.material.uniforms.texture.value
             if( texture.mediaType === 'video' ) {
+                texture.image.src = 'assets/' + texture.name
                 texture.image.play()
             }
         // }
