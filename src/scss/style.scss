@@ -229,9 +229,7 @@ main {
         right: 20px;
     }
 
-    &:after {
-        content: '';
-        display: block;
+    .underline {
         position: absolute;
         bottom: -10px;
         padding-top: 10px;
