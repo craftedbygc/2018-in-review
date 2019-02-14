@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import { TweenMax } from 'gsap'
-import CSSRulePlugin from 'gsap/CSSRulePlugin'
 import TinyGesture from 'tinygesture'
 import AssetLoader from '../utils/AssetLoader'
 import Item from './Item'
@@ -63,7 +62,7 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-        this.enableLoader = false
+        this.enableLoader = true
         this.gyroEnabled = false
 
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
@@ -257,13 +256,13 @@ export default class Timeline {
         this.origTimelinePos = this.timeline.position.z
         this.c.allowScrolling = false
 
-        // if( this.c.isMobile ) {
+        if( this.c.isMobile ) {
             let texture = item.mesh.material.uniforms.texture.value
             if( texture.mediaType === 'video' ) {
                 texture.image.src = 'assets/' + texture.name
                 texture.image.play()
             }
-        // }
+        }
 
         let posOffset = this.sections[ this.activeMonth ].position.z;
 
@@ -380,14 +379,14 @@ export default class Timeline {
             this.itemAnimating = true
             this.dom.cursor.dataset.cursor = 'pointer'
 
-            // if( this.c.isMobile ) {
+            if( this.c.isMobile ) {
                 let texture = this.itemOpen.mesh.material.uniforms.texture.value
                 if( texture.mediaType === 'video' ) {
                     texture.image.pause()
                     texture.image.src = ''
                     texture.image.load()
                 }
-            // }
+            }
 
             TweenMax.to( this.itemOpen.position, 1.5, {
                 x: this.itemOpen.origPos.x,
@@ -759,12 +758,12 @@ export default class Timeline {
         for( let i = 0; i < this.videoCount; i++ ) {
 
             if( this.frustum.intersectsObject( this.videoItems[ i ] ) && this.videoItems[ i ].material.uniforms.texture.value.image.paused ) {
-                // this.videoItems[ i ].material.uniforms.texture.value.image.play()
+                this.videoItems[ i ].material.uniforms.texture.value.image.play()
                 continue
             }
             
             if ( !this.frustum.intersectsObject( this.videoItems[ i ] ) && !this.videoItems[ i ].material.uniforms.texture.value.image.paused ) {
-                // this.videoItems[ i ].material.uniforms.texture.value.image.pause()
+                this.videoItems[ i ].material.uniforms.texture.value.image.pause()
             }
 
         }

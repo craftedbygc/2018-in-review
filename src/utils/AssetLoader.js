@@ -39,7 +39,6 @@ export default class AssetLoader {
                 if( ~filename.indexOf( '.mp4' ) ) {
 
                     let video = document.createElement( 'video' );
-                    // video.style = 'position:relative;z-index:100'
                     video.style = 'position:absolute;height:0'
                     video.muted = true
                     video.autoplay = false
@@ -47,37 +46,16 @@ export default class AssetLoader {
                     video.crossOrigin = 'anonymous'
                     video.setAttribute('muted', true)
                     video.setAttribute('webkit-playsinline', true)
+                    video.preload = 'metadata'
                     video.src = `assets/${month}/${filename}`
                     document.body.appendChild( video )
-                    //video.load() // must call after setting/changing source
+                    video.load() // must call after setting/changing source
 
                     if( preload ) {
 
-                        // TODO: make function that returns this promise again if it fails
                         assetLoadPromises.push( new Promise( (resolve, reject) => {
-
-                            // if( !this.isMobile) video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
-
-                            video.onloadeddata = () => {
-                                this.createVideoTexture( video, month, filename, resolve )
-                            }
-
-                            video.onerror = () => { reject( { error: video.error, file: `${month}/${filename}` }) }
-
-                            if( this.videosToLoad < 4 ) {
-                                this.videosToLoad++
-                                video.load()
-                            } else {
-                                video.loadCheck = setInterval( () => {
-                                    if( this.videosToLoad < 4 ) {
-                                        this.videosToLoad++
-                                        video.load()
-                                        clearInterval( video.loadCheck )
-                                    }
-                                }, 200 )
-                            }
-
-                        }))
+                            this.videoPromise( video, month, filename, resolve )
+                        } ) )
 
                     } else {
 
@@ -136,6 +114,29 @@ export default class AssetLoader {
 
     }
 
+    videoPromise( video, month, filename, resolve, retry ) {
+
+        if( retry ) video.load()
+
+        if( !this.isMobile) video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
+        else {
+
+            video.onloadeddata = () => {
+                console.log( 'onloaded', video.src, video.error )
+                video.onerror = null
+                this.createVideoTexture( video, month, filename, resolve )
+            }
+
+            video.onerror = () => {
+                console.log( 'onerror', video.src, video.error )
+                video.onloadeddata = null
+                this.videoPromise( video, month, filename, resolve, true )
+            }
+
+        }
+
+    }
+
     createImageTexture( texture, month, filename, resolve ) {
         
         // if preloaded
@@ -179,7 +180,6 @@ export default class AssetLoader {
     createVideoTexture( video, month, filename, resolve, reject ) {
 
         let texture = new THREE.VideoTexture( video )
-        // console.log(texture.update)
         texture.minFilter = texture.magFilter = THREE.LinearFilter
         texture.name = `${month}/${filename}`
         texture.mediaType = 'video'
@@ -189,19 +189,15 @@ export default class AssetLoader {
         if( resolve ) {
 
             texture.size = new THREE.Vector2( texture.image.videoWidth / 2, texture.image.videoHeight / 2 )
+            this.renderer.setTexture2D( texture, 0 )
 
-            // if( !this.isMobile) {
-            //     video.oncanplaythrough = null
-            // } else {
-                this.renderer.setTexture2D( texture, 0 )
+            if( !this.isMobile) {
+                video.oncanplaythrough = null
+            } else {
                 video.src = ''
                 video.load()
-                video.onloadedmetadata = null
-                video.oncanplay = null
                 video.onloadeddata = null
-            // }
-
-            this.videosToLoad--
+            }
 
             resolve( texture )
 
