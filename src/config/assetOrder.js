@@ -1,9 +1,11 @@
 const assetOrder = {
     "jan": [
-        "adicolor_ss2018-resize.mp4",
+        "adicolor_ss2018.mp4",
         "berlin-3.JPG",
-        "cursor-opt.mp4",
-        "iceland.mp4",
+        "cursor.mp4",
+        "dark.mp4",
+        "houseofplants.mp4.mp4",
+        "iceland-orig.mp4",
         "iceland_dribbble.jpg",
         "nike.mp4",
         "roadless.jpg",
@@ -15,11 +17,11 @@ const assetOrder = {
         "ezgif.com-gif-to-mp4 (10).mp4",
         "ezgif.com-gif-to-mp4 (12).mp4",
         "fila_dribbble.jpg",
-        "fullsize-opt2.mp4",
-        "houseofplants_ar-opt.mp4",
+        "fullsize.mp4",
+        "houseofplants_ar.mp4",
         "nz.jpg",
         "surf_fullsize.mp4",
-        "surf_mob_fullsize-opt.mp4"
+        "surf_mob_fullsize.mp4"
     ],
     "mar": [
         "When_To_Travel_Event_Loop_1080p.mp4.mp4",
@@ -37,6 +39,7 @@ const assetOrder = {
         "ezgif.com-gif-to-mp4 (16).mp4",
         "ezgif.com-gif-to-mp4 (17).mp4",
         "ezgif.com-gif-to-mp4 (18).mp4",
+        "its-official-video.mp4",
         "skincare.jpg"
     ],
     "may": [
@@ -57,11 +60,11 @@ const assetOrder = {
         "05.jpg",
         "6oclockgin (2).mp4",
         "melt].jpg",
-        "natural_wonders.mp4",
-        "sandsoftime.mp4"
+        "natural_wonders.mp4.mp4",
+        "sandsoftime.mp4.mp4"
     ],
     "aug": [
-        "1061670554.mp4",
+        "1061670554.mp4.mp4",
         "ezgif.com-gif-to-mp4 (10).mp4",
         "ezgif.com-gif-to-mp4 (6).mp4",
         "ezgif.com-gif-to-mp4 (7).mp4",
@@ -72,10 +75,16 @@ const assetOrder = {
     "sep": [
         "1.jpg",
         "asaro-web-live-shot_4x (2).jpg",
-        "bunder_fullsize.mp4",
-        "butterysmoothversion.mp4",
+        "bunder_fullsize.mp4.mp4",
+        "butterysmoothversion.mp4.mp4",
         "carhartt_bigboi.mp4.mp4",
         "ding_ding.mp4.mp4",
+        "ezgif.com-gif-to-mp4 (11).mp4",
+        "ezgif.com-gif-to-mp4 (12).mp4",
+        "ezgif.com-gif-to-mp4 (13).mp4",
+        "ezgif.com-gif-to-mp4 (14).mp4",
+        "habital_hifi.mp4.mp4.mp4",
+        "mantra_fullres (1).mp4.mp4",
         "nfl_screens_4x.jpg"
     ],
     "oct": [

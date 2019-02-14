@@ -1,6 +1,6 @@
 const assetData = {
     "jan": {
-        "adicolor_ss2018-resize.mp4": {
+        "adicolor_ss2018.mp4": {
             "caption": "",
             "link": ""
         },
@@ -8,11 +8,19 @@ const assetData = {
             "caption": "",
             "link": ""
         },
-        "cursor-opt.mp4": {
+        "cursor.mp4": {
             "caption": "",
             "link": ""
         },
-        "iceland.mp4": {
+        "dark.mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "houseofplants.mp4.mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "iceland-orig.mp4": {
             "caption": "",
             "link": ""
         },
@@ -54,11 +62,11 @@ const assetData = {
             "caption": "",
             "link": ""
         },
-        "fullsize-opt2.mp4": {
+        "fullsize.mp4": {
             "caption": "",
             "link": ""
         },
-        "houseofplants_ar-opt.mp4": {
+        "houseofplants_ar.mp4": {
             "caption": "",
             "link": ""
         },
@@ -70,7 +78,7 @@ const assetData = {
             "caption": "",
             "link": ""
         },
-        "surf_mob_fullsize-opt.mp4": {
+        "surf_mob_fullsize.mp4": {
             "caption": "",
             "link": ""
         }
@@ -127,6 +135,10 @@ const assetData = {
             "link": ""
         },
         "ezgif.com-gif-to-mp4 (18).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "its-official-video.mp4": {
             "caption": "",
             "link": ""
         },
@@ -192,17 +204,17 @@ const assetData = {
             "caption": "",
             "link": ""
         },
-        "natural_wonders.mp4": {
+        "natural_wonders.mp4.mp4": {
             "caption": "",
             "link": ""
         },
-        "sandsoftime.mp4": {
+        "sandsoftime.mp4.mp4": {
             "caption": "",
             "link": ""
         }
     },
     "aug": {
-        "1061670554.mp4": {
+        "1061670554.mp4.mp4": {
             "caption": "",
             "link": ""
         },
@@ -240,11 +252,11 @@ const assetData = {
             "caption": "",
             "link": ""
         },
-        "bunder_fullsize.mp4": {
+        "bunder_fullsize.mp4.mp4": {
             "caption": "",
             "link": ""
         },
-        "butterysmoothversion.mp4": {
+        "butterysmoothversion.mp4.mp4": {
             "caption": "",
             "link": ""
         },
@@ -253,6 +265,30 @@ const assetData = {
             "link": ""
         },
         "ding_ding.mp4.mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "ezgif.com-gif-to-mp4 (11).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "ezgif.com-gif-to-mp4 (12).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "ezgif.com-gif-to-mp4 (13).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "ezgif.com-gif-to-mp4 (14).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "habital_hifi.mp4.mp4.mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "mantra_fullres (1).mp4.mp4": {
             "caption": "",
             "link": ""
         },

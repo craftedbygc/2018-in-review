@@ -6,6 +6,8 @@ function progressPromise( promises, tickCallback ) {
       promise.then(function () {
         progress++
         tickCallback(progress, len)
+      }).catch(reason => {
+        console.log(reason)
       });
       return promise
     }
