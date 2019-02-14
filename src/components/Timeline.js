@@ -765,7 +765,7 @@ export default class Timeline {
             let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
             this.timeline.position.z += delta
 
-            this.handleVideos()
+            if( Math.abs( delta ) < 10 ) this.handleVideos()
             this.changeColours()
 
             if( this.timeline.position.z < 700 ) {
