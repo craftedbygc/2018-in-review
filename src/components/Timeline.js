@@ -31,7 +31,9 @@ export default class Timeline {
     setConfig() {
 
         this.dom = {
-            cursor: document.querySelector('.cursor')
+            cursor: document.querySelector('.cursor'),
+            mainSvgs: document.querySelectorAll('main svg'),
+            cursorSvgs: document.querySelectorAll('.cursor svg'),
         }
 
         this.c = {
@@ -60,7 +62,7 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-        this.enableLoader = true
+        this.enableLoader = false
         this.gyroEnabled = false
 
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
@@ -116,7 +118,6 @@ export default class Timeline {
 
         const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI // TODO: fix mobile scaling
         this.camera = new THREE.PerspectiveCamera( fov, this.c.size.w / this.c.size.h, 1, 2000 )
-        // this.camera.lookAt( this.scene.position )
         this.camera.position.set( 0, this.enableLoader ? 2000 : 0, cameraPosition )
 
         this.raycaster = new THREE.Raycaster()
@@ -131,9 +132,6 @@ export default class Timeline {
 
         window.addEventListener( 'devicemotion', event => {
             if( event.rotationRate.alpha || event.rotationRate.beta || event.rotationRate.gamma ) {
-                // if( !this.controls ) {
-                //     this.controls = new DeviceOrientationControls( this.camera )
-                // }
                 this.gyroEnabled = true
             }
         })
@@ -657,9 +655,6 @@ export default class Timeline {
             let bgColor = new THREE.Color( this.months[ this.activeMonth ].bgColor )
             let textColor = new THREE.Color( this.months[ this.activeMonth ].textColor )
             let tintColor = new THREE.Color( this.months[ this.activeMonth ].tintColor )
-            let svgRule = CSSRulePlugin.getRule( 'main svg' )
-            let svgCursorRule = CSSRulePlugin.getRule( '.cursor svg' )
-            let sayHelloUnderlineRule = CSSRulePlugin.getRule( '.say-hello:after' )
             let interfaceColor
 
             TweenMax.to( this.scene.fog.color, 1, {
@@ -712,19 +707,14 @@ export default class Timeline {
     
             }
 
-            if( this.months[ this.activeMonth ].contactColor ) {
-
+            if( this.months[ this.activeMonth ].contactColor ) 
                 this.contactTextMat.color.set( this.months[ this.activeMonth ].contactColor )
-                
-            } else {
-
+            else
                 this.contactTextMat.color.set( 0xFFFFFF )
-    
-            }
 
-            TweenLite.to( svgRule, 1, { cssRule: { fill: '#' + interfaceColor.getHexString() }, ease: 'Power4.easeOut' } )
-            TweenLite.to( svgCursorRule, 1, { cssRule: { stroke: '#' + interfaceColor.getHexString() }, ease: 'Power4.easeOut' } )
-            TweenLite.to( sayHelloUnderlineRule, 1, { cssRule: { borderBottomColor: `rgba(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255}, 0.3)` }, ease: 'Power4.easeOut' } )
+            TweenMax.to( this.dom.mainSvgs, 1, { fill: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
+            TweenMax.to( this.dom.cursorSvgs, 1, { stroke: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
+            // TweenMax.to( '.cursor svg', 1, { borderBottomColor: `rgba(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255}, 0.3)`, ease: 'Power4.easeOut' } )
 
         }
 
