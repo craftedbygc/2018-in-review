@@ -88,6 +88,10 @@ const assetData = {
             "caption": "When_To_Travel_Event_Loop_1080p.mp4.mp4",
             "link": ""
         },
+        "asia-office.jpg": {
+            "caption": "asia-office.jpg",
+            "link": ""
+        },
         "certificate-when-to-travel-sotd.jpg": {
             "caption": "certificate-when-to-travel-sotd.jpg",
             "link": ""
@@ -102,6 +106,10 @@ const assetData = {
         },
         "kim.jpg": {
             "caption": "kim.jpg",
+            "link": ""
+        },
+        "office-move.mp4": {
+            "caption": "office-move.mp4",
             "link": ""
         },
         "phototours.mp4": {
@@ -420,6 +428,10 @@ const assetData = {
         },
         "studio_of_the_year_nom.jpg": {
             "caption": "studio_of_the_year_nom.jpg",
+            "link": ""
+        },
+        "xmas.mp4": {
+            "caption": "xmas.mp4",
             "link": ""
         }
     }

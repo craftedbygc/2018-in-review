@@ -25,10 +25,12 @@ const assetOrder = {
     ],
     "mar": [
         "When_To_Travel_Event_Loop_1080p.mp4.mp4",
+        "asia-office.jpg",
         "certificate-when-to-travel-sotd.jpg",
         "ezgif.com-gif-to-mp4 (13).mp4",
         "ezgif.com-gif-to-mp4 (15).mp4",
         "kim.jpg",
+        "office-move.mp4",
         "phototours.mp4",
         "skye_fullsize.mp4",
         "yosemite.mp4"
@@ -121,7 +123,8 @@ const assetOrder = {
         "comp_1.mp4.mp4",
         "comp_1_1.mp4.mp4",
         "comp_1_2.mp4.mp4",
-        "studio_of_the_year_nom.jpg"
+        "studio_of_the_year_nom.jpg",
+        "xmas.mp4"
     ]
 };
 
