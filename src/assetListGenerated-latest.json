@@ -1,4 +1,4 @@
-const assetOrder = {
+{
     "jan": [
         "adicolor_ss2018.mp4",
         "berlin-3.JPG",
@@ -77,7 +77,6 @@ const assetOrder = {
         "aug-nala.jpg",
         "ezgif.com-gif-to-mp4 (7).mp4",
         "1061670554.mp4.mp4",
-        "boatparty.jpg",
         "ezgif.com-gif-to-mp4 (8).mp4",
         "cssda-wotd.jpg",
         "ezgif.com-gif-to-mp4 (9).mp4",
@@ -129,6 +128,3 @@ const assetOrder = {
 
     ]
 }
-;
-
-export default assetOrder;

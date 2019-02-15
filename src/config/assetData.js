@@ -258,6 +258,10 @@ const assetData = {
             "caption": "cssda-wotd.jpg",
             "link": ""
         },
+        "boatparty.jpg": {
+            "caption": "boatparty.jpg",
+            "link": ""
+        },
         "ezgif.com-gif-to-mp4 (10).mp4": {
             "caption": "ezgif.com-gif-to-mp4 (10).mp4",
             "link": ""
