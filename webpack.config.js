@@ -2,8 +2,9 @@ const webpack = require('webpack')
 const path = require('path')
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin")
+const MinifyPlugin = require("babel-minify-webpack-plugin")
 const devMode = process.env.NODE_ENV !== 'production'
 
 module.exports = {
@@ -18,6 +19,7 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
+                // include: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                     // options: {
@@ -48,6 +50,7 @@ module.exports = {
         ]
     },
     plugins: [
+        new MinifyPlugin(),
         new webpack.HotModuleReplacementPlugin(), // Enable HMR
         new webpack.NamedModulesPlugin(),
         new BrowserSyncPlugin(

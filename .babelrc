@@ -1,8 +1,8 @@
 {
     "presets": ["@babel/preset-env"],
-    "env": {
-        "production": {
-            "presets": ["minify"]
-        }
-    }
+    // "env": {
+    //     "production": {
+    //         "presets": ["minify"]
+    //     }
+    // }
 }
