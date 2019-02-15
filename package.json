@@ -5,20 +5,24 @@
   "main": "webpack.config.js",
   "scripts": {
     "start": "webpack-dev-server --watch --mode development",
-    "build": "NODE_ENV=production webpack -p"
+    "build": "NODE_ENV=production BABEL_ENV=production webpack -p"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "gsap": "^2.0.2",
-    "tinygesture": "^1.1.4"
+    "gsap": "^2.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
     "@babel/polyfill": "^7.2.5",
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "babel-preset-env": "^1.4.0",
+    "@babel/preset-env": "^7.3.1",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "babel-minify": "^0.5.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-minify": "^0.5.0",
     "browser-sync": "^2.18.8",
     "browser-sync-webpack-plugin": "^1.1.4",
     "css-loader": "^2.1.0",
@@ -33,6 +37,7 @@
     "three": "^0.101.1",
     "three-addons": "^1.2.0",
     "three-bmfont-text": "^2.3.0",
+    "tinygesture": "^1.1.4",
     "uglifyjs-webpack-plugin": "^2.1.1",
     "url-loader": "^1.1.2",
     "webpack": "^4.29.3",

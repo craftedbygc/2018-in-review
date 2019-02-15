@@ -14,10 +14,23 @@ export default class AssetLoader {
         this.progressEl = document.querySelector( '.progress-percent' )
         this.progressBar = document.querySelector( '.progress-circle .line' )
         this.videosToLoad = 0
+        this.videoBlobs = {}
 
     }
 
     load( assetList, renderer ) {
+
+        this.request = indexedDB.open('videoDb', 1);
+        this.request.onsuccess = event => {
+            console.log(event);
+            
+            this.db = event.target.result;
+            
+        }
+        this.request.onupgradeneeded = event => {
+            const db = event.target.result;
+            this.objectStore = db.createObjectStore('videos', { keyPath: 'name' });
+        }
 
         this.assetList = assetList
         this.renderer = renderer
@@ -47,9 +60,9 @@ export default class AssetLoader {
                     video.setAttribute('muted', true)
                     video.setAttribute('webkit-playsinline', true)
                     video.preload = 'metadata'
-                    video.src = `assets/${month}/${filename}`
+                    // video.src = `assets/${month}/${filename}`
                     document.body.appendChild( video )
-                    video.load() // must call after setting/changing source
+                    // video.load() // must call after setting/changing source
 
                     if( preload ) {
 
@@ -100,7 +113,50 @@ export default class AssetLoader {
 
         return new Promise( resolve => {
             progressPromise( assetLoadPromises, this.update.bind(this) ).then( () => {
-                resolve( this.assets )
+
+                // add videos to indexeddb
+                var db = this.request.result;
+                db.onerror = function(event) {
+                    // Generic error handler for all errors targeted at this database's requests
+                    console.error(event.target);
+                    window.alert("Database error: " + event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+                };
+                var transaction = db.transaction('videos', "readwrite");
+                var itemStore = transaction.objectStore("videos");
+
+                let i = 0
+
+                putNext.call( this )
+
+                function putNext() {
+                    if ( i < Object.keys( this.videoBlobs ).length ) {
+
+                        itemStore.add( { name: Object.keys( this.videoBlobs )[i], arrayBuffer: this.videoBlobs[ Object.keys( this.videoBlobs )[i] ].buffer } ).onsuccess = putNext.bind( this )
+
+                        ++i;
+                    } else {   // complete
+                        console.log('populate complete');
+
+                        for( let key in this.videoBlobs ) {
+
+                            const test = this.objectStore.get( key );
+
+                            test.onerror = event => {
+                                console.log('error');
+                            };
+                
+                            test.onsuccess = event => {
+                                this.videoBlobs[key].video.src = window.URL.createObjectURL( new Blob([test.result.arrayBuffer], {type: 'video/mp4'}) );
+                            };
+
+                        }
+
+                        resolve( this.assets )
+                        // callback();
+                    }
+                }
+
+                // resolve( this.assets )
             });
         })
 
@@ -116,24 +172,62 @@ export default class AssetLoader {
 
     videoPromise( video, month, filename, resolve, retry ) {
 
-        if( retry ) video.load()
+        const videoRequest = fetch(`assets/${month}/${filename}`).then(response => response.blob());
+        videoRequest.then(blob => {
 
-        if( !this.isMobile) video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
-        else {
+            const reader = new FileReader();
+            reader.addEventListener('loadend', (e) => {
 
-            video.onloadeddata = () => {
-                console.log( 'onloaded', video.src, video.error )
-                video.onerror = null
-                this.createVideoTexture( video, month, filename, resolve )
-            }
+                this.videoBlobs[`${month}/${filename}`] = {
+                    buffer: reader.result,
+                    video: video
+                }
 
-            video.onerror = () => {
-                console.log( 'onerror', video.src, video.error )
-                video.onloadeddata = null
-                this.videoPromise( video, month, filename, resolve, true )
-            }
+                resolve()
+            });
+            reader.addEventListener('error', error => { console.log(error) });
+            reader.readAsArrayBuffer( blob );
 
-        }
+            
+            
+            // const transaction = this.db.transaction(['videos']);
+            // const objectStore = transaction.objectStore('videos');
+
+            // const test = objectStore.get( filename );
+
+            // test.onerror = event => {
+            //     console.log('error');
+            // };
+
+            // test.onsuccess = event => {
+            //     video.src = window.URL.createObjectURL(test.result.blob);
+            // };
+
+            // objectStore.transaction.oncomplete = event => {
+            //     console.log(event)
+            //     const videoObjectStore = db.transaction('videos', 'readwrite').objectStore('videos');
+            //     videoObjectStore.add({name: filename, blob: blob});
+            // };
+        });
+
+        // if( retry ) video.load()
+
+        // if( !this.isMobile) video.oncanplaythrough = () => this.createVideoTexture( video, month, filename, resolve )
+        // else {
+
+        //     video.onloadeddata = () => {
+        //         console.log( 'onloaded', video.src, video.error )
+        //         video.onerror = null
+        //         this.createVideoTexture( video, month, filename, resolve )
+        //     }
+
+        //     video.onerror = () => {
+        //         console.log( 'onerror', video.src, video.error )
+        //         video.onloadeddata = null
+        //         this.videoPromise( video, month, filename, resolve, true )
+        //     }
+
+        // }
 
     }
 

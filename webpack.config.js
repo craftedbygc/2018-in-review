@@ -7,7 +7,7 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const devMode = process.env.NODE_ENV !== 'production'
 
 module.exports = {
-    entry: [ '@babel/polyfill', './src/main.js' ],
+    entry: [ './src/main.js' ],
     output: {
         path: path.resolve(__dirname, 'public/js'),
         publicPath: '/js/',
@@ -20,9 +20,9 @@ module.exports = {
                 exclude: /(node_modules|bower_components)/,
                 use: {
                     loader: 'babel-loader',
-                    options: {
-                        presets: ['env']
-                    }
+                    // options: {
+                    //     presets: ['@babel/preset-env']
+                    // }
                 }
             },
             {
@@ -80,21 +80,22 @@ module.exports = {
         }),
         new webpack.ProvidePlugin({
             THREE: 'three'
-          })
+        })
     ],
     devServer: {
         hot: true, // Tell the dev-server we're using HMR
         contentBase: path.resolve(__dirname, 'public'),
         publicPath: '/js/'
     },
-    devtool: 'cheap-eval-source-map',
+    devtool: devMode ? 'cheap-eval-source-map' : false,
     optimization: {
         minimizer: [
-            new UglifyJsPlugin({
-                cache: true,
-                parallel: true,
-                sourceMap: true // set to true if you want JS source maps
-            }),
+            // new UglifyJsPlugin({
+            //     // include: /\/node_modules/,
+            //     // cache: true,
+            //     parallel: true,
+            //     // sourceMap: devMode ? true : false // set to true if you want JS source maps
+            // }),
             new OptimizeCSSAssetsPlugin({})
         ],
         splitChunks: {
