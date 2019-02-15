@@ -99,7 +99,7 @@ export default class Section extends THREE.Group {
 
     createEndSection() {
 
-        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
+        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT YEAR', {
             font: this.timeline.assets.fonts['SuisseIntl-Bold'],
             size: 60,
             height: 0,
