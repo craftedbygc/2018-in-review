@@ -48,8 +48,10 @@ export default class Timeline {
             autoMoveSpeed: 0,
             isMobile: this.isMobile(),
             holdingMouseDown: false,
-            touchEnabled: ('ontouchstart' in window)
+            touchEnabled: ('ontouchstart' in window),
         }
+
+        this.c.globalScale = Math.min( 1, this.c.size.w / 1400 )
 
         if( this.c.touchEnabled ) document.documentElement.classList.add('touch-enabled')
 
@@ -117,7 +119,7 @@ export default class Timeline {
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color( 0xAEC7C3 )
         this.scene.fog = new THREE.Fog( 0xAEC7C3, 1400, 2000 )
-        if( this.c.size.w < 600 ) this.scene.scale.set( 0.4, 0.4, 1 )
+        this.scene.scale.set( this.c.globalScale, this.c.globalScale, 1 )
 
         let cameraPosition = 800;
 
@@ -286,7 +288,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(posOffset - -item.position.z) + 300,
+            z: -(posOffset - -item.position.z) + ( Math.min( 400 , 300 / this.c.globalScale ) ) ,
             ease: 'Expo.easeInOut'
         })
 
@@ -511,7 +513,8 @@ export default class Timeline {
 
     mouseDown( e ) {
 
-        e.preventDefault();
+        e.preventDefault()
+        e.stopPropagation()
 
         this.c.holdingMouseDown = true
 
@@ -839,7 +842,7 @@ export default class Timeline {
         this.openContact = this.openContact.bind( this )
         this.moveToStart = this.moveToStart.bind( this )
 
-        this.renderer.domElement.addEventListener( 'resize', this.resize, false )
+        window.addEventListener( 'resize', this.resize, false )
         window.addEventListener( 'mousemove', this.mouseMove, false )
         this.renderer.domElement.addEventListener( 'mousedown', this.mouseDown, false )
         this.renderer.domElement.addEventListener( 'mouseup', this.mouseUp, false )

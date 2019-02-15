@@ -46,6 +46,7 @@ export default class AssetLoader {
                     video.crossOrigin = 'anonymous'
                     video.setAttribute('muted', true)
                     video.setAttribute('webkit-playsinline', true)
+                    video.setAttribute('playsinline', true)
                     video.preload = 'metadata'
                     video.src = `assets/${month}/${filename}`
                     document.body.appendChild( video )
@@ -122,13 +123,11 @@ export default class AssetLoader {
         else {
 
             video.onloadeddata = () => {
-                console.log( 'onloaded', video.src, video.error )
                 video.onerror = null
                 this.createVideoTexture( video, month, filename, resolve )
             }
 
             video.onerror = () => {
-                console.log( 'onerror', video.src, video.error )
                 video.onloadeddata = null
                 this.videoPromise( video, month, filename, resolve, true )
             }

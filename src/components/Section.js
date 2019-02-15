@@ -35,7 +35,7 @@ export default class Section extends THREE.Group {
 
         let sansTextGeom = new THREE.TextGeometry( 'YEAR IN REVIEW', {
             font: this.timeline.assets.fonts['SuisseIntl-Bold'],
-            size: 50,
+            size: 60,
             height: 0,
             curveSegments: 4
         } ).center()
@@ -45,7 +45,7 @@ export default class Section extends THREE.Group {
 
         let serifTextGeom = new THREE.TextGeometry( '2018', {
             font: this.timeline.assets.fonts['Schnyder_Edit Outline'],
-            size: 490,
+            size: 640,
             height: 0,
             curveSegments: 15
         } ).center()
@@ -89,7 +89,9 @@ export default class Section extends THREE.Group {
         serifText.position.set( 0, 0, 1 )
         this.badge.add( serifText )
 
-        this.badge.position.set( 0, -this.timeline.c.size.h / 2 + 90, 50 )
+        this.badge.position.set( 0, 0, 50 )
+        this.badge.position.y = this.timeline.c.size.w < 600 ? -this.timeline.c.size.h + 90 : -this.timeline.c.size.h / 2 + 90
+        if( this.timeline.c.size.w < 600 ) this.badge.scale.set( 1.5, 1.5, 1 )
 
         this.add( this.badge )
 
@@ -147,7 +149,7 @@ export default class Section extends THREE.Group {
         this.position.set( 0, 2000 / this.timeline.scene.scale.y , 0 )
         this.visible = false
 
-        let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
+        let sansTextGeom = new THREE.TextGeometry( 'SAY HELLO', {
             font: this.timeline.assets.fonts['SuisseIntl-Bold'],
             size: 10,
             height: 0,
