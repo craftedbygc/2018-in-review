@@ -100,6 +100,10 @@ const assetData = {
             "caption": "",
             "link": ""
         },
+        "kim.jpg": {
+            "caption": "",
+            "link": ""
+        },
         "phototours.mp4": {
             "caption": "",
             "link": ""
@@ -197,6 +201,10 @@ const assetData = {
             "link": ""
         },
         "6oclockgin (2).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "luke.jpg": {
             "caption": "",
             "link": ""
         },
@@ -306,6 +314,10 @@ const assetData = {
             "caption": "",
             "link": ""
         },
+        "cssda-wotd.jpg": {
+            "caption": "",
+            "link": ""
+        },
         "ezgif.com-gif-to-mp4 (15).mp4": {
             "caption": "",
             "link": ""
@@ -315,6 +327,10 @@ const assetData = {
             "link": ""
         },
         "ezgif.com-gif-to-mp4 (17).mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "fwawwward-asaro.jpg": {
             "caption": "",
             "link": ""
         },
@@ -345,6 +361,14 @@ const assetData = {
             "link": ""
         },
         "full_animation.mp4.mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "iat-webdesigner.jpg": {
+            "caption": "",
+            "link": ""
+        },
+        "kikk.jpg": {
             "caption": "",
             "link": ""
         }

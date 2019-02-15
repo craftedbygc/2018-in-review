@@ -28,6 +28,7 @@ const assetOrder = {
         "certificate-when-to-travel-sotd.jpg",
         "ezgif.com-gif-to-mp4 (13).mp4",
         "ezgif.com-gif-to-mp4 (15).mp4",
+        "kim.jpg",
         "phototours.mp4",
         "skye_fullsize.mp4",
         "yosemite.mp4"
@@ -59,6 +60,7 @@ const assetOrder = {
     "jul": [
         "05.jpg",
         "6oclockgin (2).mp4",
+        "luke.jpg",
         "melt].jpg",
         "natural_wonders.mp4.mp4",
         "sandsoftime.mp4.mp4"
@@ -90,9 +92,11 @@ const assetOrder = {
     "oct": [
         "comp_1_1.mp4 (1).mp4",
         "comp_1_1.mp4.mp4",
+        "cssda-wotd.jpg",
         "ezgif.com-gif-to-mp4 (15).mp4",
         "ezgif.com-gif-to-mp4 (16).mp4",
         "ezgif.com-gif-to-mp4 (17).mp4",
+        "fwawwward-asaro.jpg",
         "kingdoms-fullsize (1).mp4.mp4"
     ],
     "nov": [
@@ -101,7 +105,9 @@ const assetOrder = {
         "comp_1_11.mp4.mp4",
         "comp_1_3.mp4.mp4",
         "ezgif.com-gif-to-mp4 (18).mp4",
-        "full_animation.mp4.mp4"
+        "full_animation.mp4.mp4",
+        "iat-webdesigner.jpg",
+        "kikk.jpg"
     ],
     "dec": [
         "comp_1.mp4 (1).mp4",

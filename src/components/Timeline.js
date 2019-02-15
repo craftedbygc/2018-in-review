@@ -288,7 +288,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(posOffset - -item.position.z) + ( Math.min( 400 , 300 / this.c.globalScale ) ) ,
+            z: -(posOffset - -item.position.z) + ( Math.min( 350 , 300 / this.c.globalScale ) ) ,
             ease: 'Expo.easeInOut'
         })
 
