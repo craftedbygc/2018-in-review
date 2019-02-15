@@ -101,7 +101,7 @@ export default class Section extends THREE.Group {
 
         let sansTextGeom = new THREE.TextGeometry( 'SEE YOU NEXT TIME', {
             font: this.timeline.assets.fonts['SuisseIntl-Bold'],
-            size: 50,
+            size: 60,
             height: 0,
             curveSegments: 4
         } ).center()
@@ -111,7 +111,7 @@ export default class Section extends THREE.Group {
 
         let serifTextGeom = new THREE.TextGeometry( 'END', {
             font: this.timeline.assets.fonts['Schnyder_Edit Outline'],
-            size: 400,
+            size: 580,
             height: 0,
             curveSegments: 15
         } ).center()
@@ -138,7 +138,7 @@ export default class Section extends THREE.Group {
         mesh.scale.set( 700, 700, 1 )
         mesh.position.set( 0, 0, -200 )
 
-        this.timeline.assets.textures['end'][ 'wave.mp4' ].image.play() // TODO: play when enters camera
+        this.timeline.videoItems.push( mesh )
 
         this.add( mesh )
 

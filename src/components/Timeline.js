@@ -14,6 +14,7 @@ export default class Timeline {
     constructor() {
 
         this.setConfig()
+        this.initCursorListeners()
         this.init()
 
         if( !window.assets ) {
@@ -54,6 +55,7 @@ export default class Timeline {
         this.c.globalScale = Math.min( 1, this.c.size.w / 1400 )
 
         if( this.c.touchEnabled ) document.documentElement.classList.add('touch-enabled')
+        else document.documentElement.classList.add('enable-cursor')
 
         this.assetList = assetOrder
         this.assetList.intro = ['ok.png']
@@ -123,7 +125,7 @@ export default class Timeline {
 
         let cameraPosition = 800;
 
-        const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI // TODO: fix mobile scaling
+        const fov = 180 * ( 2 * Math.atan( this.c.size.h / 2 / cameraPosition ) ) / Math.PI
         this.camera = new THREE.PerspectiveCamera( fov, this.c.size.w / this.c.size.h, 1, 2000 )
         this.camera.position.set( 0, this.enableLoader ? 2000 : 0, cameraPosition )
 
@@ -212,7 +214,7 @@ export default class Timeline {
 
         }
 
-        this.videoCount = this.videoItems.length - 1
+        this.videoCount = this.videoItems.length
 
         this.contactSection = new Section({
             timeline: timeline,
@@ -288,7 +290,7 @@ export default class Timeline {
         })
 
         TweenMax.to( this.timeline.position, 1.5, {
-            z: -(posOffset - -item.position.z) + ( Math.min( 350 , 300 / this.c.globalScale ) ) ,
+            z: -(posOffset - -item.position.z) + ( this.c.globalScale < 0.5 ? 450 : 300 ) ,
             ease: 'Expo.easeInOut'
         })
 
@@ -570,6 +572,20 @@ export default class Timeline {
 
     mouseMove( e ) {
 
+        this.mousePerspective.x = e.clientX / window.innerWidth - 0.5
+        this.mousePerspective.y = e.clientY / window.innerHeight - 0.5
+        this.updatingPerspective = true 
+
+        if( !this.c.touchEnabled ) {
+            TweenMax.to( '.cursor', 1.5, {
+                x: e.clientX,
+                y: e.clientY,
+                ease: 'Power4.easeOut'
+            })
+        }
+
+        if( !this.renderer || e.target !== this.renderer.domElement ) return
+
         // raycast for items when in timeline mode
         if( !this.contactSection.isOpen && !this.itemOpen && !this.c.holdingMouseDown ) {
 
@@ -621,18 +637,6 @@ export default class Timeline {
                 this.dom.cursor.dataset.cursor = 'cross'
             }
 
-        }
-
-        this.mousePerspective.x = e.clientX / window.innerWidth - 0.5
-        this.mousePerspective.y = e.clientY / window.innerHeight - 0.5
-        this.updatingPerspective = true
-
-        if( !this.c.touchEnabled ) {
-            TweenMax.to( '.cursor', 1.5, {
-                x: e.clientX,
-                y: e.clientY,
-                ease: 'Power4.easeOut'
-            })
         }
 
     }
@@ -832,18 +836,24 @@ export default class Timeline {
 
     }
 
+    eyeCursorElEnter() {
+        this.dom.cursor.dataset.cursor = 'eye'        
+    }
+
+    eyeCursorElLeave() {
+        this.dom.cursor.dataset.cursor = 'pointer'
+    }
+
     initListeners() {
 
         this.resize = this.resize.bind( this )
-        this.mouseMove = this.mouseMove.bind( this )
         this.scroll = this.scroll.bind( this )
         this.mouseDown = this.mouseDown.bind( this )
         this.mouseUp = this.mouseUp.bind( this )
         this.openContact = this.openContact.bind( this )
         this.moveToStart = this.moveToStart.bind( this )
-
+        
         window.addEventListener( 'resize', this.resize, false )
-        window.addEventListener( 'mousemove', this.mouseMove, false )
         this.renderer.domElement.addEventListener( 'mousedown', this.mouseDown, false )
         this.renderer.domElement.addEventListener( 'mouseup', this.mouseUp, false )
         this.renderer.domElement.addEventListener( 'wheel', this.scroll, false )
@@ -870,6 +880,22 @@ export default class Timeline {
 
         if( !this.c.touchEnabled ) {
             this.dom.cursor.dataset.cursor = 'pointer'
+        }
+
+    }
+
+    initCursorListeners() {
+
+        this.eyeCursorElEnter = this.eyeCursorElEnter.bind( this )
+        this.eyeCursorElLeave = this.eyeCursorElLeave.bind( this )
+        this.mouseMove = this.mouseMove.bind( this )
+
+        window.addEventListener( 'mousemove', this.mouseMove, false )
+
+        let eyeCursorEls = document.querySelectorAll( '.cursor-eye' )
+        for( let i = 0; i < eyeCursorEls.length; i++ ) {
+            eyeCursorEls[i].addEventListener( 'mouseenter', this.eyeCursorElEnter, false )
+            eyeCursorEls[i].addEventListener( 'mouseleave', this.eyeCursorElLeave, false )
         }
 
     }
