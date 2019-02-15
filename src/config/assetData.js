@@ -214,6 +214,10 @@ const assetData = {
             "caption": "",
             "link": ""
         },
+        "jack.mp4": {
+            "caption": "",
+            "link": ""
+        },
         "plasticdreams_fullsize.mp4": {
             "caption": "",
             "link": ""
@@ -237,6 +241,10 @@ const assetData = {
             "link": ""
         },
         "natural_wonders.mp4.mp4": {
+            "caption": "",
+            "link": ""
+        },
+        "IMG_9709 2.jpg": {
             "caption": "",
             "link": ""
         },

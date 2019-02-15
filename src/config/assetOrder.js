@@ -61,6 +61,7 @@ const assetOrder = {
         "jekka_bottle.png",
         "GC Port_0666.jpg",
         "jekka_bottle_front_label.png",
+        "jack.mp4",
         "plasticdreams_fullsize.mp4"
     ],
     "jul": [
@@ -69,6 +70,7 @@ const assetOrder = {
         "melt].jpg",
         "luke.jpg",
         "natural_wonders.mp4.mp4",
+        "IMG_9709 2.jpg",
         "sandsoftime.mp4.mp4"
     ],
     "aug": [
