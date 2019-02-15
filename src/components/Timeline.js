@@ -74,9 +74,6 @@ export default class Timeline {
             beta: 0
         }
 
-        console.log('test');
-        
-
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
        
     }
@@ -255,10 +252,17 @@ export default class Timeline {
             }
         })
 
-        TweenMax.to( [ '.say-hello', this.dom.compass ], 2, {
+        TweenMax.to( '.say-hello', 2, {
             autoAlpha: 1,
             ease: 'Expo.easeInOut'
         })
+
+        if( this.gyroEnabled ) {
+            TweenMax.to( this.dom.compass, 2, {
+                autoAlpha: 1,
+                ease: 'Expo.easeInOut'
+            })
+        }
 
     }
 
