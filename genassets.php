@@ -41,7 +41,7 @@ foreach( $monthAssets as $key => $month ) {
     foreach( $month as $file => $value ) {
 
         $monthAssets[ $key ][ $value ] = [
-            'caption' => $value,
+            'caption' => '',
             'link' => ''
         ];
 
