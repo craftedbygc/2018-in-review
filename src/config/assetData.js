@@ -152,6 +152,10 @@ const assetData = {
         }
     },
     "may": {
+        "DSC05316.jpg": {
+            "caption": "DSC05316.jpg",
+            "link": ""
+        },
         "botanical.jpg": {
             "caption": "botanical.jpg",
             "link": ""
@@ -172,12 +176,24 @@ const assetData = {
             "caption": "mars-fullsize_1.mp4",
             "link": ""
         },
+        "may-off.jpg": {
+            "caption": "may-off.jpg",
+            "link": ""
+        },
         "off.jpg": {
             "caption": "off.jpg",
             "link": ""
         }
     },
     "jun": {
+        "GC Port_0046.jpg": {
+            "caption": "GC Port_0046.jpg",
+            "link": ""
+        },
+        "GC Port_0666.jpg": {
+            "caption": "GC Port_0666.jpg",
+            "link": ""
+        },
         "its-official-video.mp4": {
             "caption": "its-official-video.mp4",
             "link": ""
@@ -341,9 +357,17 @@ const assetData = {
         "kingdoms-fullsize (1).mp4.mp4": {
             "caption": "kingdoms-fullsize (1).mp4.mp4",
             "link": ""
+        },
+        "sign.jpg": {
+            "caption": "sign.jpg",
+            "link": ""
         }
     },
     "nov": {
+        "DSC08088.jpg": {
+            "caption": "DSC08088.jpg",
+            "link": ""
+        },
         "adobe_xd_mockup.jpg": {
             "caption": "adobe_xd_mockup.jpg",
             "link": ""

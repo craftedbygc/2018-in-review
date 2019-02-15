@@ -32,7 +32,9 @@ export default class Timeline {
 
         this.dom = {
             cursor: document.querySelector('.cursor'),
-            mainSvgs: document.querySelectorAll('main svg'),
+            compass: document.querySelector('.compass'),
+            compassSvg: document.querySelector('.compass svg'),
+            mainSvgs: document.querySelectorAll('main :not(.compass) svg'),
             cursorSvgs: document.querySelectorAll('.cursor svg'),
         }
 
@@ -68,6 +70,10 @@ export default class Timeline {
         this.remainingMonths = []
         this.enableLoader = true
         this.gyroEnabled = false
+        this.orientation = {
+            gamma: 0,
+            beta: 0
+        }
 
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
        
@@ -655,15 +661,24 @@ export default class Timeline {
 
     updateOrientation( e ) {
 
+        this.orientation.gamma = e.gamma ? e.gamma : 0
+        this.orientation.beta = e.beta ? e.beta : 0
+
         if( !this.initialOrientation ) {
-            this.initialOrientation = { gamma: e.gamma, beta: e.beta }
+            this.initialOrientation = { gamma: this.orientation.gamma, beta: this.orientation.beta }
         }
 
         TweenMax.to( this.camera.rotation, 2, {
-            x: e.beta ? (e.beta - this.initialOrientation.beta) * (Math.PI / 300) : 0,
-            y: e.gamma ? (e.gamma - this.initialOrientation.gamma) * (Math.PI / 300) : 0,
+            x: this.orientation.beta ? (this.orientation.beta - this.initialOrientation.beta) * (Math.PI / 300) : 0,
+            y: this.orientation.gamma ? (this.orientation.gamma - this.initialOrientation.gamma) * (Math.PI / 300) : 0,
             ease: 'Power4.easeOut',
         })
+
+    }
+
+    resetOrientation( e ) {
+
+        this.initialOrientation = { gamma: this.orientation.gamma, beta: this.orientation.beta }
 
     }
 
@@ -748,7 +763,7 @@ export default class Timeline {
                 this.contactTextMat.color.set( 0xFFFFFF )
 
             TweenMax.to( this.dom.mainSvgs, 1, { fill: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
-            TweenMax.to( this.dom.cursorSvgs, 1, { stroke: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
+            TweenMax.to( [ this.dom.cursorSvgs, this.dom.compassSvg ], 1, { stroke: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
             TweenMax.to( '.say-hello .underline', 1, { borderBottomColor: `rgba(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255}, 0.3)`, ease: 'Power4.easeOut' } )
 
         }
@@ -860,7 +875,10 @@ export default class Timeline {
 
         if( this.gyroEnabled ) {
             this.updateOrientation = this.updateOrientation.bind( this )
+            this.resetOrientation = this.resetOrientation.bind( this )
             window.addEventListener( 'deviceorientation', this.updateOrientation )
+            this.dom.compass.style.display = 'block'
+            this.dom.compass.addEventListener( 'click', this.resetOrientation, false )
         }
 
         document.querySelector( '.say-hello' ).addEventListener( 'click', this.openContact, false )
