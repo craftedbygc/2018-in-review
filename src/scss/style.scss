@@ -232,13 +232,22 @@ main {
         right: 20px;
     }
 
+    &:hover {
+
+        .underline {
+            opacity: 1;
+        }
+    }
+
     .underline {
         position: absolute;
         bottom: -10px;
         padding-top: 10px;
         width: 100%;
         height: 2px;
-        border-bottom: 2px solid rgba(#1b42d8, 0.3);
+        opacity: 0.3;
+        border-bottom: 2px solid #1b42da;
+        transition: opacity 0.3s ease-in-out;
     }
 }
 
@@ -292,7 +301,8 @@ main {
     left: 15px;
     width: 42px;
     height: 42px;
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     pointer-events: all;
 }
 

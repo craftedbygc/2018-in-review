@@ -14,7 +14,6 @@ export default class Timeline {
     constructor() {
 
         this.setConfig()
-        this.initCursorListeners()
         this.init()
 
         if( !window.assets ) {
@@ -232,6 +231,7 @@ export default class Timeline {
 
         console.log('RENDER')
         this.animate()
+        this.initCursorListeners()
         this.initListeners()
         document.body.classList.add('ready')
 
@@ -252,7 +252,7 @@ export default class Timeline {
             }
         })
 
-        TweenMax.to( '.say-hello', 2, {
+        TweenMax.to( [ '.say-hello', this.dom.compass ], 2, {
             autoAlpha: 1,
             ease: 'Expo.easeInOut'
         })
@@ -742,7 +742,7 @@ export default class Timeline {
             if( this.months[ this.activeMonth ].outlineTextColor ) {
 
                 let outlineTextColor = new THREE.Color( this.months[ this.activeMonth ].outlineTextColor )
-                interfaceColor = outlineTextColor
+                interfaceColor = outlineTextColor.getHexString()
 
                 TweenMax.to( [ this.textOutlineMat.color ], 1, {
                     r: outlineTextColor.r,
@@ -753,7 +753,7 @@ export default class Timeline {
                 
             } else {
 
-                interfaceColor = textColor
+                interfaceColor = textColor.getHexString()
     
             }
 
@@ -762,9 +762,9 @@ export default class Timeline {
             else
                 this.contactTextMat.color.set( 0xFFFFFF )
 
-            TweenMax.to( this.dom.mainSvgs, 1, { fill: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
-            TweenMax.to( [ this.dom.cursorSvgs, this.dom.compassSvg ], 1, { stroke: `rgb(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255})`, ease: 'Power4.easeOut' } )
-            TweenMax.to( '.say-hello .underline', 1, { borderBottomColor: `rgba(${interfaceColor.r * 255},${interfaceColor.g * 255},${interfaceColor.b * 255}, 0.3)`, ease: 'Power4.easeOut' } )
+            TweenMax.to( this.dom.mainSvgs, 1, { fill: `#${interfaceColor}`, ease: 'Power4.easeOut' } )
+            TweenMax.to( [ this.dom.cursorSvgs, this.dom.compassSvg ], 1, { stroke: `#${interfaceColor}`, ease: 'Power4.easeOut' } )
+            TweenMax.to( '.say-hello .underline', 1, { borderBottomColor: `#${interfaceColor}`, ease: 'Power4.easeOut' } )
 
         }
 
@@ -877,7 +877,6 @@ export default class Timeline {
             this.updateOrientation = this.updateOrientation.bind( this )
             this.resetOrientation = this.resetOrientation.bind( this )
             window.addEventListener( 'deviceorientation', this.updateOrientation )
-            this.dom.compass.style.display = 'block'
             this.dom.compass.addEventListener( 'click', this.resetOrientation, false )
         }
 
