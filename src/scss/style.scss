@@ -75,7 +75,7 @@ canvas {
         padding: 0 80px;
         opacity: 0;
         animation: fadeInUpSmall 3s cubic-bezier(0.77, 0, 0.175, 1);
-        animation-delay: 1s;
+        animation-delay: 0.4s;
         animation-fill-mode: forwards;
 
         @media screen and (min-width: 750px) {
@@ -91,9 +91,13 @@ canvas {
         align-items: center;
         justify-content: center;
         opacity: 0;
-        animation: scaleUp 2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        animation-delay: 2.5s;
+        animation: scaleUp 2s cubic-bezier(0.19, 1, 0.22, 1);
+        animation-delay: 1.5s;
         animation-fill-mode: forwards;
+
+        .ready &:hover .progress-circle {
+            transform: scale(0.8);
+        }
     }
 
     .progress-percent {
@@ -141,6 +145,9 @@ canvas {
         position: absolute;
         top: 0;
         left: 0;
+        transition-property: transform;
+        transition-duration: 1s;
+        transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
 
         svg {
             fill: none;
@@ -437,14 +444,6 @@ main {
     0% {
         opacity: 0;
         transform: scale(0);
-    }
-
-    60% {
-        transform: scale(1.1);
-    }
-
-    80% {
-        transform: scale(0.9);
     }
 
     100% {
