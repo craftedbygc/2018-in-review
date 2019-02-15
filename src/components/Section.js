@@ -160,7 +160,7 @@ export default class Section extends THREE.Group {
         sansText.position.set( 0, 60, 0 )
         this.add( sansText )
 
-        let lineOneGeom = new THREE.TextGeometry( "We're looking for new talents and exciting projects", {
+        let lineOneGeom = new THREE.TextGeometry( "Let’s make 2019 just as memorable with more", {
             font: this.timeline.assets.fonts['Schnyder L'],
             size: 30,
             height: 0,
@@ -171,7 +171,7 @@ export default class Section extends THREE.Group {
         lineOne.position.set( 0, 0, 0 )
         this.add( lineOne )
 
-        let lineTwoGeom = new THREE.TextGeometry( "to make 2019 a memorable one.", {
+        let lineTwoGeom = new THREE.TextGeometry( "amazing talent and exciting new projects.", {
             font: this.timeline.assets.fonts['Schnyder L'],
             size: 30,
             height: 0,
