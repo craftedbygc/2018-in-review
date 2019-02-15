@@ -17,6 +17,7 @@ body {
     overflow: hidden;
     overscroll-behavior-y: none;
     background-color: #AEC7C3;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 
     * {
         -webkit-touch-callout: none; /* iOS Safari */

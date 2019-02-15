@@ -175,7 +175,7 @@ export default class Timeline {
                 let itemIndex = 0, id
 
                 // add items
-                for( let filename in this.assets.textures[ month ] ) {
+                this.assetList[ month ].forEach( filename => {
 
                     id = `${month}/${filename}`
 
@@ -193,7 +193,7 @@ export default class Timeline {
                     itemIndex++
                     itemIndexTotal++
 
-                }
+                })
 
             }
 
