@@ -74,6 +74,9 @@ export default class Timeline {
             beta: 0
         }
 
+        console.log('test');
+        
+
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
        
     }
