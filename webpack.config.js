@@ -13,7 +13,6 @@ module.exports = {
     entry: [ './src/js/main.js' ],
     output: {
         path: path.resolve(__dirname, 'public'),
-        // publicPath: '/js/',
         filename: 'js/[name].[hash].js'
     },
     module: {
@@ -40,7 +39,6 @@ module.exports = {
                 use: [
                   devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
                   'css-loader',
-                //   'postcss-loader',
                   'sass-loader',
                 ],
             },
@@ -55,7 +53,6 @@ module.exports = {
         }),
         new webpack.HotModuleReplacementPlugin(), // Enable HMR
         new webpack.HashedModuleIdsPlugin(),
-        // new webpack.NamedModulesPlugin(),
         new BrowserSyncPlugin(
             {
                 host: 'localhost',
@@ -88,7 +85,6 @@ module.exports = {
     devServer: {
         hot: true, // Tell the dev-server we're using HMR
         contentBase: path.resolve(__dirname, 'public'),
-        // publicPath: '/js/'
     },
     devtool: devMode ? 'cheap-eval-source-map' : false,
     optimization: {

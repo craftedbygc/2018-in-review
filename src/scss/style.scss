@@ -37,6 +37,12 @@ canvas {
     z-index: 2;
 }
 
+.ready .loading .progress-percent {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0);
+}
+
 .loading {
     position: fixed;
     top: 0;
@@ -112,12 +118,6 @@ canvas {
 
     .progress-percent {
         font-size: 30px;
-
-        .ready & {
-            opacity: 0;
-            visibility: hidden;
-            transform: scale(0);
-        }
     }
 
     .enter {
@@ -144,7 +144,7 @@ canvas {
     }
 
     .progress-percent, .enter, .loading-text svg {
-        transition-property: opacity visibility transform;
+        transition-property: opacity, visibility, transform;
         transition-duration: 0.6s;
         transition-timing-function: cubic-bezier(0.680, -0.550, 0.265, 1.850);
     }
@@ -390,7 +390,7 @@ main {
         transform: translate(-50%, -50%) scale(0);
         transition-duration: 0.6s;
         transition-timing-function: cubic-bezier(0.680, -0.550, 0.265, 1.850);
-        transition-property: opacity transform;
+        transition-property: opacity, transform;
     }
 
     .pointer {
