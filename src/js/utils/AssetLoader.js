@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import progressPromise from '../utils/progressPromise'
 
 export default class AssetLoader {

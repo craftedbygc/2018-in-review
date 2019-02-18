@@ -52,9 +52,9 @@
 		gtag('config', 'UA-40525870-6');
 	</script>
 
-	
-	<link href="css/main.0e5768be2358eaf7a707.css" rel="stylesheet">
-	
+	<% for (var css in htmlWebpackPlugin.files.css) { %>
+	<link href="<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
+	<% } %>
 
 </head>
 
@@ -189,15 +189,9 @@
 		</div>
 	</div>
 
-	
-	<script src="js/runtime.0e5768be2358eaf7a707.js"></script>
-	
-	<script src="js/npm.three.0e5768be2358eaf7a707.js"></script>
-	
-	<script src="js/npm.gsap.0e5768be2358eaf7a707.js"></script>
-	
-	<script src="js/main.0e5768be2358eaf7a707.js"></script>
-	
+	<% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+	<script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+	<% } %>
 
 </body>
 

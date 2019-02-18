@@ -98,7 +98,7 @@ export default class Timeline {
                     this.createTimeline()
 
                 })
-            }, 3000 )
+            }, 2000 )
         } else {
 
             assetLoader.load( this.assetList, this.renderer ).then( assets => {
@@ -773,60 +773,9 @@ export default class Timeline {
             TweenMax.to( [ this.dom.cursorSvgs, this.dom.compassSvg ], 1, { stroke: `#${interfaceColor}`, ease: 'Power4.easeOut' } )
             TweenMax.to( '.say-hello .underline', 1, { borderBottomColor: `#${interfaceColor}`, ease: 'Power4.easeOut' } )
 
-            this.updateManifest( bgColor )
+            document.querySelector("meta[name=theme-color]").setAttribute("content", '#' + bgColor.getHexString() )
 
         }
-
-    }
-
-    updateManifest( bgColor ) {
-
-        var myDynamicManifest = {
-            "name": "2018 In Review - Green Chameleon",
-            "theme_color": "#" + bgColor.getHexString(),
-            "icons": [
-                {
-                 "src": "\/favicon/android-icon-36x36.png",
-                 "sizes": "36x36",
-                 "type": "image\/png",
-                 "density": "0.75"
-                },
-                {
-                 "src": "\/afavicon/ndroid-icon-48x48.png",
-                 "sizes": "48x48",
-                 "type": "image\/png",
-                 "density": "1.0"
-                },
-                {
-                 "src": "\/favicon/android-icon-72x72.png",
-                 "sizes": "72x72",
-                 "type": "image\/png",
-                 "density": "1.5"
-                },
-                {
-                 "src": "\/favicon/android-icon-96x96.png",
-                 "sizes": "96x96",
-                 "type": "image\/png",
-                 "density": "2.0"
-                },
-                {
-                 "src": "\/favicon/android-icon-144x144.png",
-                 "sizes": "144x144",
-                 "type": "image\/png",
-                 "density": "3.0"
-                },
-                {
-                 "src": "\/favicon/android-icon-192x192.png",
-                 "sizes": "192x192",
-                 "type": "image\/png",
-                 "density": "4.0"
-                }
-            ]
-        }
-        const stringManifest = JSON.stringify(myDynamicManifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        document.querySelector('#manifest').setAttribute('href', manifestURL);
 
     }
 

@@ -1,30 +1,28 @@
 const webpack = require('webpack')
 const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin")
 const MinifyPlugin = require("babel-minify-webpack-plugin")
+const OptimizeThreePlugin = require('@vxna/optimize-three-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production'
 
 module.exports = {
-    entry: [ './src/main.js' ],
+    entry: [ './src/js/main.js' ],
     output: {
-        path: path.resolve(__dirname, 'public/js'),
-        publicPath: '/js/',
-        filename: 'main.js'
+        path: path.resolve(__dirname, 'public'),
+        // publicPath: '/js/',
+        filename: 'js/[name].[hash].js'
     },
     module: {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /(node_modules|bower_components)/,
-                // include: /node_modules/,
+                exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader',
-                    // options: {
-                    //     presets: ['@babel/preset-env']
-                    // }
+                    loader: 'babel-loader'
                 }
             },
             {
@@ -50,9 +48,14 @@ module.exports = {
         ]
     },
     plugins: [
-        new MinifyPlugin(),
+        new CleanWebpackPlugin(['public/js', 'public/css']),
+        new HtmlWebpackPlugin({
+            template: 'src/index.html',
+            inject: false
+        }),
         new webpack.HotModuleReplacementPlugin(), // Enable HMR
-        new webpack.NamedModulesPlugin(),
+        new webpack.HashedModuleIdsPlugin(),
+        // new webpack.NamedModulesPlugin(),
         new BrowserSyncPlugin(
             {
                 host: 'localhost',
@@ -78,38 +81,33 @@ module.exports = {
             }
         ),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css',
+            filename: 'css/[name].[hash].css',
         }),
-        new webpack.ProvidePlugin({
-            THREE: 'three'
-        })
+        new OptimizeThreePlugin()
     ],
     devServer: {
         hot: true, // Tell the dev-server we're using HMR
         contentBase: path.resolve(__dirname, 'public'),
-        publicPath: '/js/'
+        // publicPath: '/js/'
     },
     devtool: devMode ? 'cheap-eval-source-map' : false,
     optimization: {
         minimizer: [
-            // new UglifyJsPlugin({
-            //     // include: /\/node_modules/,
-            //     // cache: true,
-            //     parallel: true,
-            //     // sourceMap: devMode ? true : false // set to true if you want JS source maps
-            // }),
-            new OptimizeCSSAssetsPlugin({})
+            new MinifyPlugin(),
+            new OptimizeCSSAssetsPlugin()
         ],
+        runtimeChunk: 'single',
         splitChunks: {
+            chunks: 'all',
             cacheGroups: {
-              styles: {
-                name: 'styles',
-                test: /\.css$/,
-                chunks: 'all',
-                enforce: true
-              }
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name(module) {
+                      const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+                      return `npm.${packageName.replace('@', '')}`;
+                    },
+                }
             }
-          }
+        }
     }
 }
