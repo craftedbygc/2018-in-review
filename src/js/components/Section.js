@@ -1,6 +1,9 @@
 import * as THREE from 'three'
+import SVGLoader from 'three-svg-loader'
+import { MeshLine, MeshLineMaterial } from 'three.meshline'
 import greenscreen from '../shaders/greenscreen.frag'
 import vert from '../shaders/default.vert'
+import { TweenMax } from 'gsap';
 
 export default class Section extends THREE.Group {
 
@@ -70,6 +73,7 @@ export default class Section extends THREE.Group {
         this.badge = new THREE.Group()
 
         let texture = new THREE.TextureLoader().load( 'images/highlights.png' )
+        texture.magFilter = texture.minFilter = THREE.LinearFilter
         let material = new THREE.MeshBasicMaterial( { map: texture, transparent: true } )
         let geom = new THREE.PlaneGeometry( 1, 1 )
         this.circle = new THREE.Mesh( geom, material )
@@ -141,6 +145,44 @@ export default class Section extends THREE.Group {
         this.timeline.videoItems.push( mesh )
 
         this.add( mesh )
+
+        this.addWhooshButton()
+
+    }
+
+    addWhooshButton() {
+
+        this.whoosh = new THREE.Group()
+
+        let whooshTexture = new THREE.TextureLoader().load( 'images/whoooosh.png' )
+        whooshTexture.magFilter = whooshTexture.minFilter = THREE.LinearFilter
+        let whooshMaterial = new THREE.MeshBasicMaterial( { map: whooshTexture, transparent: true, depthWrite: false } )
+        let whooshGeom = new THREE.PlaneGeometry( 1, 1 )
+        this.circle = new THREE.Mesh( whooshGeom, whooshMaterial )
+        this.circle.scale.set( 200, 200, 1 )
+        this.whoosh.add( this.circle )
+
+        let texture = new THREE.TextureLoader().load( 'images/arrowdown.png' )
+        texture.anisotropy = this.timeline.renderer.capabilities.getMaxAnisotropy()
+        texture.magFilter = texture.minFilter = THREE.LinearFilter
+        let material = new THREE.MeshBasicMaterial( { map: texture, transparent: true, side: THREE.DoubleSide, depthWrite: false } )
+        let geom = new THREE.PlaneGeometry( 1, 1 )
+        this.arrow = new THREE.Mesh( geom, material )
+        this.arrow.scale.set( 90, 90, 1 )
+        this.arrow.position.z = 20
+        this.whoosh.add( this.arrow )
+
+        this.whoosh.position.set( 0, -450, 50 )
+        if( this.timeline.c.size.w < 600 ) this.whoosh.scale.set( 1.5, 1.5, 1 )
+
+        TweenMax.to( this.arrow.position, 1, {
+            z: 0,
+            repeat: -1,
+            yoyo: true,
+            ease: 'Power2.easeInOut'
+        })
+
+        this.add( this.whoosh )
 
     }
 

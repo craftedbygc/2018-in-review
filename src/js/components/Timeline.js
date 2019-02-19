@@ -67,7 +67,7 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-        this.enableLoader = true
+        this.enableLoader = false
         this.gyroEnabled = false
         this.orientation = {
             gamma: 0,
@@ -139,6 +139,7 @@ export default class Timeline {
         this.raycaster.far = this.camera.far
         this.intersects = []
         this.linkIntersect = []
+        this.whooshIntersects = []
         this.frustum = new THREE.Frustum()
         this.cameraViewProjectionMatrix = new THREE.Matrix4()
         this.mouse = new THREE.Vector2()
@@ -559,6 +560,15 @@ export default class Timeline {
                 this.openItem( this.intersects[0].object.parent )
                 this.dom.cursor.dataset.cursor = 'cross'
 
+            } else if( this.hoveringWhoosh ) {
+                
+                this.c.scrolling = true
+
+                TweenMax.to( this.c, 4, {
+                    scrollPos: 0,
+                    ease: 'Expo.easeInOut'
+                })
+
             } else {
 
                 this.dom.cursor.dataset.cursor = 'move'
@@ -599,31 +609,46 @@ export default class Timeline {
 
         if( !this.renderer || e.target !== this.renderer.domElement ) return
 
+        this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
+        this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+
+        this.raycaster.setFromCamera( this.mouse, this.camera )
+
         // raycast for items when in timeline mode
         if( !this.contactSection.isOpen && !this.itemOpen && !this.c.holdingMouseDown ) {
-
-            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
-            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
-
-            this.raycaster.setFromCamera( this.mouse, this.camera )
 
             this.intersects = this.raycaster.intersectObjects( this.itemMeshes )
 
             if ( this.intersects.length > 0 ) {
                 this.dom.cursor.dataset.cursor = 'eye'
-            } else if ( this.dom.cursor.dataset.cursor !== 'pointer' ) {
-                this.dom.cursor.dataset.cursor = 'pointer'
+            } else {
+
+                if ( this.dom.cursor.dataset.cursor !== 'pointer' ) this.dom.cursor.dataset.cursor = 'pointer'
+
+                this.whooshIntersects = this.raycaster.intersectObjects( this.sections['end'].whoosh.children )
+
+                if ( this.whooshIntersects.length > 0 ) {
+
+                    this.dom.cursor.dataset.cursor = 'none'
+                    this.hoveringWhoosh = true
+
+                } else {
+
+                    if ( this.hoveringWhoosh ) {
+                        this.dom.cursor.dataset.cursor = 'pointer'
+                        this.hoveringWhoosh = false
+                    }
+
+                }
+
             }
+
+            return
 
         }
 
         // raycast for item link
         if( !this.contactSection.isOpen && this.itemOpen && this.itemOpen.linkBox ) {
-
-            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
-            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
-
-            this.raycaster.setFromCamera( this.mouse, this.camera )
 
             this.linkIntersect = this.raycaster.intersectObject( this.itemOpen.linkBox )
             
@@ -633,14 +658,11 @@ export default class Timeline {
                 this.dom.cursor.dataset.cursor = 'cross'
             }
 
+            return
+
         }
 
         if( this.contactSection.isOpen ) {
-
-            this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
-            this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
-
-            this.raycaster.setFromCamera( this.mouse, this.camera )
 
             this.linkIntersect = this.raycaster.intersectObject( this.contactSection.linkBox )
             
@@ -649,6 +671,8 @@ export default class Timeline {
             } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
                 this.dom.cursor.dataset.cursor = 'cross'
             }
+
+            return
 
         }
 
@@ -659,6 +683,12 @@ export default class Timeline {
         TweenMax.to( this.camera.rotation, 4, {
             x: -this.mousePerspective.y * 0.5,
             y: -this.mousePerspective.x * 0.5,
+            ease: 'Power4.easeOut',
+        })
+
+        TweenMax.to( this.sections[ 'end' ].arrow.rotation, 4, {
+            x: -1.5 + this.mousePerspective.y * 0.2,
+            y: this.mousePerspective.x * 0.8,
             ease: 'Power4.easeOut',
         })
 
@@ -839,6 +869,10 @@ export default class Timeline {
                 this.c.scrolling = false
             }
 
+        }
+
+        if( this.hoveringWhoosh ) {
+            this.sections['end'].circle.rotation.z += 0.005
         }
 
         if( this.controls ) this.controls.update()
