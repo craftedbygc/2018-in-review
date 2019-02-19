@@ -631,12 +631,14 @@ export default class Timeline {
 
                     this.dom.cursor.dataset.cursor = 'none'
                     this.hoveringWhoosh = true
+                    this.sections['end'].arrowTween.timeScale(2)
 
                 } else {
 
                     if ( this.hoveringWhoosh ) {
                         this.dom.cursor.dataset.cursor = 'pointer'
                         this.hoveringWhoosh = false
+                        this.sections['end'].arrowTween.timeScale(1)
                     }
 
                 }

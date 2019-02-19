@@ -175,7 +175,7 @@ export default class Section extends THREE.Group {
         this.whoosh.position.set( 0, -450, 50 )
         if( this.timeline.c.size.w < 600 ) this.whoosh.scale.set( 1.5, 1.5, 1 )
 
-        TweenMax.to( this.arrow.position, 1, {
+        this.arrowTween = TweenMax.to( this.arrow.position, 1, {
             z: 0,
             repeat: -1,
             yoyo: true,
