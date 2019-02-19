@@ -69,7 +69,7 @@ canvas {
         margin-bottom: 30px;
         margin-top: 30px;
         opacity: 0;
-        animation: fadeInUp 3s cubic-bezier(0.77, 0, 0.175, 1);
+        animation: scaleUp 3s cubic-bezier(0.19, 1, 0.22, 1);
         animation-fill-mode: forwards;
 
         @media screen and (min-width: 500px) {
@@ -84,8 +84,7 @@ canvas {
         line-height: 1.2;
         padding: 0 80px;
         opacity: 0;
-        animation: fadeInUpSmall 3s cubic-bezier(0.77, 0, 0.175, 1);
-        animation-delay: 0.4s;
+        animation: scaleUp 3s cubic-bezier(0.19, 1, 0.22, 1);
         animation-fill-mode: forwards;
 
         @media screen and (min-width: 400px) {
@@ -107,8 +106,8 @@ canvas {
         align-items: center;
         justify-content: center;
         opacity: 0;
-        animation: scaleUp 2s cubic-bezier(0.19, 1, 0.22, 1);
-        animation-delay: 1.5s;
+        animation: scaleUp 3s cubic-bezier(0.19, 1, 0.22, 1);
+        animation-delay: 0.5s;
         animation-fill-mode: forwards;
 
         .ready &:hover .progress-circle {
@@ -226,6 +225,7 @@ main {
     width: 190px;
     height: 22px;
     pointer-events: all;
+    transform: translateY(-60px);
 
     @media screen and (min-width: 750px) {
         width: 260px;
@@ -240,12 +240,10 @@ main {
     width: 86px;
     height: 12px;
     pointer-events: all;
-    opacity: 0;
-    visibility: hidden;
+    transform: translateY(-60px);
 
     @media screen and (min-width: 750px) {
         width: 96px;
-        top: 18px;
         right: 20px;
     }
 
@@ -281,6 +279,7 @@ main {
 
 .left {
     left: 10px;
+    transform: translateX(-40px);
 
     @media screen and (min-width: 750px) {
         left: 15px;
@@ -289,6 +288,7 @@ main {
 
 .right {
     right: 10px;
+    transform: translateX(40px);
 
     @media screen and (min-width: 750px) {
         right: 15px;
@@ -299,6 +299,7 @@ main {
     position: absolute;
     bottom: 15px;
     right: 15px;
+    transform: translateY(80px);
 
     .social-link {
         display: inline-block;
@@ -318,8 +319,7 @@ main {
     left: 15px;
     width: 42px;
     height: 42px;
-    visibility: hidden;
-    opacity: 0;
+    transform: translateY(80px);
     pointer-events: all;
 }
 
@@ -453,11 +453,25 @@ main {
 @keyframes scaleUp {
     0% {
         opacity: 0;
-        transform: scale(0);
+        transform: scale(0.4);
     }
 
     100% {
         opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleUpPara {
+    0% {
+        opacity: 0;
+        line-height: 1.7;
+        transform: scale(0.4);
+    }
+
+    100% {
+        opacity: 1;
+        line-height: 1.2;
         transform: scale(1);
     }
 }

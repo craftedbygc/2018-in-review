@@ -248,19 +248,27 @@ export default class Timeline {
         TweenMax.to( '.loading', 2, {
             y: '-100%',
             ease: 'Expo.easeInOut',
-            onComplete() {
+            onComplete: () => {
                 document.querySelector('.loading').style.display = 'none'
             }
         })
 
-        TweenMax.to( '.say-hello', 2, {
-            autoAlpha: 1,
+        TweenMax.to( [ '.say-hello', '.logo', '.social' ], 2, {
+            y: 0,
+            delay: 1,
+            ease: 'Expo.easeInOut'
+        })
+
+        TweenMax.to( [ '.left', '.right', ], 2, {
+            x: 0,
+            delay: 1,
             ease: 'Expo.easeInOut'
         })
 
         if( this.gyroEnabled ) {
             TweenMax.to( this.dom.compass, 2, {
-                autoAlpha: 1,
+                y: 0,
+                delay: 1,
                 ease: 'Expo.easeInOut'
             })
         }
