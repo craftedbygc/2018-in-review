@@ -269,7 +269,6 @@ main {
 .left, .right {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
     width: 10px;
 
     @media screen and (min-width: 750px) {
@@ -279,7 +278,7 @@ main {
 
 .left {
     left: 10px;
-    transform: translateX(-40px);
+    transform: translate(-40px, -50%);
 
     @media screen and (min-width: 750px) {
         left: 15px;
@@ -288,7 +287,7 @@ main {
 
 .right {
     right: 10px;
-    transform: translateX(40px);
+    transform: translate(40px, -50%);
 
     @media screen and (min-width: 750px) {
         right: 15px;

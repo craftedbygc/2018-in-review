@@ -79,7 +79,7 @@ export default class Item extends THREE.Group {
                 font: this.timeline.assets.fonts['Schnyder L'],
                 size: 18,
                 height: 0,
-                curveSegments: 6
+                curveSegments: 4
             } ).center()
 
             this.caption = new THREE.Mesh( captionGeom, this.timeline.captionTextMat )
@@ -87,44 +87,6 @@ export default class Item extends THREE.Group {
             this.caption.visible = false
 
             this.add( this.caption )
-
-        }
-
-        if( this.data.link !== '' ) {
-
-            this.linkGroup = new THREE.Group()
-
-            let linkGeom = new THREE.TextGeometry( 'SEE MORE', {
-                font: this.timeline.assets.fonts['SuisseIntl-Bold'],
-                size: 6,
-                height: 0,
-                curveSegments: 6
-            } ).center()
-
-            this.link = new THREE.Mesh( linkGeom, this.timeline.captionTextMat )
-
-            this.linkUnderline = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 45, 1 ),
-                this.timeline.linkUnderlineMat
-            )
-            this.linkUnderline.position.set( 0, -10, 0 )
-
-            // for raycasting so it doesn't just pick up on letters
-            this.linkBox = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry( 70, 20 ),
-                new THREE.MeshBasicMaterial( { alphaTest: 0, visible: false } )
-            )
-            this.linkBox.onClick = () => {
-                window.open( this.data.link, '_blank' )
-            }
-
-            this.linkGroup.position.set( 0, this.caption ? this.caption.position.y - 40  : -this.mesh.scale.y / 2 - 50, 0 )
-            this.linkGroup.visible = false
-
-            this.linkGroup.add( this.link )
-            this.linkGroup.add( this.linkUnderline )
-            this.linkGroup.add( this.linkBox )
-            this.add( this.linkGroup )
 
         }
 

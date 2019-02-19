@@ -29,7 +29,7 @@ export default class Section extends THREE.Group {
         } ).center()
 
         let monthName = new THREE.Mesh( textGeom, this.timeline.textMat )
-        monthName.position.set( 0, 0, 0 )
+        monthName.position.set( this.timeline.months[ this.section ].offset || 0, 0, 0 )
         this.add( monthName )
 
     }

@@ -16,7 +16,8 @@ const months = {
         name: 'FEBRUARY',
         textColor: 0xFD6F53,
         bgColor: 0x012534,
-        tintColor: 0x012534
+        tintColor: 0x012534,
+        offset: -80
     },
     mar: {
         name: 'MARCH',
@@ -29,7 +30,8 @@ const months = {
         name: 'APRIL',
         textColor: 0xF7A910,
         bgColor: 0x5198A8,
-        tintColor: 0x3c7484
+        tintColor: 0x3c7484,
+        offset: 35
     },
     may: {
         name: 'MAY',

@@ -229,6 +229,34 @@ export default class Timeline {
         this.contactSection.visible = false
         this.scene.add( this.contactSection )
 
+        this.linkGroup = new THREE.Group()
+
+        let linkGeom = new THREE.TextGeometry( 'SEE MORE', {
+            font: this.assets.fonts['SuisseIntl-Bold'],
+            size: 6,
+            height: 0,
+            curveSegments: 4
+        } ).center()
+
+        this.link = new THREE.Mesh( linkGeom, this.captionTextMat )
+
+        this.linkUnderline = new THREE.Mesh(
+            new THREE.PlaneBufferGeometry( 45, 1 ),
+            this.linkUnderlineMat
+        )
+        this.linkUnderline.position.set( 0, -10, 0 )
+
+        // for raycasting so it doesn't just pick up on letters
+        this.linkBox = new THREE.Mesh(
+            new THREE.PlaneBufferGeometry( 70, 20 ),
+            new THREE.MeshBasicMaterial( { alphaTest: 0, visible: false } )
+        )
+        this.linkGroup.visible = false
+
+        this.linkGroup.add( this.link )
+        this.linkGroup.add( this.linkUnderline )
+        this.linkGroup.add( this.linkBox )
+        this.scene.add( this.linkGroup )
 
         console.log('RENDER')
         this.animate()
@@ -357,16 +385,22 @@ export default class Timeline {
 
         }
 
-        if( item.linkGroup ) {
+        if( item.data.link ) {
 
-            TweenMax.fromTo( item.linkGroup.position, 2, {
-                z: -100
+            this.linkBox.onClick = () => {
+                window.open( item.data.link, '_blank' )
+            }
+    
+            this.linkGroup.position.y = item.caption ? item.caption.position.y - 40  : -item.mesh.scale.y / 2 - 50
+
+            TweenMax.fromTo( this.linkGroup.position, 2, {
+                z: 0
             }, {
-                z: 0,
+                z: this.c.globalScale < 0.5 ? 450 : 300,
                 delay: 0.3,
                 ease: 'Expo.easeInOut',
                 onStart: () => {
-                    item.linkGroup.visible = true
+                    this.linkGroup.visible = true
                 }
             })
 
@@ -443,14 +477,14 @@ export default class Timeline {
                 }
             })
 
-            TweenMax.to( [ this.captionTextMat, this.linkUnderlineMat ], 1, {
+            TweenMax.to( [ this.captionTextMat, this.linkUnderlineMat ], 0.4, {
                 opacity: 0, 
                 ease: 'Expo.easeInOut',
                 onComplete: () => {
                     this.captionTextMat.visible = false
                     this.linkUnderlineMat.visible = false
                     if( this.itemOpen.caption ) this.itemOpen.caption.visible = false
-                    if( this.itemOpen.linkGroup ) this.itemOpen.linkGroup.visible = false
+                    this.linkGroup.visible = false
                 }
             })
 
@@ -660,9 +694,9 @@ export default class Timeline {
         }
 
         // raycast for item link
-        if( !this.contactSection.isOpen && this.itemOpen && this.itemOpen.linkBox ) {
+        if( !this.contactSection.isOpen && this.itemOpen && this.itemOpen.data.link ) {
 
-            this.linkIntersect = this.raycaster.intersectObject( this.itemOpen.linkBox )
+            this.linkIntersect = this.raycaster.intersectObject( this.linkBox )
             
             if ( this.linkIntersect.length > 0 ) {
                 this.dom.cursor.dataset.cursor = 'eye'
@@ -884,8 +918,6 @@ export default class Timeline {
         if( this.hoveringWhoosh ) {
             this.sections['end'].circle.rotation.z += 0.005
         }
-
-        if( this.controls ) this.controls.update()
 
         this.renderer.render(this.scene, this.camera)
 
