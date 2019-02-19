@@ -67,7 +67,7 @@ export default class Timeline {
         this.months = months
         this.monthPositions = {}
         this.remainingMonths = []
-        this.enableLoader = false
+        this.enableLoader = true
         this.gyroEnabled = false
         this.orientation = {
             gamma: 0,
