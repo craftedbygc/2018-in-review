@@ -625,13 +625,7 @@ export default class Timeline {
         // raycast for items when in timeline mode
         if( !this.contactSection.isOpen && !this.itemOpen && !this.c.holdingMouseDown ) {
 
-            this.intersects = this.raycaster.intersectObjects( this.itemMeshes )
-
-            if ( this.intersects.length > 0 ) {
-                this.dom.cursor.dataset.cursor = 'eye'
-            } else {
-
-                if ( this.dom.cursor.dataset.cursor !== 'pointer' ) this.dom.cursor.dataset.cursor = 'pointer'
+            if( this.activeMonth === 'end' ) {
 
                 this.whooshIntersects = this.raycaster.intersectObjects( this.sections['end'].whoosh.children )
 
@@ -651,9 +645,17 @@ export default class Timeline {
 
                 }
 
-            }
+            } else {
 
-            return
+                this.intersects = this.raycaster.intersectObjects( this.itemMeshes )
+
+                if ( this.intersects.length > 0 ) {
+                    this.dom.cursor.dataset.cursor = 'eye'
+                } else if ( this.dom.cursor.dataset.cursor !== 'pointer' ) {
+                    this.dom.cursor.dataset.cursor = 'pointer'
+                }
+
+            }
 
         }
 
@@ -668,8 +670,6 @@ export default class Timeline {
                 this.dom.cursor.dataset.cursor = 'cross'
             }
 
-            return
-
         }
 
         if( this.contactSection.isOpen ) {
@@ -681,8 +681,6 @@ export default class Timeline {
             } else if ( this.dom.cursor.dataset.cursor !== 'cross' ) {
                 this.dom.cursor.dataset.cursor = 'cross'
             }
-
-            return
 
         }
 
@@ -696,11 +694,13 @@ export default class Timeline {
             ease: 'Power4.easeOut',
         })
 
-        TweenMax.to( this.sections[ 'end' ].arrow.rotation, 4, {
-            x: -1.5 + this.mousePerspective.y * 0.2,
-            y: this.mousePerspective.x * 0.8,
-            ease: 'Power4.easeOut',
-        })
+        if( this.activeMonth === 'end' ) {
+            TweenMax.to( this.sections[ 'end' ].arrow.rotation, 4, {
+                x: -1.5 + this.mousePerspective.y * 0.2,
+                y: this.mousePerspective.x * 0.8,
+                ease: 'Power4.easeOut',
+            })
+        }
 
         this.updatingPerspective = false
 
