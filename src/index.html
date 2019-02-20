@@ -49,6 +49,8 @@
 		gtag('js', new Date());
 
 		gtag('config', 'UA-40525870-6');
+
+		var startTime = new Date();
 	</script>
 
 	<% for (var css in htmlWebpackPlugin.files.css) { %>
@@ -192,6 +194,20 @@
 	<% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
 	<script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
 	<% } %>
+
+	<script>
+		document.querySelector('.enter').addEventListener( 'click', function() {
+			var endTime = new Date();
+			var timeDiff = endTime - startTime;
+			timeDiff /= 1000;
+			var seconds = Math.round(timeDiff);
+
+			gtag('event', 'Pressed Enter', {
+				'event_label': 'Seconds Waited',
+				'value': seconds
+			});
+		});
+	</script>
 
 </body>
 

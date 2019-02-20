@@ -4,6 +4,7 @@ import TinyGesture from 'tinygesture'
 import AssetLoader from '../utils/AssetLoader'
 import Item from './Item'
 import Section from './Section'
+import Konami from 'konami'
 
 import months from '../config/months'
 import assetOrder from '../config/assetOrder'
@@ -63,6 +64,7 @@ export default class Timeline {
         this.assetList.end = ['wave.mp4']
         this.assetData = assetData
 
+        this.timelineEntered = false
         this.activeMonth = 'intro'
         this.months = months
         this.monthPositions = {}
@@ -73,6 +75,10 @@ export default class Timeline {
             gamma: 0,
             beta: 0
         }
+
+        this.easterEgg = this.easterEgg.bind( this )
+        new Konami( this.easterEgg )
+        this.easterEggEnabled = false
 
         if( !this.enableLoader ) document.querySelector('.loading').style.display = 'none'
        
@@ -278,6 +284,7 @@ export default class Timeline {
             ease: 'Expo.easeInOut',
             onComplete: () => {
                 document.querySelector('.loading').style.display = 'none'
+                this.timelineEntered = true
             }
         })
 
@@ -574,6 +581,8 @@ export default class Timeline {
         e.preventDefault()
         e.stopPropagation()
 
+        if( this.easterEggEnabled ) return
+
         this.c.holdingMouseDown = true
 
         if( this.contactSection.isOpen ) {
@@ -652,7 +661,7 @@ export default class Timeline {
             })
         }
 
-        if( !this.renderer || e.target !== this.renderer.domElement ) return
+        if( !this.renderer || e.target !== this.renderer.domElement || this.easterEggEnabled ) return
 
         this.mouse.x = ( e.clientX / this.renderer.domElement.clientWidth ) * 2 - 1
         this.mouse.y = - ( e.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
@@ -782,14 +791,7 @@ export default class Timeline {
             let tintColor = new THREE.Color( this.months[ this.activeMonth ].tintColor )
             let interfaceColor
 
-            TweenMax.to( this.scene.fog.color, 1, {
-                r: bgColor.r,
-                g: bgColor.g,
-                b: bgColor.b,
-                ease: 'Power4.easeOut'
-            })
-
-            TweenMax.to( this.scene.background, 1, {
+            TweenMax.to( [ this.scene.fog.color, this.scene.background ], 1, {
                 r: bgColor.r,
                 g: bgColor.g,
                 b: bgColor.b,
@@ -912,7 +914,7 @@ export default class Timeline {
             this.timeline.position.z += delta
 
             if( !this.c.isMobile && Math.abs( delta ) < 8 ) this.handleVideos()
-            this.changeColours()
+            if( !this.easterEggEnabled ) this.changeColours()
 
             if( this.timeline.position.z < 700 ) {
                 TweenMax.set( this.sections['intro'].circle.rotation, {
@@ -1031,6 +1033,177 @@ export default class Timeline {
             e.preventDefault();
           }
         });
+    }
+
+    easterEgg() {
+
+        if( !this.timelineEntered ) return
+
+        console.log('CHEATER!');
+
+        this.easterEggEnabled = true
+        
+        TweenMax.to( this.timeline.rotation, 2, {
+            z: 360 * Math.PI / 180,
+            ease: 'Power4.easeInOut'
+        })
+
+        this.discoColours()
+
+        for( let i = 0; i < this.itemMeshes.length - 1; i++ ) {
+
+            TweenMax.to( this.itemMeshes[i].rotation, 2, {
+                z: 360 * Math.PI / 180,
+                ease: 'Linear.easeNone',
+                repeat: -1
+            })
+
+        }
+
+        TweenMax.to( this.sections['intro'].children[2].rotation, 2, {
+            z: 360 * Math.PI / 180,
+            ease: 'Linear.easeNone',
+            repeat: -1
+        })
+
+        for( let id in this.sections ) {
+
+            TweenMax.to( this.sections[id].children[0].position, 1, {
+                z: 150,
+                repeat: -1,
+                yoyo: true,
+                ease: 'Linear.easeNone'
+            })
+
+        }
+
+    }
+
+    discoColours() {
+
+        // rgb(15,252,75)
+        // rgb(15,192,252)
+        // rgb(252,15,192)
+        // rgb(252,75,15)
+
+        for( let id in this.items ) {
+
+            TweenMax.to( this.items[id].uniforms.gradientColor.value, 1, {
+                r: 0.9882352941,
+                g: 0.2941176471,
+                b: 0.05882352941,
+                ease: 'Power4.easeOut',
+                onComplete: () => {
+
+                    TweenMax.to( this.items[id].uniforms.gradientColor.value, 1, {
+                        r: 0.9882352941,
+                        g: 0.05882352941,
+                        b: 0.7529411765,
+                        ease: 'Power4.easeOut',
+                        onComplete: () => {
+            
+                            TweenMax.to( this.items[id].uniforms.gradientColor.value, 1, {
+                                r: 0.05882352941,
+                                g: 0.7529411765,
+                                b: 0.9882352941,
+                                ease: 'Power4.easeOut',
+                                onComplete: () => {
+                                    
+                                    TweenMax.to( this.items[id].uniforms.gradientColor.value, 1, {
+                                        r: 0.05882352941,
+                                        g: 0.9882352941,
+                                        b: 0.2941176471,
+                                        ease: 'Power4.easeOut'
+                                    })
+    
+                                }
+                            })
+            
+                        }
+                    })
+    
+                }
+            })
+
+        }
+
+        TweenMax.to( this.textMat.color, 1, {
+            r: 0.9882352941,
+            g: 0.2941176471,
+            b: 0.05882352941,
+            ease: 'Power4.easeOut',
+            onComplete: () => {
+
+                TweenMax.to( this.textMat.color, 1, {
+                    r: 0.9882352941,
+                    g: 0.05882352941,
+                    b: 0.7529411765,
+                    ease: 'Power4.easeOut',
+                    onComplete: () => {
+        
+                        TweenMax.to( this.textMat.color, 1, {
+                            r: 0.05882352941,
+                            g: 0.7529411765,
+                            b: 0.9882352941,
+                            ease: 'Power4.easeOut',
+                            onComplete: () => {
+                                
+                                TweenMax.to( this.textMat.color, 1, {
+                                    r: 0.05882352941,
+                                    g: 0.9882352941,
+                                    b: 0.2941176471,
+                                    ease: 'Power4.easeOut',
+                                })
+
+                            }
+                        })
+        
+                    }
+                })
+
+            }
+        })
+
+        TweenMax.to( [ this.scene.fog.color, this.scene.background ], 1, {
+            r: 0.05882352941,
+            g: 0.9882352941,
+            b: 0.2941176471,
+            ease: 'Power4.easeOut',
+            onComplete: () => {
+
+                TweenMax.to( [ this.scene.fog.color, this.scene.background ], 1, {
+                    r: 0.05882352941,
+                    g: 0.7529411765,
+                    b: 0.9882352941,
+                    ease: 'Power4.easeOut',
+                    onComplete: () => {
+        
+                        TweenMax.to( [ this.scene.fog.color, this.scene.background ], 1, {
+                            r: 0.9882352941,
+                            g: 0.05882352941,
+                            b: 0.7529411765,
+                            ease: 'Power4.easeOut',
+                            onComplete: () => {
+                                
+                                TweenMax.to( [ this.scene.fog.color, this.scene.background ], 1, {
+                                    r: 0.9882352941,
+                                    g: 0.2941176471,
+                                    b: 0.05882352941,
+                                    ease: 'Power4.easeOut',
+                                    onComplete: () => {
+                                        this.discoColours()
+                                    }
+                                })
+
+                            }
+                        })
+        
+                    }
+                })
+
+            }
+        })
+
     }
 
 }

@@ -49,10 +49,12 @@
 		gtag('js', new Date());
 
 		gtag('config', 'UA-40525870-6');
+
+		var startTime = new Date();
 	</script>
 
 	
-	<link href="css/main.02f859aceed75c131b57.css" rel="stylesheet">
+	<link href="css/main.39ba38aa4e634e08c989.css" rel="stylesheet">
 	
 
 </head>
@@ -190,14 +192,28 @@
 	</div>
 
 	
-	<script src="js/runtime.02f859aceed75c131b57.js"></script>
+	<script src="js/runtime.39ba38aa4e634e08c989.js"></script>
 	
-	<script src="js/npm.three.02f859aceed75c131b57.js"></script>
+	<script src="js/npm.three.39ba38aa4e634e08c989.js"></script>
 	
-	<script src="js/npm.gsap.02f859aceed75c131b57.js"></script>
+	<script src="js/npm.gsap.39ba38aa4e634e08c989.js"></script>
 	
-	<script src="js/main.02f859aceed75c131b57.js"></script>
+	<script src="js/main.39ba38aa4e634e08c989.js"></script>
 	
+
+	<script>
+		document.querySelector('.enter').addEventListener( 'click', function() {
+			var endTime = new Date();
+			var timeDiff = endTime - startTime;
+			timeDiff /= 1000;
+			var seconds = Math.round(timeDiff);
+
+			gtag('event', 'Pressed Enter', {
+				'event_label': 'Seconds Waited',
+				'value': seconds
+			});
+		});
+	</script>
 
 </body>
 
