@@ -608,7 +608,10 @@ export default class Timeline {
 
                 TweenMax.to( this.c, 4, {
                     scrollPos: 0,
-                    ease: 'Expo.easeInOut'
+                    ease: 'Expo.easeInOut',
+                    onUpdate: () => {
+                        this.c.scrolling = true
+                    }
                 })
 
             } else {
@@ -661,6 +664,7 @@ export default class Timeline {
 
             if( this.activeMonth === 'end' ) {
 
+                this.intersects = []
                 this.whooshIntersects = this.raycaster.intersectObjects( this.sections['end'].whoosh.children )
 
                 if ( this.whooshIntersects.length > 0 ) {
@@ -669,14 +673,10 @@ export default class Timeline {
                     this.hoveringWhoosh = true
                     this.sections['end'].arrowTween.timeScale(2)
 
-                } else {
-
-                    if ( this.hoveringWhoosh ) {
-                        this.dom.cursor.dataset.cursor = 'pointer'
-                        this.hoveringWhoosh = false
-                        this.sections['end'].arrowTween.timeScale(1)
-                    }
-
+                } else if ( this.hoveringWhoosh ) {
+                    this.dom.cursor.dataset.cursor = 'pointer'
+                    this.hoveringWhoosh = false
+                    this.sections['end'].arrowTween.timeScale(1)
                 }
 
             } else {
@@ -849,6 +849,19 @@ export default class Timeline {
 
             document.querySelector("meta[name=theme-color]").setAttribute("content", '#' + bgColor.getHexString() )
 
+            if( this.activeMonth === 'end' && !this.sections['end'].arrowTween ) {
+
+                this.sections['end'].arrowTween = TweenMax.to( this.sections['end'].arrow.position, 1, {
+                    z: 0,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'Power2.easeInOut'
+                })
+
+            } else if( this.sections['end'].arrowTween ) {
+                this.sections['end'].arrowTween = false
+            }
+
         }
 
     }
@@ -898,7 +911,7 @@ export default class Timeline {
             let delta = ( this.c.scrollPos - this.timeline.position.z ) / 12
             this.timeline.position.z += delta
 
-            if( !this.c.isMobile && Math.abs( delta ) < 10 ) this.handleVideos()
+            if( !this.c.isMobile && Math.abs( delta ) < 8 ) this.handleVideos()
             this.changeColours()
 
             if( this.timeline.position.z < 700 ) {
